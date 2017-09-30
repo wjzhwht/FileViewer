@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">工艺切片文件查看器</string>
+    <string name="title_activity_initialization">设置端口</string>
 
 </resources>

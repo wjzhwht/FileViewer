@@ -1,16 +1,20 @@
-package com.xerofox.fileviewer;
+package com.xerofox.fileviewer.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.MotionEvent;
 import android.view.View;
+
+import com.xerofox.fileviewer.R;
+import com.xerofox.fileviewer.helper.SettingHelper;
 
 public class SplashActivity extends AppCompatActivity {
     private static final int UI_ANIMATION_DELAY = 300;
-    private final Handler mHideHandler = new Handler();
+    private static final int START_DELAY = 2000;
+    private final Handler mHandler = new Handler();
     private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -25,13 +29,14 @@ public class SplashActivity extends AppCompatActivity {
         }
     };
     private final Runnable mShowPart2Runnable = () -> {
-        // Delayed display of UI elements
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.show();
         }
     };
     private final Runnable mHideRunnable = () -> hide();
+
+    private final Runnable mStartRunnable = () -> start();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,22 +49,33 @@ public class SplashActivity extends AppCompatActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         delayedHide(100);
+        delayedStart();
     }
 
     private void hide() {
-        // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
-
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        mHideHandler.removeCallbacks(mShowPart2Runnable);
-        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
+        mHandler.removeCallbacks(mShowPart2Runnable);
+        mHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
     }
 
     private void delayedHide(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
+        mHandler.removeCallbacks(mHideRunnable);
+        mHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+    private void delayedStart() {
+        mHandler.removeCallbacks(mStartRunnable);
+        mHandler.postDelayed(mStartRunnable, START_DELAY);
+    }
+
+    private void start() {
+        if (!SettingHelper.isServerPortSetted()) {
+            Intent intent = new Intent(this, InitializationActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
     }
 }
