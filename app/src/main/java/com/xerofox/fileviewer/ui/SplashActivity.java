@@ -10,6 +10,7 @@ import android.view.View;
 
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.helper.SettingHelper;
+import com.xerofox.fileviewer.ui.init.InitializationActivity;
 
 public class SplashActivity extends AppCompatActivity {
     private static final int UI_ANIMATION_DELAY = 300;
