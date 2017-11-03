@@ -3,18 +3,6 @@ package com.xerofox.fileviewer.util;
 import java.io.*;
 import java.util.*;
 
-/**
- * <p>Title: </p>
- * <p>
- * <p>Description: </p>
- * <p>
- * <p>Copyright: Copyright (c) 2006</p>
- * <p>
- * <p>Company: </p>
- *
- * @author not attributable
- * @version 1.0
- */
 public class ByteBufferReader {
     private byte[] buf1 = new byte[1];
     private byte[] buf2 = new byte[2];
@@ -166,7 +154,6 @@ public class ByteBufferReader {
             second = readByte();
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.YEAR, year);
-            //Java�·ݴ�0��ʼ,C#��1��ʼ��Ϊ��֤��C#һ�� �����·�ʱ��1����ȡʱ��1��
             calendar.set(Calendar.MONTH, month - 1);
             calendar.set(Calendar.DAY_OF_MONTH, day);
             calendar.set(Calendar.HOUR_OF_DAY, hour);
