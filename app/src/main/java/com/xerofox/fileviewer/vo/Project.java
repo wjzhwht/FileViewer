@@ -7,6 +7,12 @@ public class Project {
     private String name;
     private List<TowerType> towerTypeArr;
 
+    public Project(int id, String name, List<TowerType> towerTypeArr) {
+        this.id = id;
+        this.name = name;
+        this.towerTypeArr = towerTypeArr;
+    }
+
     public int getId() {
         return id;
     }

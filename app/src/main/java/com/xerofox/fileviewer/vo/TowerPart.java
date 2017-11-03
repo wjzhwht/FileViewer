@@ -1,85 +1,135 @@
 package com.xerofox.fileviewer.vo;
 
-public class TowerPart {
-    /**
-     * 构件类型(角钢、钢板、钢管、槽钢、扁铁等)
-     */
-    private byte partType;
+import com.xerofox.fileviewer.util.ByteBufferReader;
+import com.xerofox.fileviewer.util.ByteBufferWriter;
 
-    /**
-     * 构件类型名称
-     */
-    private String materialName;
+public class TowerPart {
+    private int id;
+
+    private int segI;
+
+    private String segPrefix;
+
+    private String segSuffix;
 
     /**
      * 段号
      */
     private String segNo;
 
-    /**
-     * 件号
-     */
-    private String partLabel;
-
-    /**
-     * 材质
-     */
-    private String steelMaterial;
+    private String materialMark;
 
     /**
      * 宽度
      */
-    private int width;
+    private double wide;
 
     /**
      * 厚度
      */
-    private int thick;
+    private double thick;
 
     /**
      * 长度
      */
-    private int len;
+    private double length;
 
     /**
-     * 规格
+     *
      */
-    private String spec;
+    private double wingAngle;
 
     /**
-     * 工艺信息
+     *
      */
-    private String processStr;
+    private double realWeight;
 
     /**
-     * 关联文件数组
+     *
      */
-    private byte[] fileArr;
+    private int num;
 
     /**
-     * 工程名
+     *
      */
-    private String prjName;
+    private String notes;
 
     /**
-     * 塔型名
+     *
      */
-    private String towerTypeName;
+    private int fileCount;
 
-    public byte getPartType() {
-        return partType;
+    private PartFile partFile;
+
+    public TowerPart() {
     }
 
-    public void setPartType(byte partType) {
-        this.partType = partType;
+    public TowerPart(ByteBufferReader br) {
+        this.id = br.readInt();
+        this.segI = br.readInt();
+        this.segPrefix = br.readString();
+        this.segSuffix = br.readString();
+        this.segNo = br.readString();
+        this.materialMark = br.readString();
+        this.wide = br.readDouble();
+        this.thick = br.readDouble();
+        this.length = br.readDouble();
+        this.wingAngle = br.readDouble();
+        this.realWeight = br.readDouble();
+        this.num = br.readInt();
+        this.notes = br.readString();
+        this.fileCount = br.readInt();
+        this.partFile = new PartFile(br);
     }
 
-    public String getMaterialName() {
-        return materialName;
+    public void saveByteArray(ByteBufferWriter br) {
+        br.write(this.id);
+        br.write(this.segI);
+        br.write(this.segPrefix);
+        br.write(this.segSuffix);
+        br.write(this.segNo);
+        br.write(this.materialMark);
+        br.write(this.wide);
+        br.write(this.thick);
+        br.write(this.length);
+        br.write(this.wingAngle);
+        br.write(this.realWeight);
+        br.write(this.num);
+        br.write(this.notes);
+        br.write(this.fileCount);
+        this.partFile.saveByteArray(br);
     }
 
-    public void setMaterialName(String materialName) {
-        this.materialName = materialName;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getSegI() {
+        return segI;
+    }
+
+    public void setSegI(int segI) {
+        this.segI = segI;
+    }
+
+    public String getSegPrefix() {
+        return segPrefix;
+    }
+
+    public void setSegPrefix(String segPrefix) {
+        this.segPrefix = segPrefix;
+    }
+
+    public String getSegSuffix() {
+        return segSuffix;
+    }
+
+    public void setSegSuffix(String segSuffix) {
+        this.segSuffix = segSuffix;
     }
 
     public String getSegNo() {
@@ -90,83 +140,84 @@ public class TowerPart {
         this.segNo = segNo;
     }
 
-    public String getPartLabel() {
-        return partLabel;
+    public String getMaterialMark() {
+        return materialMark;
     }
 
-    public void setPartLabel(String partLabel) {
-        this.partLabel = partLabel;
+    public void setMaterialMark(String materialMark) {
+        this.materialMark = materialMark;
     }
 
-    public String getSteelMaterial() {
-        return steelMaterial;
+    public double getWide() {
+        return wide;
     }
 
-    public void setSteelMaterial(String steelMaterial) {
-        this.steelMaterial = steelMaterial;
+    public void setWide(double wide) {
+        this.wide = wide;
     }
 
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getThick() {
+    public double getThick() {
         return thick;
     }
 
-    public void setThick(int thick) {
+    public void setThick(double thick) {
         this.thick = thick;
     }
 
-    public int getLen() {
-        return len;
+    public double getLength() {
+        return length;
     }
 
-    public void setLen(int len) {
-        this.len = len;
+    public void setLength(double length) {
+        this.length = length;
     }
 
-    public String getSpec() {
-        return spec;
+    public double getWingAngle() {
+        return wingAngle;
     }
 
-    public void setSpec(String spec) {
-        this.spec = spec;
+    public void setWingAngle(double wingAngle) {
+        this.wingAngle = wingAngle;
     }
 
-    public String getProcessStr() {
-        return processStr;
+    public double getRealWeight() {
+        return realWeight;
     }
 
-    public void setProcessStr(String processStr) {
-        this.processStr = processStr;
+    public void setRealWeight(double realWeight) {
+        this.realWeight = realWeight;
     }
 
-    public byte[] getFileArr() {
-        return fileArr;
+    public int getNum() {
+        return num;
     }
 
-    public void setFileArr(byte[] fileArr) {
-        this.fileArr = fileArr;
+    public void setNum(int num) {
+        this.num = num;
     }
 
-    public String getPrjName() {
-        return prjName;
+    public String getNotes() {
+        return notes;
     }
 
-    public void setPrjName(String prjName) {
-        this.prjName = prjName;
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
-    public String getTowerTypeName() {
-        return towerTypeName;
+    public int getFileCount() {
+        return fileCount;
     }
 
-    public void setTowerTypeName(String towerTypeName) {
-        this.towerTypeName = towerTypeName;
+    public void setFileCount(int fileCount) {
+        this.fileCount = fileCount;
     }
+
+    public PartFile getPartFile() {
+        return partFile;
+    }
+
+    public void setPartFile(PartFile partFile) {
+        this.partFile = partFile;
+    }
+
 }

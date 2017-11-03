@@ -52,7 +52,7 @@ public class TowerTypeListAdapter extends DataBoundListAdapter<TowerType, TowerT
 
     @Override
     protected boolean areContentsTheSame(TowerType oldItem, TowerType newItem) {
-        return Objects.equals(oldItem.getAttachFileFlag(), newItem.getAttachFileFlag()) &&
+        return Objects.equals(oldItem.getName(), newItem.getName()) &&
                 oldItem.getPartArr() == newItem.getPartArr();
     }
 }

@@ -52,6 +52,6 @@ public class TowerPartAdapter
     @Override
     protected boolean areContentsTheSame(TowerPart oldItem, TowerPart newItem) {
         return Objects.equals(oldItem.getSegNo(), newItem.getSegNo())
-                && oldItem.getFileArr() == newItem.getFileArr();
+                && oldItem.getPartFile() == newItem.getPartFile();
     }
 }
