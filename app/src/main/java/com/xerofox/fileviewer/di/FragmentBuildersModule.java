@@ -1,6 +1,6 @@
 package com.xerofox.fileviewer.di;
 
-import com.xerofox.fileviewer.ui.repo.TowerPartFragment;
+import com.xerofox.fileviewer.ui.tower.TowerPartFragment;
 import com.xerofox.fileviewer.ui.search.SearchFragment;
 
 import dagger.Module;

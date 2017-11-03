@@ -3,7 +3,7 @@ package com.xerofox.fileviewer.di;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
-import com.xerofox.fileviewer.ui.repo.TowerPartViewModel;
+import com.xerofox.fileviewer.ui.tower.TowerPartViewModel;
 import com.xerofox.fileviewer.ui.search.SearchViewModel;
 import com.xerofox.fileviewer.viewmodel.XeroFoxViewModelFactory;
 

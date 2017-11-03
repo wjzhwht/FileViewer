@@ -4,7 +4,7 @@ import android.support.v4.app.FragmentManager;
 
 import com.xerofox.fileviewer.MainActivity;
 import com.xerofox.fileviewer.R;
-import com.xerofox.fileviewer.ui.repo.TowerPartFragment;
+import com.xerofox.fileviewer.ui.tower.TowerPartFragment;
 import com.xerofox.fileviewer.ui.search.SearchFragment;
 
 import javax.inject.Inject;
