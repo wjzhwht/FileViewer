@@ -16,7 +16,12 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:paddingBottom="16dp"
+            android:paddingEnd="16dp"
+            android:paddingLeft="32dp"
+            android:paddingRight="16dp"
+            android:paddingStart="32dp"
+            android:paddingTop="16dp"
             android:text="@{project.name}"
             android:textColor="@color/black"
             android:textSize="@dimen/normal_text_size" />

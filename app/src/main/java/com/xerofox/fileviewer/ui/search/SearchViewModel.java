@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.xerofox.fileviewer.repository.TowerRepository;
@@ -27,15 +28,14 @@ public class SearchViewModel extends ViewModel {
 
     @Inject
     SearchViewModel(TowerRepository repository) {
-        projects = repository.loadProject();
 
-//        projects = Transformations.switchMap(query,search ->{
-//            if (search == null || TextUtils.isEmpty(search.tower)) {
-//                return AbsentLiveData.create();
-//            } else {
-//                return repository.searchProject(search.project);
-//            }
-//        });
+        projects = Transformations.switchMap(query, search -> {
+            if (search == null || TextUtils.isEmpty(search.project)) {
+                return repository.loadProject();
+            } else {
+                return repository.searchProject(search.project);
+            }
+        });
 
         towerTypes = Transformations.switchMap(query, search -> {
             if (search == null || TextUtils.isEmpty(search.tower)) {
@@ -46,10 +46,12 @@ public class SearchViewModel extends ViewModel {
         });
     }
 
+    @NonNull
     LiveData<Resource<List<Project>>> getProjects() {
         return projects;
     }
 
+    @NonNull
     LiveData<Resource<List<TowerType>>> getTowerTypes() {
         return towerTypes;
     }

@@ -47,9 +47,11 @@ public class KeyboardUtil {
      * @param view 视图
      */
     public static void hideSoftInput(final View view) {
-        InputMethodManager imm = (InputMethodManager) Util.getApp().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) return;
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (view != null){
+            InputMethodManager imm = (InputMethodManager) Util.getApp().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm == null) return;
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     /**

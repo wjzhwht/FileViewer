@@ -20,6 +20,7 @@ import com.xerofox.fileviewer.di.Injectable;
 import com.xerofox.fileviewer.ui.common.NavigationController;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 import com.xerofox.fileviewer.util.KeyboardUtil;
+import com.xerofox.fileviewer.util.ToastUtils;
 
 import javax.inject.Inject;
 
@@ -64,9 +65,13 @@ public class SearchFragment extends Fragment implements Injectable {
 
         ProjectAdapter pAdapter = new ProjectAdapter(dataBindingComponent);
         binding.get().projectList.setAdapter(pAdapter);
-        binding.get().projectList.setOnChildClickListener((expandableListView, view, i, i1, l) -> false);
+        binding.get().projectList.setOnChildClickListener((expandableListView, view, i, i1, l) -> {
+            ToastUtils.showToast("hahahaha");
+            return true;
+        });
         projectAdapter = new AutoClearedValue<>(this, pAdapter);
 
+        doSearch(null);
         initSearchInputListener();
     }
 
@@ -113,15 +118,15 @@ public class SearchFragment extends Fragment implements Injectable {
 
     private void initRecyclerView() {
         searchViewModel.getProjects().observe(this, result -> {
-            binding.get().setProjectCount( result == null || result.data == null ? 0 : result.data.size());
-            projectAdapter.get().setProjects(result.data);
+            binding.get().setProjectCount(result == null || result.data == null ? 0 : result.data.size());
+            projectAdapter.get().setProjects(result == null ? null : result.data);
             projectAdapter.get().notifyDataSetChanged();
             binding.get().executePendingBindings();
         });
 
         searchViewModel.getTowerTypes().observe(this, result -> {
-            binding.get().setTowerCount(result.data == null ? 0 : result.data.size());
-            adapter.get().replace(result.data);
+            binding.get().setTowerCount(result == null || result.data == null ? 0 : result.data.size());
+            adapter.get().replace(result == null ? null : result.data);
             binding.get().executePendingBindings();
         });
 
