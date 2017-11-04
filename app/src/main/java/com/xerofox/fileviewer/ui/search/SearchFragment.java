@@ -108,14 +108,20 @@ public class SearchFragment extends Fragment implements Injectable {
         String project = binding.get().project.getText().toString().trim();
         String tower = binding.get().towerType.getText().toString().trim();
         KeyboardUtil.hideSoftInput(v);
-        searchViewModel.setProject(project);
-        searchViewModel.setTowerType(tower);
+        searchViewModel.setSearch(project, tower);
     }
 
     private void initRecyclerView() {
+        searchViewModel.getProjects().observe(this, result -> {
+            binding.get().setProjectCount( result == null || result.data == null ? 0 : result.data.size());
+            projectAdapter.get().setProjects(result.data);
+            projectAdapter.get().notifyDataSetChanged();
+            binding.get().executePendingBindings();
+        });
+
         searchViewModel.getTowerTypes().observe(this, result -> {
-            binding.get().setResultCount(result == null ? 0 : result.size());
-            adapter.get().replace(result);
+            binding.get().setTowerCount(result.data == null ? 0 : result.data.size());
+            adapter.get().replace(result.data);
             binding.get().executePendingBindings();
         });
 

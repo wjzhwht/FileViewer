@@ -25,6 +25,7 @@ public class TowerRepository {
     private final LocalFileHelper fileHelper;
     private final XeroApi api;
     private LiveData<Resource<List<Project>>> projects;
+    private LiveData<Resource<List<Project>>> allProjects;
 
     @Inject
     public TowerRepository(AppExecutors appExecutors, LocalFileHelper fileHelper, XeroApi api) {
@@ -34,12 +35,12 @@ public class TowerRepository {
     }
 
     public LiveData<Resource<List<Project>>> loadProject() {
-        if (projects == null){
-            projects = new NetworkBoundResource<List<Project>, List<Project>>(appExecutors) {
+        if (allProjects == null) {
+            allProjects = new NetworkBoundResource<List<Project>, List<Project>>(appExecutors) {
 
                 @Override
                 protected void saveCallResult(@NonNull List<Project> item) {
-
+                    fileHelper.saveProjects(item);
                 }
 
                 @Override
@@ -60,18 +61,21 @@ public class TowerRepository {
                 }
             }.asLiveData();
         }
-        return projects;
+        return allProjects;
     }
 
     public LiveData<Resource<List<Project>>> getProjects() {
+        if (projects == null) {
+            loadProject();
+        }
         return projects;
     }
 
-    public LiveData<List<Project>> searchProject(String search) {
+    public LiveData<Resource<List<Project>>> searchProject(String project) {
         return null;
     }
 
-    public LiveData<List<TowerType>> searchTowerType(String project, String search) {
+    public LiveData<Resource<List<TowerType>>> searchTowerType(String project, String search) {
         return null;
     }
 

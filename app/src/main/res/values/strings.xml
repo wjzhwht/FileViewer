@@ -2,7 +2,7 @@
     <string name="app_name">工艺切片文件查看器</string>
     <string name="title_activity_initialization">设置端口</string>
     <string name="ok">确定</string>
-    <string name="empty_search_result">No results for <b>%s</b></string>
+    <string name="empty_search_result">暂无数据</string>
     <string name="hint_input_project">请输入工程</string>
     <string name="hint_input_tower">请输入塔型</string>
 

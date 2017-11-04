@@ -4,70 +4,71 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.xerofox.fileviewer.repository.TowerRepository;
 import com.xerofox.fileviewer.util.AbsentLiveData;
 import com.xerofox.fileviewer.util.Objects;
 import com.xerofox.fileviewer.vo.Project;
+import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.TowerType;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
 public class SearchViewModel extends ViewModel {
 
-    private final MutableLiveData<String> project = new MutableLiveData<>();
+    private final MutableLiveData<Param> query = new MutableLiveData<>();
 
-    private final MutableLiveData<String> towerType = new MutableLiveData<>();
+    private final LiveData<Resource<List<TowerType>>> towerTypes;
 
-    private final LiveData<List<TowerType>> towerTypes;
-
-    private final LiveData<List<Project>> projects;
+    private final LiveData<Resource<List<Project>>> projects;
 
     @Inject
-    SearchViewModel(TowerRepository towerRepository) {
-        projects = Transformations.switchMap(project, search -> {
-            if (search == null || search.trim().length() == 0) {
-                return AbsentLiveData.create();
-            } else {
-                return towerRepository.searchProject(search);
-            }
-        });
+    SearchViewModel(TowerRepository repository) {
+        projects = repository.loadProject();
 
-        towerTypes = Transformations.switchMap(towerType, search -> {
-            if (search == null || search.trim().length() == 0 || TextUtils.isEmpty(project.getValue())) {
+//        projects = Transformations.switchMap(query,search ->{
+//            if (search == null || TextUtils.isEmpty(search.tower)) {
+//                return AbsentLiveData.create();
+//            } else {
+//                return repository.searchProject(search.project);
+//            }
+//        });
+
+        towerTypes = Transformations.switchMap(query, search -> {
+            if (search == null || TextUtils.isEmpty(search.tower)) {
                 return AbsentLiveData.create();
             } else {
-                return towerRepository.searchTowerType(project.getValue(),search);
+                return repository.searchTowerType(search.project, search.tower);
             }
         });
     }
 
-    public LiveData<List<Project>> getProjects() {
+    LiveData<Resource<List<Project>>> getProjects() {
         return projects;
     }
 
-    public LiveData<List<TowerType>> getTowerTypes() {
+    LiveData<Resource<List<TowerType>>> getTowerTypes() {
         return towerTypes;
     }
 
-    public void setProject(@NonNull String originInput) {
-        String input = originInput.toLowerCase(Locale.getDefault()).trim();
-        if (Objects.equals(input, project.getValue())) {
+    void setSearch(String project, String tower) {
+        Param param = new Param(project, tower);
+        if (Objects.equals(query.getValue(), param)) {
             return;
         }
-        project.setValue(input);
+        query.setValue(param);
     }
 
-    public void setTowerType(@NonNull String originInput) {
-        String input = originInput.toLowerCase(Locale.getDefault()).trim();
-        if (Objects.equals(input, towerType.getValue())) {
-            return;
+    static class Param {
+        public final String project;
+        public final String tower;
+
+        Param(String project, String tower) {
+            this.project = project;
+            this.tower = tower;
         }
-        towerType.setValue(input);
     }
 }

@@ -16,6 +16,7 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="16dp"
             android:text="@{tower.name}"
             android:textColor="@color/black"
             android:textSize="@dimen/normal_text_size" />
