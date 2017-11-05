@@ -20,7 +20,7 @@ import com.xerofox.fileviewer.di.Injectable;
 import com.xerofox.fileviewer.ui.common.NavigationController;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 import com.xerofox.fileviewer.util.KeyboardUtil;
-import com.xerofox.fileviewer.util.ToastUtils;
+import com.xerofox.fileviewer.vo.TowerType;
 
 import javax.inject.Inject;
 
@@ -66,7 +66,8 @@ public class SearchFragment extends Fragment implements Injectable {
         ProjectAdapter pAdapter = new ProjectAdapter(dataBindingComponent);
         binding.get().projectList.setAdapter(pAdapter);
         binding.get().projectList.setOnChildClickListener((expandableListView, view, i, i1, l) -> {
-            ToastUtils.showToast("hahahaha");
+            TowerType towerType = searchViewModel.getProjects().getValue().data.get(i).getTowerTypeArr().get(i1);
+            navigationController.navigateToPart(towerType);
             return true;
         });
         projectAdapter = new AutoClearedValue<>(this, pAdapter);

@@ -1,12 +1,15 @@
 package com.xerofox.fileviewer.vo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.xerofox.fileviewer.util.ByteBufferReader;
 import com.xerofox.fileviewer.util.ByteBufferWriter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TowerType {
+public class TowerType implements Parcelable {
     public static final int ATTACH_FILE_FLAG_CARD = 0x01;
     public static final int ATTACH_FILE_FLAG_NC = 0x02;
     public static final int ATTACH_FILE_FLAG_MODEL = 0x04;
@@ -23,9 +26,14 @@ public class TowerType {
     private int partCount;
     private List<TowerPart> partArr;
 
-    public TowerType(int id, String name) {
+    public TowerType() {
+    }
+
+    public TowerType(int id, String name, int projectId, String projectName) {
         this.id = id;
         this.name = name;
+        this.projectId = projectId;
+        this.projectName = projectName;
     }
 
     public TowerType(ByteBufferReader br) {
@@ -150,4 +158,51 @@ public class TowerType {
     public void setPartArr(List<TowerPart> partArr) {
         this.partArr = partArr;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.name);
+        dest.writeDouble(this.version);
+        dest.writeInt(this.projectId);
+        dest.writeString(this.projectName);
+        dest.writeString(this.aliasCode);
+        dest.writeByte(this.designFinished ? (byte) 1 : (byte) 0);
+        dest.writeString(this.viceType);
+        dest.writeString(this.voltGrade);
+        dest.writeInt(this.partCount);
+        dest.writeList(this.partArr);
+    }
+
+    protected TowerType(Parcel in) {
+        this.id = in.readInt();
+        this.name = in.readString();
+        this.version = in.readDouble();
+        this.projectId = in.readInt();
+        this.projectName = in.readString();
+        this.aliasCode = in.readString();
+        this.designFinished = in.readByte() != 0;
+        this.viceType = in.readString();
+        this.voltGrade = in.readString();
+        this.partCount = in.readInt();
+        this.partArr = new ArrayList<>();
+        in.readList(this.partArr, TowerPart.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<TowerType> CREATOR = new Parcelable.Creator<TowerType>() {
+        @Override
+        public TowerType createFromParcel(Parcel source) {
+            return new TowerType(source);
+        }
+
+        @Override
+        public TowerType[] newArray(int size) {
+            return new TowerType[size];
+        }
+    };
 }

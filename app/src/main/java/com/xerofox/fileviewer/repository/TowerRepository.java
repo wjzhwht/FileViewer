@@ -7,12 +7,11 @@ import android.text.TextUtils;
 
 import com.xerofox.fileviewer.AppExecutors;
 import com.xerofox.fileviewer.api.ApiResponse;
+import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.api.XeroApi;
-import com.xerofox.fileviewer.helper.LocalFileHelper;
 import com.xerofox.fileviewer.vo.Project;
 import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.Status;
-import com.xerofox.fileviewer.vo.TowerPart;
 import com.xerofox.fileviewer.vo.TowerType;
 
 import java.util.ArrayList;
@@ -25,13 +24,12 @@ import javax.inject.Singleton;
 public class TowerRepository {
 
     private final AppExecutors appExecutors;
-    private final LocalFileHelper fileHelper;
+    private final FileHelper fileHelper;
     private final XeroApi api;
-    private LiveData<Resource<List<Project>>> projects;
     private LiveData<Resource<List<Project>>> allProjects;
 
     @Inject
-    public TowerRepository(AppExecutors appExecutors, LocalFileHelper fileHelper, XeroApi api) {
+    TowerRepository(AppExecutors appExecutors, FileHelper fileHelper, XeroApi api) {
         this.appExecutors = appExecutors;
         this.fileHelper = fileHelper;
         this.api = api;
@@ -119,7 +117,7 @@ public class TowerRepository {
         };
     }
 
-    public LiveData<List<TowerPart>> getTowerParts() {
-        return null;
+    public LiveData<TowerType> getTowerType(TowerType tower) {
+        return fileHelper.loadTowerType(tower);
     }
 }

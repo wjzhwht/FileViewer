@@ -8,30 +8,36 @@ import android.support.annotation.VisibleForTesting;
 
 import com.xerofox.fileviewer.repository.TowerRepository;
 import com.xerofox.fileviewer.util.AbsentLiveData;
-import com.xerofox.fileviewer.vo.TowerPart;
-
-import java.util.List;
+import com.xerofox.fileviewer.util.Objects;
+import com.xerofox.fileviewer.vo.TowerType;
 
 import javax.inject.Inject;
 
 public class TowerPartViewModel extends ViewModel {
     @VisibleForTesting
-    final MutableLiveData<String> query = new MutableLiveData<>();
-    private final LiveData<List<TowerPart>> towerParts;
+    private final MutableLiveData<TowerType> query = new MutableLiveData<>();
+    private final LiveData<TowerType> towerParts;
 
     @Inject
-    public TowerPartViewModel(TowerRepository repository) {
+    TowerPartViewModel(TowerRepository repository) {
         towerParts = Transformations.switchMap(query, input -> {
-            if (input.isEmpty()) {
+            if (input == null) {
                 return AbsentLiveData.create();
             } else {
-                return repository.getTowerParts();
+                return repository.getTowerType(input);
             }
 
         });
     }
 
-    public LiveData<List<TowerPart>> getTowerParts() {
+    void setTowerType(TowerType towerType) {
+        if (Objects.equals(query.getValue(), towerType)) {
+            return;
+        }
+        query.setValue(towerType);
+    }
+
+    LiveData<TowerType> getTowerParts() {
         return towerParts;
     }
 }

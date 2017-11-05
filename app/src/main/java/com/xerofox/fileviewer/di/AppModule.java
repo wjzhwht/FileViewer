@@ -1,5 +1,6 @@
 package com.xerofox.fileviewer.di;
 
+import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.api.XeroApi;
 import com.xerofox.fileviewer.api.XeroApiImpl;
 import com.xerofox.fileviewer.helper.LocalFileHelper;
@@ -20,7 +21,7 @@ class AppModule {
 
     @Singleton
     @Provides
-    LocalFileHelper provideLocalFileHelper(){
+    FileHelper provideLocalFileHelper(){
         return new LocalFileHelper();
     }
 }

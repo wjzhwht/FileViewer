@@ -6,6 +6,7 @@ import com.xerofox.fileviewer.MainActivity;
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.ui.tower.TowerPartFragment;
 import com.xerofox.fileviewer.ui.search.SearchFragment;
+import com.xerofox.fileviewer.vo.TowerType;
 
 import javax.inject.Inject;
 
@@ -28,9 +29,9 @@ public class NavigationController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToRepo(String owner, String name) {
-        TowerPartFragment fragment = TowerPartFragment.create(owner, name);
-        String tag = "repo" + "/" + owner + "/" + name;
+    public void navigateToPart(TowerType towerType) {
+        TowerPartFragment fragment = TowerPartFragment.create(towerType);
+        String tag = "tower type" + "/" + towerType.getId() + "/" + towerType.getName();
         fragmentManager.beginTransaction()
                 .replace(containerId, fragment, tag)
                 .addToBackStack(null)

@@ -17,6 +17,8 @@ import com.xerofox.fileviewer.databinding.TowerPartFragmentBinding;
 import com.xerofox.fileviewer.di.Injectable;
 import com.xerofox.fileviewer.ui.common.NavigationController;
 import com.xerofox.fileviewer.util.AutoClearedValue;
+import com.xerofox.fileviewer.util.ToastUtils;
+import com.xerofox.fileviewer.vo.TowerType;
 
 import java.util.Collections;
 
@@ -24,9 +26,7 @@ import javax.inject.Inject;
 
 public class TowerPartFragment extends Fragment implements Injectable {
 
-    private static final String REPO_OWNER_KEY = "repo_owner";
-
-    private static final String REPO_NAME_KEY = "repo_name";
+    private static final String ARG_TOWER_TYPE = "tower type";
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -44,20 +44,21 @@ public class TowerPartFragment extends Fragment implements Injectable {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         towerPartViewModel = ViewModelProviders.of(this, viewModelFactory).get(TowerPartViewModel.class);
-        Bundle args = getArguments();
+
 
         TowerPartAdapter adapter = new TowerPartAdapter(dataBindingComponent,
-                contributor -> {
-                });
+                part -> ToastUtils.showToast(part.getPartFile().getName()));
         this.adapter = new AutoClearedValue<>(this, adapter);
         binding.get().list.setAdapter(adapter);
         initPartList();
+        TowerType type = getArguments().getParcelable(ARG_TOWER_TYPE);
+        towerPartViewModel.setTowerType(type);
     }
 
     private void initPartList() {
         towerPartViewModel.getTowerParts().observe(this, data -> {
             if (data != null) {
-                adapter.get().replace(data);
+                adapter.get().replace(data.getPartArr());
             } else {
                 adapter.get().replace(Collections.emptyList());
             }
@@ -74,11 +75,10 @@ public class TowerPartFragment extends Fragment implements Injectable {
         return dataBinding.getRoot();
     }
 
-    public static TowerPartFragment create(String owner, String name) {
+    public static TowerPartFragment create(TowerType towerType) {
         TowerPartFragment repoFragment = new TowerPartFragment();
         Bundle args = new Bundle();
-        args.putString(REPO_OWNER_KEY, owner);
-        args.putString(REPO_NAME_KEY, name);
+        args.putParcelable(ARG_TOWER_TYPE, towerType);
         repoFragment.setArguments(args);
         return repoFragment;
     }
