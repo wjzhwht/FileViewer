@@ -120,4 +120,8 @@ public class TowerRepository {
     public LiveData<TowerType> getTowerType(TowerType tower) {
         return fileHelper.loadTowerType(tower);
     }
+
+    public LiveData<String> getRootPath(TowerType towerType) {
+        return fileHelper.getRootPath(towerType);
+    }
 }

@@ -17,6 +17,7 @@ public class TowerPartViewModel extends ViewModel {
     @VisibleForTesting
     private final MutableLiveData<TowerType> query = new MutableLiveData<>();
     private final LiveData<TowerType> towerParts;
+    private final LiveData<String> rootPath;
 
     @Inject
     TowerPartViewModel(TowerRepository repository) {
@@ -26,7 +27,14 @@ public class TowerPartViewModel extends ViewModel {
             } else {
                 return repository.getTowerType(input);
             }
+        });
 
+        rootPath = Transformations.switchMap(query, input -> {
+            if (input == null) {
+                return AbsentLiveData.create();
+            } else {
+                return repository.getRootPath(input);
+            }
         });
     }
 
@@ -39,5 +47,9 @@ public class TowerPartViewModel extends ViewModel {
 
     LiveData<TowerType> getTowerParts() {
         return towerParts;
+    }
+
+    LiveData<String> geRootPath(){
+        return rootPath;
     }
 }

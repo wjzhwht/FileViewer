@@ -2,6 +2,7 @@ package com.xerofox.fileviewer.binding;
 
 import android.databinding.BindingAdapter;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -21,6 +22,9 @@ public class FragmentBindingAdapters {
 
     @BindingAdapter("imageUrl")
     public void bindImage(ImageView imageView, String url) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
         Glide.with(fragment).load(url).into(imageView);
     }
 }

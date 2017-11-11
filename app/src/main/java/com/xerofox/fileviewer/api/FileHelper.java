@@ -9,6 +9,10 @@ import com.xerofox.fileviewer.vo.TowerType;
 import java.util.List;
 
 public interface FileHelper {
+    String PART_FOLDER_SUFFIX = "Files";
+
+    LiveData<String> getRootPath(TowerType towerType);
+
     @NonNull
     LiveData<List<Project>> loadProjects();
 

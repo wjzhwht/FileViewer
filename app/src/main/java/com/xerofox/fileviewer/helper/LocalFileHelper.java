@@ -30,11 +30,25 @@ public class LocalFileHelper implements FileHelper {
     private static final String TOWER_PRIFIX = "n_";
     private static final String TOWER_SEPARATION = "#";
     private static final String TOWER_FILE_EXSTENSION = ".tpp";
-    private static final String PART_FOLDER_SUFFIX = "Files";
     //    File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     File directory = Environment.getExternalStorageDirectory();
 
     public LocalFileHelper() {
+    }
+
+    @Override
+    public LiveData<String> getRootPath(TowerType towerType) {
+        return new LiveData<String>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                String path = directory.getPath() + File.separator
+                        + PATH_ROOT + File.separator
+                        + PROJECT_PRIFIX + towerType.getProjectId() + PROJECT_SEPARATION + towerType.getProjectName() + File.separator
+                        + TOWER_PRIFIX + towerType.getId() + TOWER_SEPARATION + towerType.getName() + File.separator;
+                setValue(path);
+            }
+        };
     }
 
     @Override

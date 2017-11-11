@@ -7,6 +7,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,10 +46,10 @@ public class TowerPartFragment extends Fragment implements Injectable {
         super.onActivityCreated(savedInstanceState);
         towerPartViewModel = ViewModelProviders.of(this, viewModelFactory).get(TowerPartViewModel.class);
 
-
         TowerPartAdapter adapter = new TowerPartAdapter(dataBindingComponent,
                 part -> ToastUtils.showToast(part.getPartFile().getName()));
         this.adapter = new AutoClearedValue<>(this, adapter);
+        binding.get().list.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         binding.get().list.setAdapter(adapter);
         initPartList();
         TowerType type = getArguments().getParcelable(ARG_TOWER_TYPE);
@@ -62,6 +63,9 @@ public class TowerPartFragment extends Fragment implements Injectable {
             } else {
                 adapter.get().replace(Collections.emptyList());
             }
+        });
+        towerPartViewModel.geRootPath().observe(this, path -> {
+            adapter.get().setRootPath(path);
         });
     }
 
