@@ -74,31 +74,6 @@ public class PartFile implements Parcelable {
         this.bytes = bytes;
     }
 
-    public void save(String name, byte[] data) {
-        File file = new File(name);
-        RandomAccessFile raf = null;
-        try {
-            raf = new RandomAccessFile(file, "rw");
-            ByteArrayOutputStream output = new ByteArrayOutputStream(data.length);
-            output.write(data);
-//            ByteBufferWriter writer = new ByteBufferWriter(output);
-//            writer.write(data);
-            byte[] bytes = output.toByteArray();
-            raf.write(bytes);
-            raf.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     @Override
     public int describeContents() {
         return 0;
