@@ -1,5 +1,8 @@
 package com.xerofox.fileviewer.vo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.xerofox.fileviewer.util.ByteBufferReader;
 import com.xerofox.fileviewer.util.ByteBufferWriter;
 
@@ -8,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class PartFile {
+public class PartFile implements Parcelable {
     private int id;
     private String name;
     private String fileType;
@@ -95,4 +98,38 @@ public class PartFile {
             }
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.name);
+        dest.writeString(this.fileType);
+        dest.writeInt(this.length);
+        dest.writeByteArray(this.bytes);
+    }
+
+    protected PartFile(Parcel in) {
+        this.id = in.readInt();
+        this.name = in.readString();
+        this.fileType = in.readString();
+        this.length = in.readInt();
+        this.bytes = in.createByteArray();
+    }
+
+    public static final Parcelable.Creator<PartFile> CREATOR = new Parcelable.Creator<PartFile>() {
+        @Override
+        public PartFile createFromParcel(Parcel source) {
+            return new PartFile(source);
+        }
+
+        @Override
+        public PartFile[] newArray(int size) {
+            return new PartFile[size];
+        }
+    };
 }

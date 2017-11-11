@@ -17,6 +17,7 @@ import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
 import com.xerofox.fileviewer.databinding.TowerPartFragmentBinding;
 import com.xerofox.fileviewer.di.Injectable;
 import com.xerofox.fileviewer.ui.common.NavigationController;
+import com.xerofox.fileviewer.ui.viewer.ViewerActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 import com.xerofox.fileviewer.util.ToastUtils;
 import com.xerofox.fileviewer.vo.TowerType;
@@ -47,13 +48,18 @@ public class TowerPartFragment extends Fragment implements Injectable {
         towerPartViewModel = ViewModelProviders.of(this, viewModelFactory).get(TowerPartViewModel.class);
 
         TowerPartAdapter adapter = new TowerPartAdapter(dataBindingComponent,
-                part -> ToastUtils.showToast(part.getPartFile().getName()));
+                part -> jumpViewer());
         this.adapter = new AutoClearedValue<>(this, adapter);
         binding.get().list.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         binding.get().list.setAdapter(adapter);
         initPartList();
         TowerType type = getArguments().getParcelable(ARG_TOWER_TYPE);
         towerPartViewModel.setTowerType(type);
+    }
+
+    private void jumpViewer() {
+        TowerType towerType = towerPartViewModel.getTowerParts().getValue();
+        startActivity(ViewerActivity.newIntent(getActivity(), towerType));
     }
 
     private void initPartList() {

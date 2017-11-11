@@ -1,9 +1,12 @@
 package com.xerofox.fileviewer.vo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.xerofox.fileviewer.util.ByteBufferReader;
 import com.xerofox.fileviewer.util.ByteBufferWriter;
 
-public class TowerPart {
+public class TowerPart implements Parcelable {
     private int id;
 
     private int segI;
@@ -220,4 +223,57 @@ public class TowerPart {
         this.partFile = partFile;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeInt(this.segI);
+        dest.writeString(this.segPrefix);
+        dest.writeString(this.segSuffix);
+        dest.writeString(this.segNo);
+        dest.writeString(this.materialMark);
+        dest.writeDouble(this.wide);
+        dest.writeDouble(this.thick);
+        dest.writeDouble(this.length);
+        dest.writeDouble(this.wingAngle);
+        dest.writeDouble(this.realWeight);
+        dest.writeInt(this.num);
+        dest.writeString(this.notes);
+        dest.writeInt(this.fileCount);
+        dest.writeParcelable(this.partFile, flags);
+    }
+
+    protected TowerPart(Parcel in) {
+        this.id = in.readInt();
+        this.segI = in.readInt();
+        this.segPrefix = in.readString();
+        this.segSuffix = in.readString();
+        this.segNo = in.readString();
+        this.materialMark = in.readString();
+        this.wide = in.readDouble();
+        this.thick = in.readDouble();
+        this.length = in.readDouble();
+        this.wingAngle = in.readDouble();
+        this.realWeight = in.readDouble();
+        this.num = in.readInt();
+        this.notes = in.readString();
+        this.fileCount = in.readInt();
+        this.partFile = in.readParcelable(PartFile.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<TowerPart> CREATOR = new Parcelable.Creator<TowerPart>() {
+        @Override
+        public TowerPart createFromParcel(Parcel source) {
+            return new TowerPart(source);
+        }
+
+        @Override
+        public TowerPart[] newArray(int size) {
+            return new TowerPart[size];
+        }
+    };
 }
