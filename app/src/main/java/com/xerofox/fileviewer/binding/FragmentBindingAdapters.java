@@ -1,7 +1,7 @@
 package com.xerofox.fileviewer.binding;
 
+import android.content.Context;
 import android.databinding.BindingAdapter;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
@@ -13,11 +13,11 @@ import javax.inject.Inject;
  * Binding adapters that work with a fragment instance.
  */
 public class FragmentBindingAdapters {
-    final Fragment fragment;
+    final Context context;
 
     @Inject
-    public FragmentBindingAdapters(Fragment fragment) {
-        this.fragment = fragment;
+    public FragmentBindingAdapters(Context context) {
+        this.context = context;
     }
 
     @BindingAdapter("imageUrl")
@@ -25,6 +25,6 @@ public class FragmentBindingAdapters {
         if (TextUtils.isEmpty(url)) {
             return;
         }
-        Glide.with(fragment).load(url).into(imageView);
+        Glide.with(context).load(url).into(imageView);
     }
 }

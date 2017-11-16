@@ -7,16 +7,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 
+import com.xerofox.fileviewer.ui.common.BaseActivity;
 import com.xerofox.fileviewer.ui.common.NavigationController;
 
 import javax.inject.Inject;
 
 import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.HasSupportFragmentInjector;
 
-public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector {
+public class MainActivity extends BaseActivity {
     @Inject
     DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
     @Inject
@@ -45,10 +44,5 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             navigationController.navigateToSearch();
         }
-    }
-
-    @Override
-    public DispatchingAndroidInjector<Fragment> supportFragmentInjector() {
-        return dispatchingAndroidInjector;
     }
 }

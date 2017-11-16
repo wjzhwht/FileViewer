@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data>
+    <data></data>
 
-        <variable
-            name="tower"
-            type="com.xerofox.fileviewer.vo.TowerType" />
-    </data>
-
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list"
@@ -19,5 +20,5 @@
             android:overScrollMode="never"
             android:scrollbars="none" />
 
-    </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
 </layout>

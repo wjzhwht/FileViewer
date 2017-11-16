@@ -1,12 +1,12 @@
-package com.xerofox.fileviewer.ui.search;
+package com.xerofox.fileviewer.ui.index;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,23 +16,20 @@ import android.view.inputmethod.EditorInfo;
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
-import com.xerofox.fileviewer.di.Injectable;
-import com.xerofox.fileviewer.ui.common.NavigationController;
+import com.xerofox.fileviewer.ui.common.BaseFragment;
+import com.xerofox.fileviewer.ui.part.TowerPartActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 import com.xerofox.fileviewer.util.KeyboardUtil;
 import com.xerofox.fileviewer.vo.TowerType;
 
 import javax.inject.Inject;
 
-public class SearchFragment extends Fragment implements Injectable {
+public class SearchFragment extends BaseFragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-    @Inject
-    NavigationController navigationController;
-
-    DataBindingComponent dataBindingComponent = new FragmentDataBindingComponent(this);
+    DataBindingComponent dataBindingComponent = new FragmentDataBindingComponent(getActivity());
 
     AutoClearedValue<SearchFragmentBinding> binding;
 
@@ -58,7 +55,10 @@ public class SearchFragment extends Fragment implements Injectable {
         super.onActivityCreated(savedInstanceState);
         searchViewModel = ViewModelProviders.of(this, viewModelFactory).get(SearchViewModel.class);
         initRecyclerView();
-        TowerTypeListAdapter rvAdapter = new TowerTypeListAdapter(dataBindingComponent, repo -> {
+        TowerTypeListAdapter rvAdapter = new TowerTypeListAdapter(dataBindingComponent, towerType -> {
+            Intent intent = new Intent(getActivity(), TowerPartActivity.class);
+            intent.putExtra(TowerPartActivity.ARG_TOWER_TYPE, towerType);
+            startActivity(intent);
         });
         binding.get().towerList.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
@@ -67,7 +67,9 @@ public class SearchFragment extends Fragment implements Injectable {
         binding.get().projectList.setAdapter(pAdapter);
         binding.get().projectList.setOnChildClickListener((expandableListView, view, i, i1, l) -> {
             TowerType towerType = searchViewModel.getProjects().getValue().data.get(i).getTowerTypeArr().get(i1);
-            navigationController.navigateToPart(towerType);
+            Intent intent = new Intent(getActivity(), TowerPartActivity.class);
+            intent.putExtra(TowerPartActivity.ARG_TOWER_TYPE, towerType);
+            startActivity(intent);
             return true;
         });
         projectAdapter = new AutoClearedValue<>(this, pAdapter);

@@ -1,4 +1,4 @@
-package com.xerofox.fileviewer.ui.tower;
+package com.xerofox.fileviewer.ui.part;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -20,7 +20,7 @@ public class TowerPartViewModel extends ViewModel {
     private final LiveData<String> rootPath;
 
     @Inject
-    TowerPartViewModel(TowerRepository repository) {
+    public TowerPartViewModel(TowerRepository repository) {
         towerParts = Transformations.switchMap(query, input -> {
             if (input == null) {
                 return AbsentLiveData.create();

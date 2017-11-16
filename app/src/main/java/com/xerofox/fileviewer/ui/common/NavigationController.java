@@ -4,9 +4,7 @@ import android.support.v4.app.FragmentManager;
 
 import com.xerofox.fileviewer.MainActivity;
 import com.xerofox.fileviewer.R;
-import com.xerofox.fileviewer.ui.tower.TowerPartFragment;
-import com.xerofox.fileviewer.ui.search.SearchFragment;
-import com.xerofox.fileviewer.vo.TowerType;
+import com.xerofox.fileviewer.ui.index.SearchFragment;
 
 import javax.inject.Inject;
 
@@ -29,12 +27,4 @@ public class NavigationController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToPart(TowerType towerType) {
-        TowerPartFragment fragment = TowerPartFragment.create(towerType);
-        String tag = "tower type" + "/" + towerType.getId() + "/" + towerType.getName();
-        fragmentManager.beginTransaction()
-                .replace(containerId, fragment, tag)
-                .addToBackStack(null)
-                .commitAllowingStateLoss();
-    }
 }

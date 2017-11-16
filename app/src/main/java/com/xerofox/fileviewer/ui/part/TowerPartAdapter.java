@@ -1,4 +1,4 @@
-package com.xerofox.fileviewer.ui.tower;
+package com.xerofox.fileviewer.ui.part;
 
 import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;

@@ -7,21 +7,17 @@ import com.xerofox.fileviewer.helper.LocalFileHelper;
 
 import javax.inject.Singleton;
 
+import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
 
-@Module(includes = ViewModelModule.class)
-class AppModule {
-
-    @Singleton
-    @Provides
-    XeroApi provideXeroApi(){
-        return new XeroApiImpl();
-    }
+@Module(includes = {ApplicationModule.class})
+abstract public class AppModule {
 
     @Singleton
-    @Provides
-    FileHelper provideLocalFileHelper(){
-        return new LocalFileHelper();
-    }
+    @Binds
+    abstract XeroApi provideXeroApi(XeroApiImpl xeroApi);
+
+    @Singleton
+    @Binds
+    abstract FileHelper provideLocalFileHelper(LocalFileHelper fileHelper);
 }

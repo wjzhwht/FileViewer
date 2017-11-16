@@ -1,4 +1,4 @@
-package com.xerofox.fileviewer.ui.search;
+package com.xerofox.fileviewer.ui.index;
 
 import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;

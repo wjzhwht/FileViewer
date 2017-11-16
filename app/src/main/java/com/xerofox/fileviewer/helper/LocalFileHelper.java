@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Inject;
+
 public class LocalFileHelper implements FileHelper {
     private static final String PATH_ROOT = "xerofox";
     private static final String PROJECT_PRIFIX = "n_";
@@ -33,6 +35,7 @@ public class LocalFileHelper implements FileHelper {
     //    File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     File directory = Environment.getExternalStorageDirectory();
 
+    @Inject
     public LocalFileHelper() {
     }
 
@@ -173,6 +176,15 @@ public class LocalFileHelper implements FileHelper {
 
     @Override
     public LiveData<TowerType> loadTowerType(TowerType towerType) {
+        if (towerType != null && towerType.getPartArr() != null && !towerType.getPartArr().isEmpty()) {
+            return new LiveData<TowerType>() {
+                @Override
+                protected void onActive() {
+                    super.onActive();
+                    setValue(towerType);
+                }
+            };
+        }
         return new LiveData<TowerType>() {
             @Override
             protected void onActive() {

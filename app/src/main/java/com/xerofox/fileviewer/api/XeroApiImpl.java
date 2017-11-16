@@ -13,7 +13,14 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class XeroApiImpl implements XeroApi {
+
+    @Inject
+    public XeroApiImpl() {
+    }
+
     @Override
     public LiveData<ApiResponse<List<Project>>> getProjects() {
         // FIXME: 2017/11/3  mock server api
