@@ -25,7 +25,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.viewer.ViewerActivity" />
-        <activity android:name=".ui.part.TowerPartActivity" />
+        <activity
+            android:name=".ui.part.TowerPartActivity"
+            android:label="@string/title_tower_part_activity" />
     </application>
 
 </manifest>

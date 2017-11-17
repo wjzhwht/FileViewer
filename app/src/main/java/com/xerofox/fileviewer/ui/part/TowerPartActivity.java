@@ -68,6 +68,7 @@ public class TowerPartActivity extends BaseActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.tower_part_activity, dataBindingComponent);
         towerPartViewModel = ViewModelProviders.of(this, viewModelFactory).get(TowerPartViewModel.class);
 
+        setSupportActionBar(binding.toolBar);
         adapter = new TowerPartAdapter(dataBindingComponent,
                 part -> jumpViewer());
         binding.list.setAdapter(adapter);
@@ -89,7 +90,5 @@ public class TowerPartActivity extends BaseActivity {
                 adapter.replace(Collections.emptyList());
             }
         });
-        towerPartViewModel.geRootPath().observe(this, path -> adapter.setRootPath(path));
     }
-
 }

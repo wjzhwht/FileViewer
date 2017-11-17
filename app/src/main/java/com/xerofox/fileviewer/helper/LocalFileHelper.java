@@ -176,15 +176,6 @@ public class LocalFileHelper implements FileHelper {
 
     @Override
     public LiveData<TowerType> loadTowerType(TowerType towerType) {
-        if (towerType != null && towerType.getPartArr() != null && !towerType.getPartArr().isEmpty()) {
-            return new LiveData<TowerType>() {
-                @Override
-                protected void onActive() {
-                    super.onActive();
-                    setValue(towerType);
-                }
-            };
-        }
         return new LiveData<TowerType>() {
             @Override
             protected void onActive() {
