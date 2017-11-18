@@ -7,11 +7,9 @@ import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
@@ -19,8 +17,6 @@ import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
 import com.xerofox.fileviewer.ui.part.TowerPartActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
-import com.xerofox.fileviewer.util.KeyboardUtil;
-import com.xerofox.fileviewer.vo.TowerType;
 
 import javax.inject.Inject;
 
@@ -33,9 +29,7 @@ public class SearchFragment extends BaseFragment {
 
     AutoClearedValue<SearchFragmentBinding> binding;
 
-    AutoClearedValue<TowerTypeListAdapter> adapter;
-
-    AutoClearedValue<ProjectAdapter> projectAdapter;
+    AutoClearedValue<TaskListAdapter> adapter;
 
     private SearchViewModel searchViewModel;
 
@@ -55,80 +49,19 @@ public class SearchFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         searchViewModel = ViewModelProviders.of(this, viewModelFactory).get(SearchViewModel.class);
         initRecyclerView();
-        TowerTypeListAdapter rvAdapter = new TowerTypeListAdapter(dataBindingComponent, towerType -> {
+        TaskListAdapter rvAdapter = new TaskListAdapter(dataBindingComponent, task -> {
             Intent intent = new Intent(getActivity(), TowerPartActivity.class);
-            intent.putExtra(TowerPartActivity.ARG_TOWER_TYPE, towerType);
+            intent.putExtra(TowerPartActivity.ARG_TASK, task);
             startActivity(intent);
         });
-        binding.get().towerList.setAdapter(rvAdapter);
+        binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
 
-        ProjectAdapter pAdapter = new ProjectAdapter(dataBindingComponent);
-        binding.get().projectList.setAdapter(pAdapter);
-        binding.get().projectList.setOnChildClickListener((expandableListView, view, i, i1, l) -> {
-            TowerType towerType = searchViewModel.getProjects().getValue().data.get(i).getTowerTypeArr().get(i1);
-            Intent intent = new Intent(getActivity(), TowerPartActivity.class);
-            intent.putExtra(TowerPartActivity.ARG_TOWER_TYPE, towerType);
-            startActivity(intent);
-            return true;
-        });
-        projectAdapter = new AutoClearedValue<>(this, pAdapter);
-
-        doSearch(null);
-        initSearchInputListener();
-    }
-
-    private void initSearchInputListener() {
-        binding.get().project.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                doSearch(v);
-                return true;
-            }
-            return false;
-        });
-        binding.get().project.setOnKeyListener((v, keyCode, event) -> {
-            if ((event.getAction() == KeyEvent.ACTION_DOWN)
-                    && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                doSearch(v);
-                return true;
-            }
-            return false;
-        });
-        binding.get().towerType.setOnEditorActionListener((v, i, keyEvent) -> {
-            if (i == EditorInfo.IME_ACTION_SEARCH) {
-                doSearch(v);
-                return true;
-            }
-            return false;
-        });
-
-        binding.get().towerType.setOnKeyListener((view, i, keyEvent) -> {
-            if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN)
-                    && (i == KeyEvent.KEYCODE_ENTER)) {
-                doSearch(view);
-                return true;
-            }
-            return false;
-        });
-    }
-
-    private void doSearch(View v) {
-        String project = binding.get().project.getText().toString().trim();
-        String tower = binding.get().towerType.getText().toString().trim();
-        KeyboardUtil.hideSoftInput(v);
-        searchViewModel.setSearch(project, tower);
     }
 
     private void initRecyclerView() {
-        searchViewModel.getProjects().observe(this, result -> {
-            binding.get().setProjectCount(result == null || result.data == null ? 0 : result.data.size());
-            projectAdapter.get().setProjects(result == null ? null : result.data);
-            projectAdapter.get().notifyDataSetChanged();
-            binding.get().executePendingBindings();
-        });
-
-        searchViewModel.getTowerTypes().observe(this, result -> {
-            binding.get().setTowerCount(result == null || result.data == null ? 0 : result.data.size());
+        searchViewModel.getTasks().observe(this, result -> {
+            binding.get().setResultCount(result == null || result.data == null ? 0 : result.data.size());
             adapter.get().replace(result == null ? null : result.data);
             binding.get().executePendingBindings();
         });

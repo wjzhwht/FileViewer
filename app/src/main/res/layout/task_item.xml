@@ -4,8 +4,8 @@
     <data>
 
         <variable
-            name="tower"
-            type="com.xerofox.fileviewer.vo.TowerType" />
+            name="task"
+            type="com.xerofox.fileviewer.vo.Task" />
     </data>
 
     <LinearLayout
@@ -22,8 +22,7 @@
             android:paddingRight="32dp"
             android:paddingStart="32dp"
             android:paddingTop="16dp"
-            android:text="@{tower.name}"
-            android:textColor="@color/black"
+            android:text="@{task.name}"
             android:textSize="@dimen/normal_text_size" />
 
     </LinearLayout>

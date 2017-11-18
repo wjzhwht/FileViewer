@@ -2,8 +2,6 @@ package com.xerofox.fileviewer.ui.part;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
-import android.content.Intent;
 import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -18,8 +16,8 @@ import com.xerofox.fileviewer.databinding.TowerPartActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
 import com.xerofox.fileviewer.ui.viewer.ViewerActivity;
 import com.xerofox.fileviewer.util.ToastUtils;
+import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
-import com.xerofox.fileviewer.vo.TowerType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +26,7 @@ import javax.inject.Inject;
 
 public class TowerPartActivity extends BaseActivity {
 
-    public static final String ARG_TOWER_TYPE = "tower_type";
+    public static final String ARG_TASK = "task";
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
@@ -37,12 +35,6 @@ public class TowerPartActivity extends BaseActivity {
     DataBindingComponent dataBindingComponent = new FragmentDataBindingComponent(this);
     TowerPartActivityBinding binding;
     TowerPartAdapter adapter;
-
-    public Intent newIntent(Context context, TowerPart towerPart) {
-        Intent intent = new Intent(context, TowerPartActivity.class);
-        intent.putExtra(ARG_TOWER_TYPE, towerPart);
-        return intent;
-    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -95,8 +87,8 @@ public class TowerPartActivity extends BaseActivity {
                 part -> jumpViewer());
         binding.list.setAdapter(adapter);
         initPartList();
-        TowerType type = getIntent().getParcelableExtra(ARG_TOWER_TYPE);
-        towerPartViewModel.setTowerType(type);
+        Task task = getIntent().getParcelableExtra(ARG_TASK);
+        towerPartViewModel.setTask(task);
     }
 
     private void jumpViewer() {

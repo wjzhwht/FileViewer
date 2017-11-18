@@ -2,12 +2,10 @@ package com.xerofox.fileviewer.ui.part;
 
 import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.xerofox.fileviewer.R;
-import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.api.OnItemClickListener;
 import com.xerofox.fileviewer.databinding.TowerPartItemBinding;
 import com.xerofox.fileviewer.ui.common.DataBoundListAdapter;
@@ -48,12 +46,12 @@ public class TowerPartAdapter
 
     @Override
     protected boolean areItemsTheSame(TowerPart oldItem, TowerPart newItem) {
-        return Objects.equals(oldItem.getSegNo(), newItem.getSegNo());
+        return Objects.equals(oldItem.getId(), newItem.getId());
     }
 
     @Override
     protected boolean areContentsTheSame(TowerPart oldItem, TowerPart newItem) {
-        return Objects.equals(oldItem.getSegNo(), newItem.getSegNo())
-                && oldItem.getPartFile() == newItem.getPartFile();
+        return Objects.equals(oldItem.getPartNo(), newItem.getPartNo())
+                && oldItem.getSegStr() == newItem.getSegStr();
     }
 }
