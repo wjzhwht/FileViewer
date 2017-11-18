@@ -12,6 +12,7 @@ import com.xerofox.fileviewer.api.XeroApi;
 import com.xerofox.fileviewer.vo.Project;
 import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.Status;
+import com.xerofox.fileviewer.vo.TowerPart;
 import com.xerofox.fileviewer.vo.TowerType;
 
 import java.util.ArrayList;
@@ -117,11 +118,27 @@ public class TowerRepository {
         };
     }
 
-    public LiveData<TowerType> getTowerType(TowerType tower) {
-        return fileHelper.loadTowerType(tower);
+    public LiveData<ArrayList<TowerPart>> getTowerType(TowerType tower) {
+        return fileHelper.loadTowerParts(tower);
     }
 
-    public LiveData<String> getRootPath(TowerType towerType) {
-        return fileHelper.getRootPath(towerType);
+    public LiveData<List<TowerPart>> searchPart(TowerType towerType, String id) {
+        return new LiveData<List<TowerPart>>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                List<TowerPart> partList = new ArrayList<>();
+                if (towerType == null || towerType.getPartArr() == null || towerType.getPartArr().isEmpty()){
+                    postValue(partList);
+                }
+                for (TowerPart part:towerType.getPartArr()){
+                    if (String.valueOf(part.getId()).contains(id)){
+                        partList.add(part);
+                    }
+                }
+                postValue(partList);
+            }
+        };
     }
+
 }

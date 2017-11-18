@@ -9,19 +9,21 @@ import android.support.annotation.VisibleForTesting;
 import com.xerofox.fileviewer.repository.TowerRepository;
 import com.xerofox.fileviewer.util.AbsentLiveData;
 import com.xerofox.fileviewer.util.Objects;
+import com.xerofox.fileviewer.vo.TowerPart;
 import com.xerofox.fileviewer.vo.TowerType;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 public class TowerPartViewModel extends ViewModel {
     @VisibleForTesting
-    private final MutableLiveData<TowerType> query = new MutableLiveData<>();
-    private final LiveData<TowerType> towerParts;
-    private final LiveData<String> rootPath;
+    private final MutableLiveData<TowerType> towerType = new MutableLiveData<>();
+    private final LiveData<ArrayList<TowerPart>> towerParts;
 
     @Inject
     public TowerPartViewModel(TowerRepository repository) {
-        towerParts = Transformations.switchMap(query, input -> {
+        towerParts = Transformations.switchMap(towerType, input -> {
             if (input == null) {
                 return AbsentLiveData.create();
             } else {
@@ -29,27 +31,52 @@ public class TowerPartViewModel extends ViewModel {
             }
         });
 
-        rootPath = Transformations.switchMap(query, input -> {
-            if (input == null) {
-                return AbsentLiveData.create();
-            } else {
-                return repository.getRootPath(input);
-            }
-        });
+
+
     }
 
     void setTowerType(TowerType towerType) {
-        if (Objects.equals(query.getValue(), towerType)) {
+        if (Objects.equals(this.towerType.getValue(), towerType)) {
             return;
         }
-        query.setValue(towerType);
+        this.towerType.setValue(towerType);
     }
 
-    LiveData<TowerType> getTowerParts() {
+    void setQuery(String query){
+
+    }
+
+    LiveData<ArrayList<TowerPart>> getTowerParts() {
         return towerParts;
     }
 
-    LiveData<String> geRootPath(){
-        return rootPath;
-    }
+//    static class Param {
+//        public final TowerType towerType;
+//        public final String query;
+//
+//        public Param(TowerType towerType, String query) {
+//            this.towerType = towerType;
+//            this.query = query;
+//        }
+//
+//        @Override
+//        public boolean equals(Object o) {
+//            if (this == o) return true;
+//            if (o == null || getClass() != o.getClass()) return false;
+//
+//            Param param = (Param) o;
+//
+//            if (towerType != null ? !towerType.equals(param.towerType) : param.towerType != null)
+//                return false;
+//            return query != null ? query.equals(param.query) : param.query == null;
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            int result = towerType != null ? towerType.hashCode() : 0;
+//            result = 31 * result + (query != null ? query.hashCode() : 0);
+//            return result;
+//        }
+//    }
+
 }

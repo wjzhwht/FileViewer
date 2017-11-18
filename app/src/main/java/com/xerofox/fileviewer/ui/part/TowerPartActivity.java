@@ -8,6 +8,7 @@ import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -16,17 +17,14 @@ import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
 import com.xerofox.fileviewer.databinding.TowerPartActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
 import com.xerofox.fileviewer.ui.viewer.ViewerActivity;
+import com.xerofox.fileviewer.util.ToastUtils;
 import com.xerofox.fileviewer.vo.TowerPart;
 import com.xerofox.fileviewer.vo.TowerType;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.inject.Inject;
-
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.DaggerAppCompatActivity;
-import dagger.android.support.HasSupportFragmentInjector;
 
 public class TowerPartActivity extends BaseActivity {
 
@@ -44,6 +42,29 @@ public class TowerPartActivity extends BaseActivity {
         Intent intent = new Intent(context, TowerPartActivity.class);
         intent.putExtra(ARG_TOWER_TYPE, towerPart);
         return intent;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint(getString(R.string.input_part_id));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                ToastUtils.showToast(query);
+                searchView.clearFocus();
+                searchView.onActionViewCollapsed();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return true;
     }
 
     @Override
@@ -69,6 +90,7 @@ public class TowerPartActivity extends BaseActivity {
         towerPartViewModel = ViewModelProviders.of(this, viewModelFactory).get(TowerPartViewModel.class);
 
         setSupportActionBar(binding.toolBar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         adapter = new TowerPartAdapter(dataBindingComponent,
                 part -> jumpViewer());
         binding.list.setAdapter(adapter);
@@ -78,14 +100,14 @@ public class TowerPartActivity extends BaseActivity {
     }
 
     private void jumpViewer() {
-        TowerType towerType = towerPartViewModel.getTowerParts().getValue();
-        startActivity(ViewerActivity.newIntent(this, towerType));
+        ArrayList<TowerPart> towerParts = towerPartViewModel.getTowerParts().getValue();
+        startActivity(ViewerActivity.newIntent(this, towerParts));
     }
 
     private void initPartList() {
         towerPartViewModel.getTowerParts().observe(this, data -> {
             if (data != null) {
-                adapter.replace(data.getPartArr());
+                adapter.replace(data);
             } else {
                 adapter.replace(Collections.emptyList());
             }

@@ -4,8 +4,10 @@ import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
 import com.xerofox.fileviewer.vo.Project;
+import com.xerofox.fileviewer.vo.TowerPart;
 import com.xerofox.fileviewer.vo.TowerType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface FileHelper {
@@ -18,5 +20,5 @@ public interface FileHelper {
 
     void saveProjects(List<Project> projects);
 
-    LiveData<TowerType> loadTowerType(TowerType towerType);
+    LiveData<ArrayList<TowerPart>> loadTowerParts(TowerType towerType);
 }

@@ -10,14 +10,15 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xerofox.fileviewer.R;
+import com.xerofox.fileviewer.vo.TowerPart;
 import com.xerofox.fileviewer.vo.TowerType;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.HasSupportFragmentInjector;
 
 public class ViewerActivity extends AppCompatActivity {
     private static final String ARG_TOWER_TPYE = "tower type";
@@ -34,9 +35,9 @@ public class ViewerActivity extends AppCompatActivity {
     DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
 
 
-    public static Intent newIntent(Context context, TowerType towerType) {
+    public static Intent newIntent(Context context, ArrayList<TowerPart> towerParts) {
         Intent intent = new Intent(context, ViewerActivity.class);
-        intent.putExtra(ARG_TOWER_TPYE, towerType);
+        intent.putExtra(ARG_TOWER_TPYE, towerParts);
         return intent;
     }
 

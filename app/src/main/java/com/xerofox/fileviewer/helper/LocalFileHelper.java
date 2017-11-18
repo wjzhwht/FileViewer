@@ -175,13 +175,13 @@ public class LocalFileHelper implements FileHelper {
     }
 
     @Override
-    public LiveData<TowerType> loadTowerType(TowerType towerType) {
-        return new LiveData<TowerType>() {
+    public LiveData<ArrayList<TowerPart>> loadTowerParts(TowerType towerType) {
+        return new LiveData<ArrayList<TowerPart>>() {
             @Override
             protected void onActive() {
                 super.onActive();
                 if (towerType.getPartArr() != null && !towerType.getPartArr().isEmpty()) {
-                    postValue(towerType);
+                    postValue(towerType.getPartArr());
                     return;
                 }
                 String path = directory.getPath() + File.separator
@@ -190,7 +190,7 @@ public class LocalFileHelper implements FileHelper {
                         + TOWER_PRIFIX + towerType.getId() + TOWER_SEPARATION + towerType.getName() + File.separator
                         + TOWER_PRIFIX + towerType.getId() + TOWER_FILE_EXSTENSION;
                 if (!FileUtil.isFileExists(path)) {
-                    postValue(towerType);
+                    postValue(towerType.getPartArr());
                 }
                 File file = new File(path);
                 RandomAccessFile raf = null;
@@ -202,7 +202,7 @@ public class LocalFileHelper implements FileHelper {
 
                     ByteBufferReader br = new ByteBufferReader(byteArr);
                     TowerType type = new TowerType(br);
-                    postValue(type);
+                    postValue(type.getPartArr());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

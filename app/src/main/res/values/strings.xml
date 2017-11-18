@@ -8,5 +8,7 @@
     <string name="filter">筛选</string>
     <string name="linear_layout_manager">LinearLayoutManager</string>
     <string name="title_tower_part_activity">工艺卡列表</string>
+    <string name="search">搜索</string>
+    <string name="input_part_id">请输入件号</string>
 
 </resources>

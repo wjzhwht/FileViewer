@@ -34,4 +34,10 @@ public class BaseActivity extends AppCompatActivity implements HasFragmentInject
     public AndroidInjector<android.app.Fragment> fragmentInjector() {
         return fragmentInjector;
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 }

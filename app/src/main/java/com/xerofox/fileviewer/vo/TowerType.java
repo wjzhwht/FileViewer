@@ -24,7 +24,7 @@ public class TowerType implements Parcelable {
     private String viceType;
     private String voltGrade;
     private int partCount;
-    private List<TowerPart> partArr;
+    private ArrayList<TowerPart> partArr;
 
     public TowerType() {
     }
@@ -151,11 +151,11 @@ public class TowerType implements Parcelable {
         this.partCount = partCount;
     }
 
-    public List<TowerPart> getPartArr() {
+    public ArrayList<TowerPart> getPartArr() {
         return partArr;
     }
 
-    public void setPartArr(List<TowerPart> partArr) {
+    public void setPartArr(ArrayList<TowerPart> partArr) {
         this.partArr = partArr;
     }
 
