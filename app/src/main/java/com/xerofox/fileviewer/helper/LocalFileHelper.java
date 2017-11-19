@@ -179,7 +179,7 @@ public class LocalFileHelper implements FileHelper {
                     raf.close();
 
                     ByteBufferReader br = new ByteBufferReader(byteArr);
-                    Task taskNew = new Task(br);
+                    Task taskNew = new Task(br, false);
                     postValue(taskNew.getPartList());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();

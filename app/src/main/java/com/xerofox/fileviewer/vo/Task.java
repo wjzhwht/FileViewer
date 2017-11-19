@@ -31,13 +31,36 @@ public class Task implements Parcelable {
         this.state = br.readInt();
         this.count = br.readInt();
         partList = new ArrayList<>(count);
-        for (int i = 0; i < partList.size(); i++) {
+        for (int i = 0; i < count; i++) {
             partList.add(new TowerPart(br));
         }
     }
 
-    public void saveByteArray(ByteBufferWriter br) {
+    public Task(ByteBufferReader br, boolean readBytes) {
+        this.version = br.readDouble();
+        this.id = br.readInt();
+        this.name = br.readString();
+        this.date = br.readDate();
+        this.state = br.readInt();
+        this.count = br.readInt();
+        partList = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            partList.add(new TowerPart(br, readBytes));
+        }
+    }
 
+    public void saveByteArray(ByteBufferWriter br) {
+        br.write(this.version);
+        br.write(this.id);
+        br.write(this.name);
+        br.write(this.date);
+        br.write(this.state);
+        br.write(this.count);
+        if (partList != null && !partList.isEmpty()) {
+            for (TowerPart part : partList) {
+                part.saveByteArray(br);
+            }
+        }
     }
 
     public double getVersion() {

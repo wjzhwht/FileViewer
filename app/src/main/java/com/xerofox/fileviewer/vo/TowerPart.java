@@ -201,8 +201,45 @@ public class TowerPart implements Parcelable {
         this.m24LsNum = br.readInt();
         this.mxLsNum = br.readInt();
         this.fileCount = br.readInt();
-        if (fileCount > 0) {
+        if (fileCount == 1) {
             this.partFile = new PartFile(br);
+        }
+    }
+
+    public TowerPart(ByteBufferReader br,boolean readBytes) {
+        this.projectId = br.readInt();
+        this.projectName = br.readString();
+        this.towerTypeId = br.readInt();
+        this.towerTypeName = br.readString();
+        this.id = br.readInt();
+        this.partNo = br.readString();
+        this.num = br.readInt();
+        this.segStr = br.readString();
+        this.materialMark = br.readString();
+        this.specification = br.readString();
+        this.wide = br.readDouble();
+        this.thick = br.readDouble();
+        this.length = br.readDouble();
+        this.wingAngle = br.readDouble();
+        this.realWeight = br.readDouble();
+        this.notes = br.readString();
+        this.manuHourWeld = br.readInt();
+        this.manuHourZhiWan = br.readInt();
+        this.manuHourCutAngle = br.readInt();
+        this.manuHourCutBer = br.readInt();
+        this.manuHourCutRoot = br.readInt();
+        this.manuHourClashHole = br.readInt();
+        this.manuHourBore = br.readInt();
+        this.manuHourKaiHe = br.readInt();
+        this.manuHourFillet = br.readInt();
+        this.manuHourPushFlat = br.readInt();
+        this.m16LsNum = br.readInt();
+        this.m20LsNum = br.readInt();
+        this.m24LsNum = br.readInt();
+        this.mxLsNum = br.readInt();
+        this.fileCount = br.readInt();
+        if (fileCount == 1) {
+            this.partFile = new PartFile(br,readBytes);
         }
     }
 
@@ -237,7 +274,10 @@ public class TowerPart implements Parcelable {
         br.write(m20LsNum);
         br.write(m24LsNum);
         br.write(mxLsNum);
-        this.partFile.saveByteArray(br);
+        br.write(fileCount);
+        if (fileCount == 1){
+            this.partFile.saveByteArray(br);
+        }
     }
 
     public int getProjectId() {

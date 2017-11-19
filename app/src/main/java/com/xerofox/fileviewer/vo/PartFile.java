@@ -26,12 +26,22 @@ public class PartFile implements Parcelable {
         this.bytes = br.readBytes(length);
     }
 
+    public PartFile(ByteBufferReader br,boolean readBytes) {
+        this.id = br.readInt();
+        this.name = br.readString();
+        this.fileType = br.readString();
+        if (readBytes){
+            this.length = br.readInt();
+            this.bytes = br.readBytes(length);
+        }
+    }
+
     public void saveByteArray(ByteBufferWriter br) {
         br.write(this.id);
         br.write(this.name);
         br.write(this.fileType);
-        br.write(this.length);
-        br.write(this.bytes);
+//        br.write(this.length);
+//        br.write(this.bytes);
     }
 
     public int getId() {
