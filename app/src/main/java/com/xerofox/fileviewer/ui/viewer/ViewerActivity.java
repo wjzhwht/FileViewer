@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
@@ -15,10 +14,6 @@ import com.xerofox.fileviewer.vo.TowerType;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import javax.inject.Inject;
-
-import dagger.android.DispatchingAndroidInjector;
 
 public class ViewerActivity extends AppCompatActivity {
     private static final String ARG_TOWER_TPYE = "tower type";
@@ -30,10 +25,6 @@ public class ViewerActivity extends AppCompatActivity {
     private static final String TOWER_FILE_EXSTENSION = ".tpp";
     //    File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     File directory = Environment.getExternalStorageDirectory();
-
-    @Inject
-    DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
-
 
     public static Intent newIntent(Context context, ArrayList<TowerPart> towerParts) {
         Intent intent = new Intent(context, ViewerActivity.class);
@@ -54,13 +45,8 @@ public class ViewerActivity extends AppCompatActivity {
                 + PATH_ROOT + File.separator
                 + PROJECT_PRIFIX + getTowerType().getProjectId() + PROJECT_SEPARATION + getTowerType().getProjectName() + File.separator
                 + TOWER_PRIFIX + getTowerType().getId() + TOWER_SEPARATION + getTowerType().getName() + File.separator;
-        ViewerAdapter adapter = new ViewerAdapter(path,getTowerType().getPartArr());
+        ViewerAdapter adapter = new ViewerAdapter(path, getTowerType().getPartArr());
         viewPager.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
-
-//    @Override
-//    public DispatchingAndroidInjector<Fragment> supportFragmentInjector() {
-//        return dispatchingAndroidInjector;
-//    }
 }

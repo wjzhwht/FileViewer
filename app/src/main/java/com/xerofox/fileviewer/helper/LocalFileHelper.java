@@ -9,6 +9,8 @@ import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.util.ByteBufferReader;
 import com.xerofox.fileviewer.util.ByteBufferWriter;
 import com.xerofox.fileviewer.util.FileUtil;
+import com.xerofox.fileviewer.vo.Filter;
+import com.xerofox.fileviewer.vo.FilterQuery;
 import com.xerofox.fileviewer.vo.PartFile;
 import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
@@ -35,21 +37,6 @@ public class LocalFileHelper implements FileHelper {
     @Inject
     public LocalFileHelper() {
     }
-
-//    @Override
-//    public LiveData<String> getRootPath(TowerType towerType) {
-//        return new LiveData<String>() {
-//            @Override
-//            protected void onActive() {
-//                super.onActive();
-//                String path = directory.getPath() + File.separator
-//                        + PATH_ROOT + File.separator
-//                        + PROJECT_PRIFIX + towerType.getProjectId() + PROJECT_SEPARATION + towerType.getProjectName() + File.separator
-//                        + TOWER_PRIFIX + towerType.getId() + TOWER_SEPARATION + towerType.getName() + File.separator;
-//                setValue(path);
-//            }
-//        };
-//    }
 
     @Override
     @NonNull
@@ -153,48 +140,220 @@ public class LocalFileHelper implements FileHelper {
         }
     }
 
+    private Task loadTask(Task task) {
+        if (task.getPartList() != null && !task.getPartList().isEmpty()) {
+            return task;
+        }
+        String path = directory.getPath() + File.separator
+                + PATH_ROOT + File.separator
+                + TASK_PRIFIX + task.getId() + TASK_SEPARATION + task.getName() + File.separator
+                + TASK_PRIFIX + task.getId() + TOWER_FILE_EXSTENSION;
+        if (!FileUtil.isFileExists(path)) {
+            return task;
+        }
+        File file = new File(path);
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(file, "r");
+            byte[] byteArr = new byte[(int) raf.length()];
+            raf.read(byteArr);
+            raf.close();
+
+            ByteBufferReader br = new ByteBufferReader(byteArr);
+            return new Task(br, false);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return task;
+    }
+
     @Override
-    public LiveData<ArrayList<TowerPart>> loadTowerParts(Task task) {
+    public LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, List<FilterQuery> filters) {
         return new LiveData<ArrayList<TowerPart>>() {
             @Override
             protected void onActive() {
                 super.onActive();
-                if (task.getPartList() != null && !task.getPartList().isEmpty()) {
-                    postValue(task.getPartList());
-                    return;
-                }
-                String path = directory.getPath() + File.separator
-                        + PATH_ROOT + File.separator
-                        + TASK_PRIFIX + task.getId() + TASK_SEPARATION + task.getName() + File.separator
-                        + TASK_PRIFIX + task.getId() + TOWER_FILE_EXSTENSION;
-                if (!FileUtil.isFileExists(path)) {
-                    postValue(task.getPartList());
-                }
-                File file = new File(path);
-                RandomAccessFile raf = null;
-                try {
-                    raf = new RandomAccessFile(file, "r");
-                    byte[] byteArr = new byte[(int) raf.length()];
-                    raf.read(byteArr);
-                    raf.close();
+                postValue(doFilter(loadTask(task), filters));
+            }
+        };
+    }
 
-                    ByteBufferReader br = new ByteBufferReader(byteArr);
-                    Task taskNew = new Task(br, false);
-                    postValue(taskNew.getPartList());
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (raf != null) {
-                        try {
-                            raf.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+    @NonNull
+    private ArrayList<TowerPart> doFilter(Task taskNew, List<FilterQuery> filters) {
+        ArrayList<TowerPart> partList = new ArrayList<>();
+        for (TowerPart part : taskNew.getPartList()) {
+            boolean add = false;
+            if (filters == null || filters.isEmpty()) {
+                return taskNew.getPartList();
+            } else {
+                for (FilterQuery filter : filters) {
+                    if (filter == null || filter.getItems() == null || filter.getItems().isEmpty()) {
+                        add = true;
+                    } else {
+                        switch (filter.getType()) {
+                            case Filter.TYPE_TOWER_TYPE:
+                                add = filter.getItems().contains(part.getTowerTypeName());
+                                break;
+                            case Filter.TYPE_SEG_STR:
+                                add = filter.getItems().contains(part.getSegStr());
+                                break;
+                            case Filter.TYPE_MATERIAL_MARK:
+                                add = filter.getItems().contains(part.getMaterialMark());
+                                break;
+                            case Filter.TYPE_SPECIFICATION:
+                                add = filter.getItems().contains(part.getSpecification());
+                                break;
+                            case Filter.TYPE_MANU:
+                                for (String manu : filter.getItems()) {
+                                    boolean b = false;
+                                    switch (manu) {
+                                        case TowerPart.MANU_WELD:
+                                            b = part.getManuHourWeld() > 0;
+                                            break;
+                                        case TowerPart.MANU_ZHIWAN:
+                                            b = part.getManuHourZhiWan() > 0;
+                                            break;
+                                        case TowerPart.MANU_CUT_ANGEL:
+                                            b = part.getManuHourCutAngle() > 0;
+                                            break;
+                                        case TowerPart.MANU_CUT_BER:
+                                            b = part.getManuHourCutBer() > 0;
+                                            break;
+                                        case TowerPart.MANU_CUT_ROOT:
+                                            b = part.getManuHourCutRoot() > 0;
+                                            break;
+                                        case TowerPart.MANU_CLASH_HOLE:
+                                            b = part.getManuHourClashHole() > 0;
+                                            break;
+                                        case TowerPart.MANU_BORE:
+                                            b = part.getManuHourBore() > 0;
+                                            break;
+                                        case TowerPart.MANU_KAIHE:
+                                            b = part.getManuHourKaiHe() > 0;
+                                            break;
+                                        case TowerPart.MANU_FILLET:
+                                            b = part.getManuHourFillet() > 0;
+                                            break;
+                                        case TowerPart.MANU_PUSH_FLAT:
+                                            b = part.getManuHourPushFlat() > 0;
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    if (b) {
+                                        add = true;
+                                        break;
+                                    }
+                                }
+                                break;
+                            default:
+                                add = true;
+                                break;
+
                         }
+                    }
+                    if (!add) {
+                        break;
                     }
                 }
             }
+            if (add) {
+                partList.add(part);
+            }
+        }
+        return partList;
+    }
+
+    public LiveData<List<Filter>> loadFilters(Task task, List<FilterQuery> filters) {
+        return new LiveData<List<Filter>>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                postValue(getFilters(loadTask(task), filters));
+            }
         };
+    }
+
+    private List<Filter> getFilters(Task task, List<FilterQuery> filterQueries) {
+        Filter towerTypeFilter = new Filter(Filter.TYPE_TOWER_TYPE);
+        Filter segStrFilter = new Filter(Filter.TYPE_SEG_STR);
+        Filter materialFilter = new Filter(Filter.TYPE_MATERIAL_MARK);
+        Filter specificationFilter = new Filter(Filter.TYPE_SPECIFICATION);
+        Filter manuFilter = new Filter(Filter.TYPE_MANU);
+        for (TowerPart part : task.getPartList()) {
+
+            addItem(filterQueries, towerTypeFilter, part.getTowerTypeName());
+            addItem(filterQueries, segStrFilter, part.getSegStr());
+            addItem(filterQueries, materialFilter, part.getMaterialMark());
+            addItem(filterQueries, specificationFilter, part.getSpecification());
+            if (part.getManuHourWeld() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_WELD);
+            }
+            if (part.getManuHourZhiWan() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_ZHIWAN);
+            }
+            if (part.getManuHourCutAngle() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_CUT_ANGEL);
+            }
+            if (part.getManuHourCutBer() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_CUT_BER);
+            }
+            if (part.getManuHourCutRoot() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_CUT_ROOT);
+            }
+            if (part.getManuHourClashHole() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_CLASH_HOLE);
+            }
+            if (part.getManuHourBore() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_BORE);
+            }
+            if (part.getManuHourKaiHe() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_KAIHE);
+            }
+            if (part.getManuHourFillet() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_FILLET);
+            }
+            if (part.getManuHourPushFlat() > 0) {
+                addItem(filterQueries, manuFilter, TowerPart.MANU_PUSH_FLAT);
+            }
+        }
+        List<Filter> filters = new ArrayList<>();
+        filters.add(towerTypeFilter);
+        filters.add(segStrFilter);
+        filters.add(materialFilter);
+        filters.add(specificationFilter);
+        filters.add(manuFilter);
+        return filters;
+
+    }
+
+    private void addItem(List<FilterQuery> filterQueries, Filter towerTypeFilter, String text) {
+        if (TextUtils.isEmpty(text)) {
+            return;
+        }
+        FilterQuery filterQuery = getFilterQuery(filterQueries, towerTypeFilter.getType());
+        Filter.Item item = new Filter.Item(text, filterQuery.getItems().contains(text));
+        if (!towerTypeFilter.getItems().contains(item)) {
+            towerTypeFilter.getItems().add(item);
+        }
+    }
+
+    private FilterQuery getFilterQuery(List<FilterQuery> filterQueries, int type) {
+        for (FilterQuery filterQuery : filterQueries) {
+            if (filterQuery.getType() == type) {
+                return filterQuery;
+            }
+        }
+        return new FilterQuery();
     }
 }

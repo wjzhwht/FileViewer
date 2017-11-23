@@ -3,6 +3,8 @@ package com.xerofox.fileviewer.api;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
+import com.xerofox.fileviewer.vo.Filter;
+import com.xerofox.fileviewer.vo.FilterQuery;
 import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
 
@@ -17,5 +19,7 @@ public interface FileHelper {
 
     void saveTasks(List<Task> tasks);
 
-    LiveData<ArrayList<TowerPart>> loadTowerParts(Task task);
+    LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, List<FilterQuery> filters);
+
+    LiveData<List<Filter>> loadFilters(Task task, List<FilterQuery> filters);
 }

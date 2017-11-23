@@ -7,6 +7,16 @@ import com.xerofox.fileviewer.util.ByteBufferReader;
 import com.xerofox.fileviewer.util.ByteBufferWriter;
 
 public class TowerPart implements Parcelable {
+    public static final String MANU_WELD = "焊接";
+    public static final String MANU_ZHIWAN = "制弯";
+    public static final String MANU_CUT_ANGEL = "切角";
+    public static final String MANU_CUT_BER = "铲背";
+    public static final String MANU_CUT_ROOT = "清根";
+    public static final String MANU_CLASH_HOLE = "冲孔";
+    public static final String MANU_BORE = "钻孔";
+    public static final String MANU_KAIHE = "开合角";
+    public static final String MANU_FILLET = "坡口";
+    public static final String MANU_PUSH_FLAT = "压扁";
 
     /**
      * 工程Id
@@ -206,7 +216,7 @@ public class TowerPart implements Parcelable {
         }
     }
 
-    public TowerPart(ByteBufferReader br,boolean readBytes) {
+    public TowerPart(ByteBufferReader br, boolean readBytes) {
         this.projectId = br.readInt();
         this.projectName = br.readString();
         this.towerTypeId = br.readInt();
@@ -239,11 +249,11 @@ public class TowerPart implements Parcelable {
         this.mxLsNum = br.readInt();
         this.fileCount = br.readInt();
         if (fileCount == 1) {
-            this.partFile = new PartFile(br,readBytes);
+            this.partFile = new PartFile(br, readBytes);
         }
     }
 
-    public void saveByteArray(ByteBufferWriter br) {
+    void saveByteArray(ByteBufferWriter br) {
         br.write(projectId);
         br.write(projectName);
         br.write(towerTypeId);
@@ -275,7 +285,7 @@ public class TowerPart implements Parcelable {
         br.write(m24LsNum);
         br.write(mxLsNum);
         br.write(fileCount);
-        if (fileCount == 1){
+        if (fileCount == 1) {
             this.partFile.saveByteArray(br);
         }
     }

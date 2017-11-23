@@ -27,6 +27,7 @@ import javax.inject.Inject;
 public class TowerPartActivity extends BaseActivity {
 
     public static final String ARG_TASK = "task";
+
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
@@ -69,6 +70,13 @@ public class TowerPartActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.filter:
+                FilterDialogFragment fragment = FilterDialogFragment.newInstance(new FilterDialogFragment.ViewModelProvider() {
+                    @Override
+                    TowerPartViewModel viewModel() {
+                        return towerPartViewModel;
+                    }
+                });
+                fragment.show(getSupportFragmentManager(), "filter");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -87,8 +95,11 @@ public class TowerPartActivity extends BaseActivity {
                 part -> jumpViewer());
         binding.list.setAdapter(adapter);
         initPartList();
-        Task task = getIntent().getParcelableExtra(ARG_TASK);
-        towerPartViewModel.setTask(task);
+        towerPartViewModel.setTask(getTask());
+    }
+
+    private Task getTask() {
+        return getIntent().getParcelableExtra(ARG_TASK);
     }
 
     private void jumpViewer() {
