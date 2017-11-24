@@ -66,7 +66,11 @@ public class TowerRepository {
         return fileHelper.loadTowerParts(task, filters);
     }
 
-    public LiveData<List<Filter>> getFilters(Task task, List<FilterQuery> filter) {
-        return fileHelper.loadFilters(task, filter);
+//    public LiveData<List<Filter>> getFilters(Task task, List<FilterQuery> filter) {
+//        return fileHelper.loadFilters(task, filter);
+//    }
+
+    public LiveData<List<Filter>> getFilters(Task task) {
+        return fileHelper.loadFilters(task);
     }
 }

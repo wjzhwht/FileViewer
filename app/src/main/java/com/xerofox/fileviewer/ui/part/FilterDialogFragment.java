@@ -99,6 +99,14 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
     }
 
     protected void initView(FilterDialogFragmentBinding binding) {
+        binding.clear.setOnClickListener(v -> {
+            getViewModelProvider().viewModel().clearFilters();
+            dismiss();
+        });
+        binding.done.setOnClickListener(v -> {
+            getViewModelProvider().viewModel().doFilters();
+            dismiss();
+        });
         FilterAdapter adapter = new FilterAdapter(getActivity());
         binding.list.setAdapter(adapter);
         getViewModelProvider().viewModel().getFilters().observe(this, data -> {
@@ -107,8 +115,8 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
             } else {
                 adapter.replace(data);
             }
-
         });
+//        adapter.replace(getViewModelProvider().viewModel().getFilters().getValue());
     }
 
     private ViewModelProvider getViewModelProvider() {

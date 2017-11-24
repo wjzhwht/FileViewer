@@ -41,11 +41,12 @@ public class TowerPartViewModel extends ViewModel {
             if (input == null) {
                 return AbsentLiveData.create();
             } else {
-                List<FilterQuery> filter = Collections.emptyList();
-                if (param.getValue() != null) {
-                    filter = param.getValue().filter;
-                }
-                return repository.getFilters(input, filter);
+//                List<FilterQuery> filter = Collections.emptyList();
+//                if (param.getValue() != null) {
+//                    filter = param.getValue().filter;
+//                }
+//                return repository.getFilters(input, filter);
+                return repository.getFilters(input);
             }
         });
     }
@@ -59,12 +60,36 @@ public class TowerPartViewModel extends ViewModel {
         this.param.setValue(param);
     }
 
-    void setFilters(List<FilterQuery> filters) {
+    void clearFilters() {
+        setFilters(Collections.emptyList());
+    }
+
+    private void setFilters(List<FilterQuery> filters) {
         if (this.param.getValue() == null || this.param.getValue().task == null || Objects.equals(this.param.getValue().filter, filters)) {
             return;
         }
         Param param = new Param(this.param.getValue().task, filters);
         this.param.setValue(param);
+    }
+
+    void doFilters() {
+        if (this.filters.getValue() == null
+                || this.filters.getValue().isEmpty()) {
+            return;
+        }
+        List<FilterQuery> filterQueries = new ArrayList<>();
+        for (Filter filter : filters.getValue()) {
+            FilterQuery filterQuery = new FilterQuery(filter.getName(), filter.getType());
+            for (Filter.Item item : filter.getItems()) {
+                if (item.isSelected()) {
+                    filterQuery.getItems().add(item.getName());
+                }
+            }
+            if (!filterQuery.getItems().isEmpty()) {
+                filterQueries.add(filterQuery);
+            }
+        }
+        setFilters(filterQueries);
     }
 
     LiveData<ArrayList<TowerPart>> getTowerParts() {
@@ -75,12 +100,12 @@ public class TowerPartViewModel extends ViewModel {
         return filters;
     }
 
-    public List<FilterQuery> getQueryFilter() {
-        if (param.getValue() == null) {
-            return null;
-        }
-        return param.getValue().filter;
-    }
+//    public List<FilterQuery> getQueryFilter() {
+//        if (param.getValue() == null) {
+//            return null;
+//        }
+//        return param.getValue().filter;
+//    }
 
     static class Param {
         public final Task task;

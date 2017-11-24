@@ -115,5 +115,10 @@ public class TowerPartActivity extends BaseActivity {
                 adapter.replace(Collections.emptyList());
             }
         });
+//        towerPartViewModel.getFilters().observe(this, data -> {
+//            if (data != null) {
+//                ToastUtils.showToast(String.valueOf(data.size()));
+//            }
+//        });
     }
 }

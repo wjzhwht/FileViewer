@@ -12,10 +12,10 @@ public class FilterQuery {
         this.items = new ArrayList<>();
     }
 
-    public FilterQuery(String name, int type, List<String> items) {
+    public FilterQuery(String name, int type) {
         this.name = name;
         this.type = type;
-        this.items = items;
+        this.items = new ArrayList<>();
     }
 
     public String getName() {

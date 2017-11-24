@@ -30,14 +30,14 @@ public class FilterAdapter extends DataBoundListAdapter<Filter, FilterDialogFrag
         binding.setFilter(filter);
         FilterItemAdapter adapter = new FilterItemAdapter();
         binding.list.setLayoutManager(new GridLayoutManager(context, filter.getCountColumn()));
-        adapter.replace(filter.getItems());
         binding.list.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        adapter.replace(filter.getItems());
     }
 
     @Override
     protected boolean areItemsTheSame(Filter oldItem, Filter newItem) {
-        return Objects.equals(oldItem.getName(), newItem.getName());
+        return Objects.equals(oldItem.getName(), newItem.getName())
+                && oldItem.getType() == newItem.getType();
     }
 
     @Override

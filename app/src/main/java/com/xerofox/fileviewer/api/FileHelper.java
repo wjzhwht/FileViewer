@@ -21,5 +21,5 @@ public interface FileHelper {
 
     LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, List<FilterQuery> filters);
 
-    LiveData<List<Filter>> loadFilters(Task task, List<FilterQuery> filters);
+    LiveData<List<Filter>> loadFilters(Task task);
 }

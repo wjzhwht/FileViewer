@@ -16,7 +16,10 @@ public class FilterItemAdapter extends DataBoundListAdapter<Filter.Item, FilterI
     protected FilterItemBinding createBinding(ViewGroup parent) {
         FilterItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
                 R.layout.filter_item, parent, false);
-        binding.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> binding.getItem().setSelected(isChecked));
+        binding.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.getItem().setSelected(isChecked);
+            binding.checkBox.setChecked(isChecked);
+        });
         return binding;
     }
 
@@ -27,11 +30,13 @@ public class FilterItemAdapter extends DataBoundListAdapter<Filter.Item, FilterI
 
     @Override
     protected boolean areItemsTheSame(Filter.Item oldItem, Filter.Item newItem) {
-        return Objects.equals(oldItem.getName(), newItem.getName());
+        return Objects.equals(oldItem.getName(), newItem.getName())
+                && oldItem.isSelected() == newItem.isSelected();
     }
 
     @Override
     protected boolean areContentsTheSame(Filter.Item oldItem, Filter.Item newItem) {
-        return Objects.equals(oldItem.getName(), newItem.getName());
+        return Objects.equals(oldItem.getName(), newItem.getName())
+                && oldItem.isSelected() == newItem.isSelected();
     }
 }

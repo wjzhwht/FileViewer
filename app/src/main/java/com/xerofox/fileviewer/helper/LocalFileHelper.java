@@ -190,81 +190,80 @@ public class LocalFileHelper implements FileHelper {
 
     @NonNull
     private ArrayList<TowerPart> doFilter(Task taskNew, List<FilterQuery> filters) {
+        if (filters == null || filters.isEmpty()) {
+            return taskNew.getPartList();
+        }
         ArrayList<TowerPart> partList = new ArrayList<>();
         for (TowerPart part : taskNew.getPartList()) {
             boolean add = false;
-            if (filters == null || filters.isEmpty()) {
-                return taskNew.getPartList();
-            } else {
-                for (FilterQuery filter : filters) {
-                    if (filter == null || filter.getItems() == null || filter.getItems().isEmpty()) {
-                        add = true;
-                    } else {
-                        switch (filter.getType()) {
-                            case Filter.TYPE_TOWER_TYPE:
-                                add = filter.getItems().contains(part.getTowerTypeName());
-                                break;
-                            case Filter.TYPE_SEG_STR:
-                                add = filter.getItems().contains(part.getSegStr());
-                                break;
-                            case Filter.TYPE_MATERIAL_MARK:
-                                add = filter.getItems().contains(part.getMaterialMark());
-                                break;
-                            case Filter.TYPE_SPECIFICATION:
-                                add = filter.getItems().contains(part.getSpecification());
-                                break;
-                            case Filter.TYPE_MANU:
-                                for (String manu : filter.getItems()) {
-                                    boolean b = false;
-                                    switch (manu) {
-                                        case TowerPart.MANU_WELD:
-                                            b = part.getManuHourWeld() > 0;
-                                            break;
-                                        case TowerPart.MANU_ZHIWAN:
-                                            b = part.getManuHourZhiWan() > 0;
-                                            break;
-                                        case TowerPart.MANU_CUT_ANGEL:
-                                            b = part.getManuHourCutAngle() > 0;
-                                            break;
-                                        case TowerPart.MANU_CUT_BER:
-                                            b = part.getManuHourCutBer() > 0;
-                                            break;
-                                        case TowerPart.MANU_CUT_ROOT:
-                                            b = part.getManuHourCutRoot() > 0;
-                                            break;
-                                        case TowerPart.MANU_CLASH_HOLE:
-                                            b = part.getManuHourClashHole() > 0;
-                                            break;
-                                        case TowerPart.MANU_BORE:
-                                            b = part.getManuHourBore() > 0;
-                                            break;
-                                        case TowerPart.MANU_KAIHE:
-                                            b = part.getManuHourKaiHe() > 0;
-                                            break;
-                                        case TowerPart.MANU_FILLET:
-                                            b = part.getManuHourFillet() > 0;
-                                            break;
-                                        case TowerPart.MANU_PUSH_FLAT:
-                                            b = part.getManuHourPushFlat() > 0;
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                    if (b) {
-                                        add = true;
+            for (FilterQuery filter : filters) {
+                if (filter == null || filter.getItems() == null || filter.getItems().isEmpty()) {
+                    add = true;
+                } else {
+                    switch (filter.getType()) {
+                        case Filter.TYPE_TOWER_TYPE:
+                            add = filter.getItems().contains(part.getTowerTypeName());
+                            break;
+                        case Filter.TYPE_SEG_STR:
+                            add = filter.getItems().contains(part.getSegStr());
+                            break;
+                        case Filter.TYPE_MATERIAL_MARK:
+                            add = filter.getItems().contains(part.getMaterialMark());
+                            break;
+                        case Filter.TYPE_SPECIFICATION:
+                            add = filter.getItems().contains(part.getSpecification());
+                            break;
+                        case Filter.TYPE_MANU:
+                            for (String manu : filter.getItems()) {
+                                boolean b = false;
+                                switch (manu) {
+                                    case TowerPart.MANU_WELD:
+                                        b = part.getManuHourWeld() > 0;
                                         break;
-                                    }
+                                    case TowerPart.MANU_ZHIWAN:
+                                        b = part.getManuHourZhiWan() > 0;
+                                        break;
+                                    case TowerPart.MANU_CUT_ANGEL:
+                                        b = part.getManuHourCutAngle() > 0;
+                                        break;
+                                    case TowerPart.MANU_CUT_BER:
+                                        b = part.getManuHourCutBer() > 0;
+                                        break;
+                                    case TowerPart.MANU_CUT_ROOT:
+                                        b = part.getManuHourCutRoot() > 0;
+                                        break;
+                                    case TowerPart.MANU_CLASH_HOLE:
+                                        b = part.getManuHourClashHole() > 0;
+                                        break;
+                                    case TowerPart.MANU_BORE:
+                                        b = part.getManuHourBore() > 0;
+                                        break;
+                                    case TowerPart.MANU_KAIHE:
+                                        b = part.getManuHourKaiHe() > 0;
+                                        break;
+                                    case TowerPart.MANU_FILLET:
+                                        b = part.getManuHourFillet() > 0;
+                                        break;
+                                    case TowerPart.MANU_PUSH_FLAT:
+                                        b = part.getManuHourPushFlat() > 0;
+                                        break;
+                                    default:
+                                        break;
                                 }
-                                break;
-                            default:
-                                add = true;
-                                break;
+                                if (b) {
+                                    add = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        default:
+                            add = true;
+                            break;
 
-                        }
                     }
-                    if (!add) {
-                        break;
-                    }
+                }
+                if (!add) {
+                    break;
                 }
             }
             if (add) {
@@ -282,6 +281,69 @@ public class LocalFileHelper implements FileHelper {
                 postValue(getFilters(loadTask(task), filters));
             }
         };
+    }
+
+    public LiveData<List<Filter>> loadFilters(Task task) {
+        return new LiveData<List<Filter>>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                postValue(getFilters(loadTask(task)));
+            }
+        };
+    }
+
+    private List<Filter> getFilters(Task task) {
+        Filter towerTypeFilter = new Filter(Filter.TYPE_TOWER_TYPE);
+        Filter segStrFilter = new Filter(Filter.TYPE_SEG_STR);
+        Filter materialFilter = new Filter(Filter.TYPE_MATERIAL_MARK);
+        Filter specificationFilter = new Filter(Filter.TYPE_SPECIFICATION);
+        Filter manuFilter = new Filter(Filter.TYPE_MANU);
+        for (TowerPart part : task.getPartList()) {
+
+            addItem(towerTypeFilter, part.getTowerTypeName());
+            addItem(segStrFilter, part.getSegStr());
+            addItem(materialFilter, part.getMaterialMark());
+            addItem(specificationFilter, part.getSpecification());
+            if (part.getManuHourWeld() > 0) {
+                addItem(manuFilter, TowerPart.MANU_WELD);
+            }
+            if (part.getManuHourZhiWan() > 0) {
+                addItem(manuFilter, TowerPart.MANU_ZHIWAN);
+            }
+            if (part.getManuHourCutAngle() > 0) {
+                addItem(manuFilter, TowerPart.MANU_CUT_ANGEL);
+            }
+            if (part.getManuHourCutBer() > 0) {
+                addItem(manuFilter, TowerPart.MANU_CUT_BER);
+            }
+            if (part.getManuHourCutRoot() > 0) {
+                addItem(manuFilter, TowerPart.MANU_CUT_ROOT);
+            }
+            if (part.getManuHourClashHole() > 0) {
+                addItem(manuFilter, TowerPart.MANU_CLASH_HOLE);
+            }
+            if (part.getManuHourBore() > 0) {
+                addItem(manuFilter, TowerPart.MANU_BORE);
+            }
+            if (part.getManuHourKaiHe() > 0) {
+                addItem(manuFilter, TowerPart.MANU_KAIHE);
+            }
+            if (part.getManuHourFillet() > 0) {
+                addItem(manuFilter, TowerPart.MANU_FILLET);
+            }
+            if (part.getManuHourPushFlat() > 0) {
+                addItem(manuFilter, TowerPart.MANU_PUSH_FLAT);
+            }
+        }
+        List<Filter> filters = new ArrayList<>();
+        filters.add(towerTypeFilter);
+        filters.add(segStrFilter);
+        filters.add(materialFilter);
+        filters.add(specificationFilter);
+        filters.add(manuFilter);
+        return filters;
+
     }
 
     private List<Filter> getFilters(Task task, List<FilterQuery> filterQueries) {
@@ -335,6 +397,16 @@ public class LocalFileHelper implements FileHelper {
         filters.add(manuFilter);
         return filters;
 
+    }
+
+    private void addItem(Filter towerTypeFilter, String text) {
+        if (TextUtils.isEmpty(text)) {
+            return;
+        }
+        Filter.Item item = new Filter.Item(text, false);
+        if (!towerTypeFilter.getItems().contains(item)) {
+            towerTypeFilter.getItems().add(item);
+        }
     }
 
     private void addItem(List<FilterQuery> filterQueries, Filter towerTypeFilter, String text) {
