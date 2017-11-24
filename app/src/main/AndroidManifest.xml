@@ -19,17 +19,21 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/task_list">
+            android:label="@string/task_list"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.viewer.ViewerActivity" />
+        <activity
+            android:name=".ui.viewer.ViewerActivity"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".ui.part.TowerPartActivity"
-            android:label="@string/title_tower_part_activity" />
+            android:label="@string/title_tower_part_activity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -633,4 +633,19 @@ public class TowerPart implements Parcelable {
             return new TowerPart[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TowerPart part = (TowerPart) o;
+
+        return id == part.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

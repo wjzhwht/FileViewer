@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface FileHelper {
+    String PATH_ROOT = "xerofox";
+    String TASK_PRIFIX = "n_";
+    String TASK_SEPARATION = "#";
+    String TOWER_FILE_EXSTENSION = ".tpp";
     String PART_FOLDER_SUFFIX = "Files";
 
     @NonNull

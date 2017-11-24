@@ -92,7 +92,7 @@ public class TowerPartActivity extends BaseActivity {
         setSupportActionBar(binding.toolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         adapter = new TowerPartAdapter(dataBindingComponent,
-                part -> jumpViewer());
+                part -> jumpViewer(part));
         binding.list.setAdapter(adapter);
         initPartList();
         towerPartViewModel.setTask(getTask());
@@ -102,9 +102,10 @@ public class TowerPartActivity extends BaseActivity {
         return getIntent().getParcelableExtra(ARG_TASK);
     }
 
-    private void jumpViewer() {
+    private void jumpViewer(TowerPart part) {
         ArrayList<TowerPart> towerParts = towerPartViewModel.getTowerParts().getValue();
-        startActivity(ViewerActivity.newIntent(this, towerParts));
+        int position = towerParts.indexOf(part);
+        startActivity(ViewerActivity.newIntent(this, getTask(), towerParts, position));
     }
 
     private void initPartList() {

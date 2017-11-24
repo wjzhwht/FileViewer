@@ -11,5 +11,6 @@
     <string name="title_tower_part_activity">工艺卡列表</string>
     <string name="search">搜索</string>
     <string name="input_part_id">请输入件号</string>
+    <string name="image_index">共%1$d件，第%2$d件</string>
 
 </resources>

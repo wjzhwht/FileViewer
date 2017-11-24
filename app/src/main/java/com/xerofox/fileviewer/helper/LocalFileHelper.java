@@ -27,10 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 public class LocalFileHelper implements FileHelper {
-    private static final String PATH_ROOT = "xerofox";
-    private static final String TASK_PRIFIX = "n_";
-    private static final String TASK_SEPARATION = "#";
-    private static final String TOWER_FILE_EXSTENSION = ".tpp";
     //    File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     File directory = Environment.getExternalStorageDirectory();
 
