@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
@@ -9,52 +8,66 @@
             type="com.xerofox.fileviewer.vo.TowerPart" />
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?selectableItemBackground">
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/seg_i"
-            android:layout_width="wrap_content"
+            android:id="@+id/seg_str"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{String.valueOf(part.id)}"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:text="@{String.valueOf(part.segStr)}"
+            android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/seg_no"
-            android:layout_width="wrap_content"
+            android:id="@+id/part_no"
+            android:layout_width="48dp"
             android:layout_height="20dp"
             android:layout_marginBottom="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{part.segStr}"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/seg_i"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:text="@{part.partNo}"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/material_mark"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{part.materialMark}"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/specification"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="@{part.specification}"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/seg_no"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textSize="16sp" />
 
-    </android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/manu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{part.getManuString()}"
+            android:textSize="16sp" />
+
+    </LinearLayout>
 </layout>
