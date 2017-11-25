@@ -12,5 +12,13 @@
     <string name="search">搜索</string>
     <string name="input_part_id">请输入件号</string>
     <string name="image_index">共%1$d件，第%2$d件</string>
+    <string name="download">下载</string>
+    <string name="settings">设置</string>
+    <string name="seg_str">段号</string>
+    <string name="part_no">件号</string>
+    <string name="material">材质</string>
+    <string name="specification">规格</string>
+    <string name="manu">工艺</string>
+    <string name="input_ip">请输入IP</string>
 
 </resources>

@@ -34,6 +34,9 @@
             android:name=".ui.part.TowerPartActivity"
             android:label="@string/title_tower_part_activity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.settings.SettingActivity"
+            android:label="@string/settings" />
     </application>
 
 </manifest>

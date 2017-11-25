@@ -8,6 +8,9 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,6 +19,7 @@ import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
 import com.xerofox.fileviewer.ui.part.TowerPartActivity;
+import com.xerofox.fileviewer.ui.settings.SettingActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 
 import javax.inject.Inject;
@@ -32,6 +36,25 @@ public class SearchFragment extends BaseFragment {
     AutoClearedValue<TaskListAdapter> adapter;
 
     private SearchViewModel searchViewModel;
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_search, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.download:
+                return true;
+            case R.id.settings:
+                startActivity(new Intent(getActivity(), SettingActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Nullable
     @Override
@@ -56,7 +79,7 @@ public class SearchFragment extends BaseFragment {
         });
         binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
-
+        setHasOptionsMenu(true);
     }
 
     private void initRecyclerView() {

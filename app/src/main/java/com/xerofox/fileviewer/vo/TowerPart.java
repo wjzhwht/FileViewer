@@ -290,6 +290,47 @@ public class TowerPart implements Parcelable {
         }
     }
 
+    public String getManuString() {
+        StringBuilder sb = new StringBuilder();
+        if (manuHourWeld > 0) {
+            sb.append(MANU_WELD);
+            sb.append(",");
+        }
+        if (manuHourZhiWan > 0) {
+            sb.append(MANU_ZHIWAN);
+            sb.append(",");
+        }
+        if (manuHourCutAngle > 0) {
+            sb.append(MANU_CUT_ANGEL);
+            sb.append(",");
+        }
+        if (manuHourCutBer > 0) {
+            sb.append(MANU_CUT_BER);
+            sb.append(",");
+        }
+        if (manuHourCutRoot > 0) {
+            sb.append(MANU_CUT_ROOT);
+            sb.append(",");
+        }
+        if (manuHourBore > 0) {
+            sb.append(MANU_BORE);
+            sb.append(",");
+        }
+        if (manuHourKaiHe > 0) {
+            sb.append(MANU_KAIHE);
+            sb.append(",");
+        }
+        if (manuHourFillet > 0) {
+            sb.append(MANU_FILLET);
+            sb.append(",");
+        }
+        if (manuHourPushFlat > 0) {
+            sb.append(MANU_PUSH_FLAT);
+            sb.append(",");
+        }
+        return sb.toString();
+    }
+
     public int getProjectId() {
         return projectId;
     }
