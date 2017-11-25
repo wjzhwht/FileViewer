@@ -19,5 +19,6 @@
     <string name="material">材质</string>
     <string name="specification">规格</string>
     <string name="manu">工艺</string>
+    <string name="input_ip">请输入IP</string>
 
 </resources>

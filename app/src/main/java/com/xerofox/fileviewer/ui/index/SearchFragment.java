@@ -19,6 +19,7 @@ import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
 import com.xerofox.fileviewer.ui.part.TowerPartActivity;
+import com.xerofox.fileviewer.ui.settings.SettingActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 
 import javax.inject.Inject;
@@ -48,6 +49,7 @@ public class SearchFragment extends BaseFragment {
             case R.id.download:
                 return true;
             case R.id.settings:
+                startActivity(new Intent(getActivity(), SettingActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
