@@ -3,16 +3,16 @@ package com.xerofox.fileviewer.ui;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 
+import com.xerofox.fileviewer.MainActivity;
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.helper.SettingHelper;
-import com.xerofox.fileviewer.ui.init.InitializationActivity;
+import com.xerofox.fileviewer.ui.common.BaseActivity;
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends BaseActivity {
     private static final int UI_ANIMATION_DELAY = 300;
     private static final int START_DELAY = 2000;
     private final Handler mHandler = new Handler();
@@ -35,9 +35,9 @@ public class SplashActivity extends AppCompatActivity {
             actionBar.show();
         }
     };
-    private final Runnable mHideRunnable = () -> hide();
+    private final Runnable mHideRunnable = this::hide;
 
-    private final Runnable mStartRunnable = () -> start();
+    private final Runnable mStartRunnable = this::start;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void start() {
         if (!SettingHelper.isServerPortSetted()) {
-            Intent intent = new Intent(this, InitializationActivity.class);
+            Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
