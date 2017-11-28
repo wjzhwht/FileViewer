@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">工艺切片文件查看器</string>
+    <string name="app_name">工艺卡查看器</string>
     <string name="task_list">计划号列表</string>
     <string name="title_activity_initialization">设置端口</string>
     <string name="ok">确定</string>
@@ -20,5 +20,7 @@
     <string name="specification">规格</string>
     <string name="manu">工艺</string>
     <string name="input_ip">请输入IP</string>
+    <string name="look_over_file">查看文件</string>
+    <string name="task_manage">任务管理</string>
 
 </resources>

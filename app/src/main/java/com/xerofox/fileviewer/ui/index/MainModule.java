@@ -11,4 +11,8 @@ abstract public class MainModule {
     @FragmentScoped
     @ContributesAndroidInjector
     abstract SearchFragment searchFragment();
+
+    @FragmentScoped
+    @ContributesAndroidInjector
+    abstract FunctionFragment functionFragment();
 }

@@ -4,6 +4,7 @@ import android.support.v4.app.FragmentManager;
 
 import com.xerofox.fileviewer.MainActivity;
 import com.xerofox.fileviewer.R;
+import com.xerofox.fileviewer.ui.index.FunctionFragment;
 import com.xerofox.fileviewer.ui.index.SearchFragment;
 
 import javax.inject.Inject;
@@ -14,16 +15,25 @@ import javax.inject.Inject;
 public class NavigationController {
     private final int containerId;
     private final FragmentManager fragmentManager;
+
     @Inject
     public NavigationController(MainActivity mainActivity) {
         this.containerId = R.id.container;
         this.fragmentManager = mainActivity.getSupportFragmentManager();
     }
 
+    public void navigateToFunction() {
+        FunctionFragment functionFragment = FunctionFragment.newInstance();
+        fragmentManager.beginTransaction()
+                .replace(containerId, functionFragment)
+                .commitAllowingStateLoss();
+    }
+
     public void navigateToSearch() {
         SearchFragment searchFragment = new SearchFragment();
         fragmentManager.beginTransaction()
                 .replace(containerId, searchFragment)
+                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 
