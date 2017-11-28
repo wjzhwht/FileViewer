@@ -19,7 +19,6 @@ import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
 import com.xerofox.fileviewer.ui.part.TowerPartActivity;
-import com.xerofox.fileviewer.ui.settings.SettingActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 
 import javax.inject.Inject;
@@ -48,9 +47,6 @@ public class SearchFragment extends BaseFragment {
         switch (item.getItemId()) {
             case R.id.download:
                 return true;
-            case R.id.settings:
-                startActivity(new Intent(getActivity(), SettingActivity.class));
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -70,6 +66,7 @@ public class SearchFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        getActivity().setTitle(R.string.task_list);
         searchViewModel = ViewModelProviders.of(this, viewModelFactory).get(SearchViewModel.class);
         initRecyclerView();
         TaskListAdapter rvAdapter = new TaskListAdapter(dataBindingComponent, task -> {

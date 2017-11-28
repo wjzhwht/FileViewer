@@ -1,11 +1,10 @@
-package com.xerofox.fileviewer.ui.common;
+package com.xerofox.fileviewer.ui.index;
 
 import android.support.v4.app.FragmentManager;
 
 import com.xerofox.fileviewer.MainActivity;
 import com.xerofox.fileviewer.R;
-import com.xerofox.fileviewer.ui.index.FunctionFragment;
-import com.xerofox.fileviewer.ui.index.SearchFragment;
+import com.xerofox.fileviewer.ui.settings.SettingsFragment;
 
 import javax.inject.Inject;
 
@@ -33,6 +32,14 @@ public class NavigationController {
         SearchFragment searchFragment = new SearchFragment();
         fragmentManager.beginTransaction()
                 .replace(containerId, searchFragment)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
+    public void navigateToSettings() {
+        SettingsFragment fragment = SettingsFragment.newInstance();
+        fragmentManager.beginTransaction()
+                .replace(containerId, fragment)
                 .addToBackStack(null)
                 .commitAllowingStateLoss();
     }

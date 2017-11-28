@@ -11,7 +11,7 @@ import android.support.v4.app.Fragment;
 
 import com.xerofox.fileviewer.databinding.MainActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
-import com.xerofox.fileviewer.ui.common.NavigationController;
+import com.xerofox.fileviewer.ui.index.NavigationController;
 
 import javax.inject.Inject;
 

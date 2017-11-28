@@ -8,10 +8,4 @@
         android:title="@string/download"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/settings"
-        android:icon="@drawable/ic_settings_white_24dp"
-        android:title="@string/settings"
-        app:showAsAction="ifRoom" />
-
 </menu>
