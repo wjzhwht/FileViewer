@@ -16,4 +16,10 @@
         android:visible="false"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/download"
+        android:icon="@drawable/ic_file_download_white_24dp"
+        android:title="@string/download"
+        app:showAsAction="ifRoom"/>
+
 </menu>
