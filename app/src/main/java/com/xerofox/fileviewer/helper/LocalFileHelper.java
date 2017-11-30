@@ -11,6 +11,7 @@ import com.xerofox.fileviewer.util.ByteBufferWriter;
 import com.xerofox.fileviewer.util.FileUtil;
 import com.xerofox.fileviewer.vo.Filter;
 import com.xerofox.fileviewer.vo.FilterQuery;
+import com.xerofox.fileviewer.vo.MenuFilter;
 import com.xerofox.fileviewer.vo.PartFile;
 import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
@@ -176,7 +177,7 @@ public class LocalFileHelper implements FileHelper {
     }
 
     @Override
-    public LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, List<FilterQuery> filters) {
+    public LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, MenuFilter[] filters) {
         return new LiveData<ArrayList<TowerPart>>() {
             @Override
             protected void onActive() {
@@ -187,78 +188,16 @@ public class LocalFileHelper implements FileHelper {
     }
 
     @NonNull
-    private ArrayList<TowerPart> doFilter(Task taskNew, List<FilterQuery> filters) {
-        if (filters == null || filters.isEmpty()) {
+    private ArrayList<TowerPart> doFilter(Task taskNew, MenuFilter[] filters) {
+        if (filters == null || filters.length == 0) {
             return taskNew.getPartList();
         }
         ArrayList<TowerPart> partList = new ArrayList<>();
         for (TowerPart part : taskNew.getPartList()) {
-            boolean add = false;
-            for (FilterQuery filter : filters) {
-                if (filter == null || filter.getItems() == null || filter.getItems().isEmpty()) {
-                    add = true;
-                } else {
-                    switch (filter.getType()) {
-                        case Filter.TYPE_TOWER_TYPE:
-                            add = filter.getItems().contains(part.getTowerTypeName());
-                            break;
-                        case Filter.TYPE_SEG_STR:
-                            add = filter.getItems().contains(part.getSegStr());
-                            break;
-                        case Filter.TYPE_MATERIAL_MARK:
-                            add = filter.getItems().contains(part.getMaterialMark());
-                            break;
-                        case Filter.TYPE_SPECIFICATION:
-                            add = filter.getItems().contains(part.getSpecification());
-                            break;
-                        case Filter.TYPE_MANU:
-                            for (String manu : filter.getItems()) {
-                                boolean b = false;
-                                switch (manu) {
-                                    case TowerPart.MANU_WELD:
-                                        b = part.getManuHourWeld() > 0;
-                                        break;
-                                    case TowerPart.MANU_ZHIWAN:
-                                        b = part.getManuHourZhiWan() > 0;
-                                        break;
-                                    case TowerPart.MANU_CUT_ANGEL:
-                                        b = part.getManuHourCutAngle() > 0;
-                                        break;
-                                    case TowerPart.MANU_CUT_BER:
-                                        b = part.getManuHourCutBer() > 0;
-                                        break;
-                                    case TowerPart.MANU_CUT_ROOT:
-                                        b = part.getManuHourCutRoot() > 0;
-                                        break;
-                                    case TowerPart.MANU_CLASH_HOLE:
-                                        b = part.getManuHourClashHole() > 0;
-                                        break;
-                                    case TowerPart.MANU_BORE:
-                                        b = part.getManuHourBore() > 0;
-                                        break;
-                                    case TowerPart.MANU_KAIHE:
-                                        b = part.getManuHourKaiHe() > 0;
-                                        break;
-                                    case TowerPart.MANU_FILLET:
-                                        b = part.getManuHourFillet() > 0;
-                                        break;
-                                    case TowerPart.MANU_PUSH_FLAT:
-                                        b = part.getManuHourPushFlat() > 0;
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                if (b) {
-                                    add = true;
-                                    break;
-                                }
-                            }
-                            break;
-                        default:
-                            add = true;
-                            break;
-
-                    }
+            boolean add = true;
+            for (MenuFilter filter : filters) {
+                if (filter != null) {
+                    add = filter.match(part);
                 }
                 if (!add) {
                     break;

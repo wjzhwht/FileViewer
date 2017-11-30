@@ -15,7 +15,7 @@ import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
 import com.xerofox.fileviewer.databinding.TowerPartActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
 import com.xerofox.fileviewer.ui.viewer.ViewerActivity;
-import com.xerofox.fileviewer.util.ToastUtils;
+import com.xerofox.fileviewer.vo.MenuFilter;
 import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
 
@@ -31,7 +31,7 @@ public class TowerPartActivity extends BaseActivity {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-    private TowerPartViewModel towerPartViewModel;
+    private TowerPartViewModel viewModel;
 
     DataBindingComponent dataBindingComponent = new FragmentDataBindingComponent(this);
     TowerPartActivityBinding binding;
@@ -46,15 +46,16 @@ public class TowerPartActivity extends BaseActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                ToastUtils.showToast(query);
                 searchView.clearFocus();
                 searchView.onActionViewCollapsed();
+                viewModel.setQuery(query);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+                viewModel.setQuery(newText);
+                return true;
             }
         });
         return true;
@@ -73,7 +74,7 @@ public class TowerPartActivity extends BaseActivity {
                 FilterDialogFragment fragment = FilterDialogFragment.newInstance(new FilterDialogFragment.ViewModelProvider() {
                     @Override
                     TowerPartViewModel viewModel() {
-                        return towerPartViewModel;
+                        return viewModel;
                     }
                 });
                 fragment.show(getSupportFragmentManager(), "filter");
@@ -87,15 +88,33 @@ public class TowerPartActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.tower_part_activity, dataBindingComponent);
-        towerPartViewModel = ViewModelProviders.of(this, viewModelFactory).get(TowerPartViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TowerPartViewModel.class);
 
         setSupportActionBar(binding.toolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        adapter = new TowerPartAdapter(dataBindingComponent,
-                part -> jumpViewer(part));
+
+        PartMenuAdapter partMenuAdapter = new PartMenuAdapter(this, viewModel.getFilterTitles(), viewModel.getFilterLists(), this::onFilterItemClick);
+        binding.dropMenu.setMenuAdapter(partMenuAdapter, viewModel.getFilterTitles());
+
+        adapter = new TowerPartAdapter(dataBindingComponent, this::jumpViewer);
         binding.list.setAdapter(adapter);
         initPartList();
-        towerPartViewModel.setTask(getTask());
+        viewModel.setTask(getTask());
+    }
+
+    private void onFilterItemClick(int position, MenuFilter menuFilter) {
+        switch (position) {
+            case 0:
+                viewModel.setFilter1(menuFilter);
+                break;
+            case 1:
+                viewModel.setFilter2(menuFilter);
+                break;
+            default:
+                break;
+        }
+        binding.dropMenu.setPositionIndicatorText(position, menuFilter.getText());
+        binding.dropMenu.close();
     }
 
     private Task getTask() {
@@ -103,13 +122,13 @@ public class TowerPartActivity extends BaseActivity {
     }
 
     private void jumpViewer(TowerPart part) {
-        ArrayList<TowerPart> towerParts = towerPartViewModel.getTowerParts().getValue();
+        ArrayList<TowerPart> towerParts = viewModel.getTowerParts().getValue();
         int position = towerParts.indexOf(part);
         startActivity(ViewerActivity.newIntent(this, getTask(), towerParts, position));
     }
 
     private void initPartList() {
-        towerPartViewModel.getTowerParts().observe(this, data -> {
+        viewModel.getTowerParts().observe(this, data -> {
             if (data != null) {
                 adapter.replace(data);
             } else {

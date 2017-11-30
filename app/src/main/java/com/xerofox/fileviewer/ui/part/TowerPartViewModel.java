@@ -9,13 +9,11 @@ import android.support.annotation.VisibleForTesting;
 import com.xerofox.fileviewer.repository.TowerRepository;
 import com.xerofox.fileviewer.util.AbsentLiveData;
 import com.xerofox.fileviewer.util.Objects;
-import com.xerofox.fileviewer.vo.Filter;
-import com.xerofox.fileviewer.vo.FilterQuery;
+import com.xerofox.fileviewer.vo.MenuFilter;
 import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -25,7 +23,8 @@ public class TowerPartViewModel extends ViewModel {
     private final MutableLiveData<Param> param = new MutableLiveData<>();
     private final MutableLiveData<Task> task = new MutableLiveData<>();
     private final LiveData<ArrayList<TowerPart>> towerParts;
-    private final LiveData<List<Filter>> filters;
+    private final List<String> filterTitles;
+    private final List<List<MenuFilter>> filterLists;
 
     @Inject
     public TowerPartViewModel(TowerRepository repository) {
@@ -33,22 +32,12 @@ public class TowerPartViewModel extends ViewModel {
             if (input == null || input.task == null) {
                 return AbsentLiveData.create();
             } else {
-                return repository.getTowerParts(input.task, input.filter);
+                return repository.getTowerParts(input.task, input.filter, input.filter1, input.filter2);
             }
         });
 
-        filters = Transformations.switchMap(task, input -> {
-            if (input == null) {
-                return AbsentLiveData.create();
-            } else {
-//                List<FilterQuery> filter = Collections.emptyList();
-//                if (param.getValue() != null) {
-//                    filter = param.getValue().filter;
-//                }
-//                return repository.getFilters(input, filter);
-                return repository.getFilters(input);
-            }
-        });
+        filterTitles = repository.getFilterTitles();
+        filterLists = repository.getFilterLists();
     }
 
     void setTask(Task task) {
@@ -56,64 +45,86 @@ public class TowerPartViewModel extends ViewModel {
             return;
         }
         this.task.setValue(task);
-        Param param = new Param(task, Collections.emptyList());
+        Param param = new Param(task, null, null, null);
         this.param.setValue(param);
     }
 
-    void clearFilters() {
-        setFilters(Collections.emptyList());
-    }
+//    void clearFilters() {
+//        setFilters(Collections.emptyList());
+//    }
+//
+//    private void setFilters(List<FilterQuery> filters) {
+//        if (this.param.getValue() == null || this.param.getValue().task == null || Objects.equals(this.param.getValue().filter, filters)) {
+//            return;
+//        }
+//        Param param = new Param(this.param.getValue().task, filters);
+//        this.param.setValue(param);
+//    }
 
-    private void setFilters(List<FilterQuery> filters) {
-        if (this.param.getValue() == null || this.param.getValue().task == null || Objects.equals(this.param.getValue().filter, filters)) {
+    void setQuery(String query) {
+        MenuFilter filter = new PartNoMenuFilter(query);
+        Param param = new Param(this.task.getValue(), filter, this.param.getValue().getFilter1(), this.param.getValue().getFilter2());
+        if (Objects.equals(param, this.param.getValue())) {
             return;
         }
-        Param param = new Param(this.param.getValue().task, filters);
         this.param.setValue(param);
     }
 
-    void doFilters() {
-        if (this.filters.getValue() == null
-                || this.filters.getValue().isEmpty()) {
+    void setFilter1(MenuFilter filter1) {
+        Param param = new Param(this.task.getValue(), this.param.getValue().getFilter(), filter1, this.param.getValue().getFilter2());
+        if (Objects.equals(param, this.param.getValue())) {
             return;
         }
-        List<FilterQuery> filterQueries = new ArrayList<>();
-        for (Filter filter : filters.getValue()) {
-            FilterQuery filterQuery = new FilterQuery(filter.getName(), filter.getType());
-            for (Filter.Item item : filter.getItems()) {
-                if (item.isSelected()) {
-                    filterQuery.getItems().add(item.getName());
-                }
-            }
-            if (!filterQuery.getItems().isEmpty()) {
-                filterQueries.add(filterQuery);
-            }
+        this.param.setValue(param);
+    }
+
+    void setFilter2(MenuFilter filter2) {
+        Param param = new Param(this.task.getValue(), this.param.getValue().getFilter(), this.param.getValue().getFilter1(), filter2);
+        if (Objects.equals(param, this.param.getValue())) {
+            return;
         }
-        setFilters(filterQueries);
+        this.param.setValue(param);
     }
 
     LiveData<ArrayList<TowerPart>> getTowerParts() {
         return towerParts;
     }
 
-    public LiveData<List<Filter>> getFilters() {
-        return filters;
+    public List<String> getFilterTitles() {
+        return filterTitles;
     }
 
-//    public List<FilterQuery> getQueryFilter() {
-//        if (param.getValue() == null) {
-//            return null;
-//        }
-//        return param.getValue().filter;
-//    }
+    public List<List<MenuFilter>> getFilterLists() {
+        return filterLists;
+    }
 
     static class Param {
         public final Task task;
-        public final List<FilterQuery> filter;
+        public final MenuFilter filter;
+        public final MenuFilter filter1;
+        public final MenuFilter filter2;
 
-        Param(Task task, List<FilterQuery> filter) {
+        public Param(Task task, MenuFilter filter, MenuFilter filter1, MenuFilter filter2) {
             this.task = task;
             this.filter = filter;
+            this.filter1 = filter1;
+            this.filter2 = filter2;
+        }
+
+        public Task getTask() {
+            return task;
+        }
+
+        public MenuFilter getFilter() {
+            return filter;
+        }
+
+        public MenuFilter getFilter1() {
+            return filter1;
+        }
+
+        public MenuFilter getFilter2() {
+            return filter2;
         }
 
         @Override
@@ -124,13 +135,18 @@ public class TowerPartViewModel extends ViewModel {
             Param param = (Param) o;
 
             if (task != null ? !task.equals(param.task) : param.task != null) return false;
-            return filter != null ? filter.equals(param.filter) : param.filter == null;
+            if (filter != null ? !filter.equals(param.filter) : param.filter != null) return false;
+            if (filter1 != null ? !filter1.equals(param.filter1) : param.filter1 != null)
+                return false;
+            return filter2 != null ? filter2.equals(param.filter2) : param.filter2 == null;
         }
 
         @Override
         public int hashCode() {
             int result = task != null ? task.hashCode() : 0;
             result = 31 * result + (filter != null ? filter.hashCode() : 0);
+            result = 31 * result + (filter1 != null ? filter1.hashCode() : 0);
+            result = 31 * result + (filter2 != null ? filter2.hashCode() : 0);
             return result;
         }
     }

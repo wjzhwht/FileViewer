@@ -100,22 +100,22 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
 
     protected void initView(FilterDialogFragmentBinding binding) {
         binding.clear.setOnClickListener(v -> {
-            getViewModelProvider().viewModel().clearFilters();
+//            getViewModelProvider().viewModel().clearFilters();
             dismiss();
         });
         binding.done.setOnClickListener(v -> {
-            getViewModelProvider().viewModel().doFilters();
+//            getViewModelProvider().viewModel().doFilters();
             dismiss();
         });
         FilterAdapter adapter = new FilterAdapter(getActivity());
         binding.list.setAdapter(adapter);
-        getViewModelProvider().viewModel().getFilters().observe(this, data -> {
-            if (data == null) {
-                adapter.replace(Collections.emptyList());
-            } else {
-                adapter.replace(data);
-            }
-        });
+//        getViewModelProvider().viewModel().getFilters().observe(this, data -> {
+//            if (data == null) {
+//                adapter.replace(Collections.emptyList());
+//            } else {
+//                adapter.replace(data);
+//            }
+//        });
 //        adapter.replace(getViewModelProvider().viewModel().getFilters().getValue());
     }
 
