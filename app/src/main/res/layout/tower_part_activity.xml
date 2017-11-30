@@ -25,24 +25,15 @@
 
             <TextView
                 android:id="@+id/seg_str"
-                android:layout_width="48dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/seg_str"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/part_no"
-                android:layout_width="48dp"
-                android:layout_height="20dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/part_no"
+                android:gravity="center"
+                android:minWidth="120dp"
+                android:text="@string/tower_type_part_no"
                 android:textSize="16sp" />
 
             <TextView
@@ -53,6 +44,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:text="@string/material"
                 android:textSize="16sp" />
 
@@ -64,6 +56,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:text="@string/specification"
                 android:textSize="16sp" />
 
@@ -75,6 +68,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:text="@string/manu"
                 android:textSize="16sp" />
 

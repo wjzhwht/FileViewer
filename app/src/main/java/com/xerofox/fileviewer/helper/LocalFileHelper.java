@@ -91,12 +91,14 @@ public class LocalFileHelper implements FileHelper {
             if (task.getPartList() != null && !task.getPartList().isEmpty()) {
                 for (TowerPart part : task.getPartList()) {
                     PartFile partFile = part.getPartFile();
-                    File folder = new File(taskFile, partFile.getFileType() + PART_FOLDER_SUFFIX);
-                    if (!folder.exists()) {
-                        folder.mkdirs();
+                    if (partFile != null) {
+                        File folder = new File(taskFile, partFile.getFileType() + PART_FOLDER_SUFFIX);
+                        if (!folder.exists()) {
+                            folder.mkdirs();
+                        }
+                        File pngFile = new File(folder.getPath() + File.separator + partFile.getName());
+                        save(pngFile, partFile.getBytes());
                     }
-                    File pngFile = new File(folder.getPath() + File.separator + partFile.getName());
-                    save(pngFile, partFile.getBytes());
                 }
             }
 

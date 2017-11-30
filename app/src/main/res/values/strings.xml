@@ -11,10 +11,10 @@
     <string name="title_tower_part_activity">工艺卡列表</string>
     <string name="search">搜索</string>
     <string name="input_part_id">请输入件号</string>
-    <string name="image_index">共%1$d件，第%2$d件</string>
+    <string name="image_index">共%1$d件，第%2$d件，%3$s，%4$s，%5$s，%6$s</string>
     <string name="download">下载</string>
     <string name="settings">设置</string>
-    <string name="seg_str">段号</string>
+    <string name="tower_type_part_no">塔型-件号</string>
     <string name="part_no">件号</string>
     <string name="material">材质</string>
     <string name="specification">规格</string>
@@ -22,5 +22,6 @@
     <string name="input_ip">请输入IP</string>
     <string name="look_over_file">查看文件</string>
     <string name="task_manage">任务管理</string>
+    <string name="place_holder_string_string">%1$s-%2$s</string>
 
 </resources>

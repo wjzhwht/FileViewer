@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.ui.common.PhotoView;
 import com.xerofox.fileviewer.vo.TowerPart;
@@ -47,9 +48,13 @@ public class ViewerAdapter extends PagerAdapter {
         view.enable();
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
         TowerPart part = data.get(position);
-        String url = path + part.getPartFile().getFileType() + FileHelper.PART_FOLDER_SUFFIX + File.separator
-                + part.getPartFile().getName();
-        Glide.with(container.getContext()).load(url).into(view);
+        if (part.getPartFile() != null) {
+            String url = path + part.getPartFile().getFileType() + FileHelper.PART_FOLDER_SUFFIX + File.separator
+                    + part.getPartFile().getName();
+            Glide.with(container.getContext()).load(url).into(view);
+        } else {
+            view.setImageResource(R.mipmap.ic_launcher);
+        }
         container.addView(view);
         return view;
     }

@@ -75,7 +75,15 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
     private void setIndex(int position) {
-        String title = getString(R.string.image_index, getTowerParts().size(), position + 1);
+        TowerPart part = getTowerParts().get(position);
+        String title = getString(R.string.image_index,
+                getTowerParts().size(),
+                position + 1,
+                part.getPartNo(),
+                part.getMaterialMark(),
+                part.getSpecification(),
+                part.getManuString()
+        );
         getSupportActionBar().setTitle(title);
     }
 }
