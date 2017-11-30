@@ -16,19 +16,6 @@ public class SplashActivity extends BaseActivity {
     private static final int UI_ANIMATION_DELAY = 300;
     private static final int START_DELAY = 2000;
     private final Handler mHandler = new Handler();
-    private View mContentView;
-    private final Runnable mHidePart2Runnable = new Runnable() {
-        @SuppressLint("InlinedApi")
-        @Override
-        public void run() {
-            mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        }
-    };
     private final Runnable mShowPart2Runnable = () -> {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -43,7 +30,6 @@ public class SplashActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        mContentView = findViewById(R.id.fullscreen_content);
     }
 
     @Override
@@ -59,7 +45,6 @@ public class SplashActivity extends BaseActivity {
             actionBar.hide();
         }
         mHandler.removeCallbacks(mShowPart2Runnable);
-        mHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
     }
 
     private void delayedHide(int delayMillis) {
