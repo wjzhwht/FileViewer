@@ -5,7 +5,7 @@
         android:drawable="@drawable/ic_expand_more_black_24dp"
         android:maxLevel="0" />
     <item
-        android:drawable="@drawable/ic_expand_less_black_24dp"
+        android:drawable="@drawable/ic_expand_less_theme_24dp"
         android:maxLevel="1" />
 
 </level-list>

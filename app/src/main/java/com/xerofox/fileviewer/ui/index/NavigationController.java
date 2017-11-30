@@ -29,7 +29,7 @@ public class NavigationController {
     }
 
     public void navigateToSearch() {
-        SearchFragment searchFragment = new SearchFragment();
+        TaskFragment searchFragment = new TaskFragment();
         fragmentManager.beginTransaction()
                 .replace(containerId, searchFragment)
                 .addToBackStack(null)

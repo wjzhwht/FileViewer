@@ -11,13 +11,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class SearchViewModel extends ViewModel {
+public class TaskViewModel extends ViewModel {
 
     private final LiveData<Resource<List<Task>>> tasks;
 
-
     @Inject
-    SearchViewModel(TowerRepository repository) {
+    TaskViewModel(TowerRepository repository) {
         tasks = repository.loadAllTasks();
     }
 

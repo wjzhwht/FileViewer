@@ -12,13 +12,15 @@ import com.xerofox.fileviewer.ui.common.DataBoundListAdapter;
 import com.xerofox.fileviewer.util.Objects;
 import com.xerofox.fileviewer.vo.Task;
 
+import javax.inject.Inject;
+
 public class TaskListAdapter extends DataBoundListAdapter<Task, TaskItemBinding> {
-    private final DataBindingComponent dataBindingComponent;
+
+    @Inject
+    DataBindingComponent dataBindingComponent;
     private OnItemClickListener<Task> onItemClickListener;
 
-    public TaskListAdapter(DataBindingComponent dataBindingComponent,
-                           OnItemClickListener<Task> onItemClickListener) {
-        this.dataBindingComponent = dataBindingComponent;
+    public TaskListAdapter(OnItemClickListener<Task> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 

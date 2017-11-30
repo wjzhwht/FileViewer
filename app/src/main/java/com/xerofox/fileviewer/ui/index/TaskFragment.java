@@ -23,34 +23,35 @@ import com.xerofox.fileviewer.util.AutoClearedValue;
 
 import javax.inject.Inject;
 
-public class SearchFragment extends BaseFragment {
+public class TaskFragment extends BaseFragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-    DataBindingComponent dataBindingComponent = new FragmentDataBindingComponent(getActivity());
+    @Inject
+    DataBindingComponent dataBindingComponent;
 
     AutoClearedValue<SearchFragmentBinding> binding;
 
     AutoClearedValue<TaskListAdapter> adapter;
 
-    private SearchViewModel searchViewModel;
+    private TaskViewModel taskViewModel;
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_search, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.download:
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu, inflater);
+//        inflater.inflate(R.menu.menu_search, menu);
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.download:
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
     @Nullable
     @Override
@@ -67,20 +68,20 @@ public class SearchFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTitle(R.string.task_list);
-        searchViewModel = ViewModelProviders.of(this, viewModelFactory).get(SearchViewModel.class);
+        taskViewModel = ViewModelProviders.of(this, viewModelFactory).get(TaskViewModel.class);
         initRecyclerView();
-        TaskListAdapter rvAdapter = new TaskListAdapter(dataBindingComponent, task -> {
+        TaskListAdapter rvAdapter = new TaskListAdapter(task -> {
             Intent intent = new Intent(getActivity(), TowerPartActivity.class);
             intent.putExtra(TowerPartActivity.ARG_TASK, task);
             startActivity(intent);
         });
         binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
-        setHasOptionsMenu(true);
+//        setHasOptionsMenu(true);
     }
 
     private void initRecyclerView() {
-        searchViewModel.getTasks().observe(this, result -> {
+        taskViewModel.getTasks().observe(this, result -> {
             binding.get().setResultCount(result == null || result.data == null ? 0 : result.data.size());
             adapter.get().replace(result == null ? null : result.data);
             binding.get().executePendingBindings();

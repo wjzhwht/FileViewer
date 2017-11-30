@@ -3,7 +3,7 @@ package com.xerofox.fileviewer.di;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
-import com.xerofox.fileviewer.ui.index.SearchViewModel;
+import com.xerofox.fileviewer.ui.index.TaskViewModel;
 import com.xerofox.fileviewer.ui.part.TowerPartViewModel;
 
 import dagger.Binds;
@@ -14,8 +14,8 @@ import dagger.multibindings.IntoMap;
 abstract class ViewModelModule {
     @Binds
     @IntoMap
-    @ViewModelKey(SearchViewModel.class)
-    abstract ViewModel bindSearchViewModel(SearchViewModel searchViewModel);
+    @ViewModelKey(TaskViewModel.class)
+    abstract ViewModel bindSearchViewModel(TaskViewModel taskViewModel);
 
     @Binds
     @IntoMap
