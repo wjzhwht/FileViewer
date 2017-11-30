@@ -6,6 +6,16 @@ android {
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
     }
+
+    signingConfigs{
+        release {
+            keyAlias 'fileviewer'
+            keyPassword 'xerofox'
+            storeFile file('release.jks')
+            storePassword 'xerofox'
+        }
+    }
+
     defaultConfig {
         applicationId "com.xerofox.fileviewer"
         vectorDrawables.useSupportLibrary = true
