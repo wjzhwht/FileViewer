@@ -12,15 +12,11 @@ import com.xerofox.fileviewer.ui.common.DataBoundListAdapter;
 import com.xerofox.fileviewer.util.Objects;
 import com.xerofox.fileviewer.vo.TowerPart;
 
-public class TowerPartAdapter
-        extends DataBoundListAdapter<TowerPart, TowerPartItemBinding> {
+public class TowerPartAdapter extends DataBoundListAdapter<TowerPart, TowerPartItemBinding> {
 
-    private final DataBindingComponent dataBindingComponent;
     private final OnItemClickListener<TowerPart> onItemClickListener;
 
-    public TowerPartAdapter(DataBindingComponent dataBindingComponent,
-                            OnItemClickListener<TowerPart> onItemClickListener) {
-        this.dataBindingComponent = dataBindingComponent;
+    public TowerPartAdapter(OnItemClickListener<TowerPart> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
@@ -28,8 +24,7 @@ public class TowerPartAdapter
     protected TowerPartItemBinding createBinding(ViewGroup parent) {
         TowerPartItemBinding binding = DataBindingUtil
                 .inflate(LayoutInflater.from(parent.getContext()),
-                        R.layout.tower_part_item, parent, false,
-                        dataBindingComponent);
+                        R.layout.tower_part_item, parent, false);
         binding.getRoot().setOnClickListener(v -> {
             TowerPart part = binding.getPart();
             if (part != null && onItemClickListener != null) {

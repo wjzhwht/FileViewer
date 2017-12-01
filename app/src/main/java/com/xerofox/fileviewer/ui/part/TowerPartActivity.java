@@ -33,7 +33,8 @@ public class TowerPartActivity extends BaseActivity {
 
     private TowerPartViewModel viewModel;
 
-    DataBindingComponent dataBindingComponent = new FragmentDataBindingComponent(this);
+    @Inject
+    DataBindingComponent dataBindingComponent;
     TowerPartActivityBinding binding;
     TowerPartAdapter adapter;
 
@@ -96,7 +97,7 @@ public class TowerPartActivity extends BaseActivity {
         PartMenuAdapter partMenuAdapter = new PartMenuAdapter(this, viewModel.getFilterTitles(), viewModel.getFilterLists(), this::onFilterItemClick);
         binding.dropMenu.setMenuAdapter(partMenuAdapter, viewModel.getFilterTitles());
 
-        adapter = new TowerPartAdapter(dataBindingComponent, this::jumpViewer);
+        adapter = new TowerPartAdapter(this::jumpViewer);
         binding.list.setAdapter(adapter);
         initPartList();
         viewModel.setTask(getTask());
