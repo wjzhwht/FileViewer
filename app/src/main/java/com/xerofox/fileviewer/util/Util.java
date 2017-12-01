@@ -7,8 +7,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class Util {
     @SuppressLint("StaticFieldLeak")
@@ -73,5 +77,20 @@ public class Util {
         if (sTopActivityWeakRef == null || !activity.equals(sTopActivityWeakRef.get())) {
             sTopActivityWeakRef = new WeakReference<>(activity);
         }
+    }
+
+    public static Date format2Date(String date) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+            return sdf.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return new Date();
+    }
+
+    public static String formatTimeStamp(long timeStamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        return sdf.format(new Date(timeStamp));
     }
 }

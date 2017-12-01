@@ -2,14 +2,33 @@ package com.xerofox.fileviewer.vo;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.xerofox.fileviewer.util.ByteBufferReader;
 import com.xerofox.fileviewer.util.ByteBufferWriter;
+import com.xerofox.fileviewer.util.Util;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class Task implements Parcelable {
+    public static final String FILE_EXTENSION = ".tpp";
+
+    public static final String DIVIER_STATE = "_";
+    public static final String DIVIER_ID = "#";
+    public static final String DIVIER_NAME = "%";
+
+    public static final String STATE_STRING_NEW = "n";
+    public static final String STATE_STRING_ACTIVE = "a";
+    public static final String STATE_STRING_FINISH = "f";
+    public static final String STATE_STRING_HIDE = "h";
+
+    public static final int STATE_INT_NEW = 0;
+    public static final int STATE_INT_ACTIVE = 1;
+    public static final int STATE_INT_FINISH = 2;
+    public static final int STATE_INT_HIDE = 3;
+
     private double version;
     private int id;
     private String name;
@@ -47,6 +66,42 @@ public class Task implements Parcelable {
         for (int i = 0; i < count; i++) {
             partList.add(new TowerPart(br, readBytes));
         }
+    }
+
+    public Task(String name) {
+        if (!TextUtils.isEmpty(name)
+                && name.contains(DIVIER_STATE)
+                && name.contains(DIVIER_ID)
+                && name.contains(DIVIER_NAME)) {
+            String[] split = name.split(DIVIER_STATE);
+            setStateString(split[0]);
+            split = split[1].split(DIVIER_ID);
+            setId(Integer.parseInt(split[0]));
+            split = split[1].split(DIVIER_NAME);
+            setName(split[0]);
+            setDate(Util.format2Date(split[1]));
+        }
+    }
+
+    public String getTaskDirectoryName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStateString());
+        sb.append(DIVIER_STATE);
+        sb.append(getId());
+        sb.append(DIVIER_ID);
+        sb.append(getName());
+        sb.append(DIVIER_NAME);
+        sb.append(Util.formatTimeStamp(date.getTime()));
+        return sb.toString();
+    }
+
+    public String getTaskFileName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStateString());
+        sb.append(DIVIER_STATE);
+        sb.append(getId());
+        sb.append(FILE_EXTENSION);
+        return sb.toString();
     }
 
     public void saveByteArray(ByteBufferWriter br) {
@@ -101,6 +156,40 @@ public class Task implements Parcelable {
 
     public void setState(int state) {
         this.state = state;
+    }
+
+    public void setStateString(String state) {
+        switch (state) {
+            case STATE_STRING_NEW:
+                setState(STATE_INT_NEW);
+                break;
+            case STATE_STRING_ACTIVE:
+                setState(STATE_INT_ACTIVE);
+                break;
+            case STATE_STRING_FINISH:
+                setState(STATE_INT_FINISH);
+                break;
+            case STATE_STRING_HIDE:
+                setState(STATE_INT_HIDE);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public String getStateString() {
+        switch (state) {
+            case STATE_INT_NEW:
+                return STATE_STRING_NEW;
+            case STATE_INT_ACTIVE:
+                return STATE_STRING_ACTIVE;
+            case STATE_INT_FINISH:
+                return STATE_STRING_FINISH;
+            case STATE_INT_HIDE:
+                return STATE_STRING_HIDE;
+            default:
+                return "";
+        }
     }
 
     public ArrayList<TowerPart> getPartList() {

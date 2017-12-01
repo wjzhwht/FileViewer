@@ -57,13 +57,8 @@ public class LocalFileHelper implements FileHelper {
                         return;
                     }
                     for (File file : taskFiles) {
-                        String name = file.getName();
-                        if (!TextUtils.isEmpty(name) && name.startsWith(TASK_PRIFIX) && name.contains(TASK_SEPARATION)) {
-                            String id = name.substring(name.indexOf(TASK_PRIFIX) + TASK_PRIFIX.length(), name.indexOf(TASK_SEPARATION));
-                            String taskName = name.substring(name.indexOf(TASK_SEPARATION) + 1);
-                            Task task = new Task(Integer.parseInt(id), taskName);
-                            tasks.add(task);
-                        }
+                        Task task = new Task(file.getName());
+                        tasks.add(task);
                     }
                     postValue(tasks);
                 }
@@ -81,12 +76,12 @@ public class LocalFileHelper implements FileHelper {
         }
         File rootFile = new File(directory, PATH_ROOT);
         for (Task task : tasks) {
-            String taskPath = TASK_PRIFIX + task.getId() + TASK_SEPARATION + task.getName();
+            String taskPath = task.getTaskDirectoryName();
             File taskFile = new File(rootFile, taskPath);
             if (!taskFile.exists()) {
                 taskFile.mkdirs();
             }
-            String tppName = TASK_PRIFIX + task.getId() + TOWER_FILE_EXSTENSION;
+            String tppName = task.getTaskFileName();
             File tppFile = new File(taskFile, tppName);
             saveTask(task, tppFile);
             if (task.getPartList() != null && !task.getPartList().isEmpty()) {
@@ -145,8 +140,8 @@ public class LocalFileHelper implements FileHelper {
         }
         String path = directory.getPath() + File.separator
                 + PATH_ROOT + File.separator
-                + TASK_PRIFIX + task.getId() + TASK_SEPARATION + task.getName() + File.separator
-                + TASK_PRIFIX + task.getId() + TOWER_FILE_EXSTENSION;
+                + task.getTaskDirectoryName() + File.separator
+                + task.getTaskFileName();
         if (!FileUtil.isFileExists(path)) {
             return task;
         }
