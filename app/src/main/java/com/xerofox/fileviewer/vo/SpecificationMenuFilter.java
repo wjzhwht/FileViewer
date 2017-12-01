@@ -1,6 +1,8 @@
 package com.xerofox.fileviewer.vo;
 
 public class SpecificationMenuFilter implements MenuFilter {
+    public static final int MIN = Integer.MIN_VALUE;
+    public static final int MAX = Integer.MAX_VALUE;
     private int min;
     private int max;
 
@@ -11,12 +13,23 @@ public class SpecificationMenuFilter implements MenuFilter {
 
     @Override
     public String getText() {
-        return min + "~" + max;
+        if (min == MIN && max == MAX) {
+            return CLEAR;
+        }
+        StringBuilder sb = new StringBuilder();
+        if (min != MIN) {
+            sb.append(min).append("≤");
+        }
+        sb.append("肢宽");
+        if (max != MAX) {
+            sb.append("≤").append(max);
+        }
+        return sb.toString();
     }
 
     @Override
     public boolean match(TowerPart part) {
-        return part.getWide() >= min && part.getWide() <= max;
+        return (min == MIN && max == MAX) || part.getWide() >= min && part.getWide() <= max;
     }
 
     @Override

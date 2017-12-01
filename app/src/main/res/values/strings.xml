@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">工艺卡查看器</string>
-    <string name="task_list">计划号列表</string>
+    <string name="task_list">任务列表</string>
     <string name="title_activity_initialization">设置端口</string>
     <string name="ok">确定</string>
     <string name="empty_search_result">暂无数据</string>
@@ -20,7 +20,7 @@
     <string name="specification">规格</string>
     <string name="manu">工艺</string>
     <string name="input_ip">请输入IP</string>
-    <string name="look_over_file">查看文件</string>
+    <string name="look_over_task">查看任务</string>
     <string name="task_manage">任务管理</string>
     <string name="place_holder_string_string">%1$s-%2$s</string>
 

@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.os.Environment;
 
 import com.xerofox.fileviewer.util.ByteBufferReader;
+import com.xerofox.fileviewer.util.FileUtil;
 import com.xerofox.fileviewer.vo.Task;
 
 import java.io.File;
@@ -27,16 +28,19 @@ public class XeroApiImpl implements XeroApi {
             @Override
             protected void onActive() {
                 super.onActive();
-                File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + File.separator + "n_55.tpp");
-                RandomAccessFile raf;
                 try {
-                    raf = new RandomAccessFile(file, "r");
-                    byte[] byteArr = new byte[(int) raf.length()];
-                    raf.read(byteArr);
-                    raf.close();
-                    Task task = new Task(new ByteBufferReader(byteArr));
                     List<Task> tasks = new ArrayList<>();
-                    tasks.add(task);
+                    String directory = Environment.getExternalStorageDirectory().getPath() + File.separator + FileHelper.PATH_DATA_ROOT;
+                    List<File> files = FileUtil.listFilesInDir(directory);
+                    for (File file : files) {
+                        RandomAccessFile raf;
+                        raf = new RandomAccessFile(file, "r");
+                        byte[] byteArr = new byte[(int) raf.length()];
+                        raf.read(byteArr);
+                        raf.close();
+                        Task task = new Task(new ByteBufferReader(byteArr));
+                        tasks.add(task);
+                    }
                     ApiResponse<List<Task>> response = new ApiResponse<>(200, tasks, null);
                     postValue(response);
                 } catch (IOException e) {

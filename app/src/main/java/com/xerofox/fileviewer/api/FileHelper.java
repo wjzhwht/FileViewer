@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface FileHelper {
+    String PATH_DATA_ROOT = "xerodata";
     String PATH_ROOT = "xerofox";
     String TASK_PRIFIX = "n_";
     String TASK_SEPARATION = "#";

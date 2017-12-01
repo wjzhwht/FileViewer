@@ -84,12 +84,14 @@ public class TowerRepository {
 
     public List<List<MenuFilter>> getFilterLists() {
         List<MenuFilter> menuFilters1 = new ArrayList<>();
-        SpecificationMenuFilter specificationMenuFilter = new SpecificationMenuFilter(0, 50);
-        SpecificationMenuFilter specificationMenuFilter2 = new SpecificationMenuFilter(51, 100);
-        SpecificationMenuFilter specificationMenuFilter3 = new SpecificationMenuFilter(101, 200);
+        SpecificationMenuFilter specificationMenuFilter = new SpecificationMenuFilter(SpecificationMenuFilter.MIN, 56);
+        SpecificationMenuFilter specificationMenuFilter2 = new SpecificationMenuFilter(63, 125);
+        SpecificationMenuFilter specificationMenuFilter3 = new SpecificationMenuFilter(140, SpecificationMenuFilter.MAX);
+        SpecificationMenuFilter specificationMenuFilter4 = new SpecificationMenuFilter(SpecificationMenuFilter.MIN, SpecificationMenuFilter.MAX);
         menuFilters1.add(specificationMenuFilter);
         menuFilters1.add(specificationMenuFilter2);
         menuFilters1.add(specificationMenuFilter3);
+        menuFilters1.add(specificationMenuFilter4);
 
         ManuMenuFilter manuMenuFilter = new ManuMenuFilter(TowerPart.MANU_ZHIWAN) {
             @Override
@@ -97,22 +99,31 @@ public class TowerRepository {
                 return part.getManuHourZhiWan() > 0;
             }
         };
-        ManuMenuFilter manuMenuFilter2 = new ManuMenuFilter(TowerPart.MANU_KAIHE) {
+        ManuMenuFilter manuMenuFilter2 = new ManuMenuFilter(TowerPart.MANU_CUT_ANGEL) {
+            @Override
+            public boolean match(TowerPart part) {
+                return part.getManuHourCutAngle() > 0;
+            }
+        };
+        ManuMenuFilter manuMenuFilter3 = new ManuMenuFilter(TowerPart.MANU_KAIHE) {
             @Override
             public boolean match(TowerPart part) {
                 return part.getManuHourKaiHe() > 0;
             }
         };
-        ManuMenuFilter manuMenuFilter3 = new ManuMenuFilter(TowerPart.MANU_CUT_ANGEL) {
+
+        ManuMenuFilter manuMenuFilter4 = new ManuMenuFilter(MenuFilter.CLEAR) {
+
             @Override
             public boolean match(TowerPart part) {
-                return part.getManuHourCutAngle() > 0;
+                return true;
             }
         };
         List<MenuFilter> menuFilters2 = new ArrayList<>();
         menuFilters2.add(manuMenuFilter);
         menuFilters2.add(manuMenuFilter2);
         menuFilters2.add(manuMenuFilter3);
+        menuFilters2.add(manuMenuFilter4);
 
         List<List<MenuFilter>> lists = new ArrayList<>();
         lists.add(menuFilters1);
