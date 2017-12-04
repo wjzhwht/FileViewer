@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 public class LocalFileHelper implements FileHelper {
-    //    File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     File directory = Environment.getExternalStorageDirectory();
 
     @Inject
@@ -134,8 +133,9 @@ public class LocalFileHelper implements FileHelper {
         }
     }
 
-    private Task loadTask(Task task) {
-        if (task.getPartList() != null && !task.getPartList().isEmpty()) {
+    @Override
+    public Task loadTask(Task task) {
+        if (task != null && task.getPartList() != null && !task.getPartList().isEmpty()) {
             return task;
         }
         String path = directory.getPath() + File.separator
@@ -203,161 +203,5 @@ public class LocalFileHelper implements FileHelper {
             }
         }
         return partList;
-    }
-
-    public LiveData<List<Filter>> loadFilters(Task task, List<FilterQuery> filters) {
-        return new LiveData<List<Filter>>() {
-            @Override
-            protected void onActive() {
-                super.onActive();
-                postValue(getFilters(loadTask(task), filters));
-            }
-        };
-    }
-
-    public LiveData<List<Filter>> loadFilters(Task task) {
-        return new LiveData<List<Filter>>() {
-            @Override
-            protected void onActive() {
-                super.onActive();
-                postValue(getFilters(loadTask(task)));
-            }
-        };
-    }
-
-    private List<Filter> getFilters(Task task) {
-        Filter towerTypeFilter = new Filter(Filter.TYPE_TOWER_TYPE);
-        Filter segStrFilter = new Filter(Filter.TYPE_SEG_STR);
-        Filter materialFilter = new Filter(Filter.TYPE_MATERIAL_MARK);
-        Filter specificationFilter = new Filter(Filter.TYPE_SPECIFICATION);
-        Filter manuFilter = new Filter(Filter.TYPE_MANU);
-        for (TowerPart part : task.getPartList()) {
-
-            addItem(towerTypeFilter, part.getTowerTypeName());
-            addItem(segStrFilter, part.getSegStr());
-            addItem(materialFilter, part.getMaterialMark());
-            addItem(specificationFilter, part.getSpecification());
-            if (part.getManuHourWeld() > 0) {
-                addItem(manuFilter, TowerPart.MANU_WELD);
-            }
-            if (part.getManuHourZhiWan() > 0) {
-                addItem(manuFilter, TowerPart.MANU_ZHIWAN);
-            }
-            if (part.getManuHourCutAngle() > 0) {
-                addItem(manuFilter, TowerPart.MANU_CUT_ANGEL);
-            }
-            if (part.getManuHourCutBer() > 0) {
-                addItem(manuFilter, TowerPart.MANU_CUT_BER);
-            }
-            if (part.getManuHourCutRoot() > 0) {
-                addItem(manuFilter, TowerPart.MANU_CUT_ROOT);
-            }
-            if (part.getManuHourClashHole() > 0) {
-                addItem(manuFilter, TowerPart.MANU_CLASH_HOLE);
-            }
-            if (part.getManuHourBore() > 0) {
-                addItem(manuFilter, TowerPart.MANU_BORE);
-            }
-            if (part.getManuHourKaiHe() > 0) {
-                addItem(manuFilter, TowerPart.MANU_KAIHE);
-            }
-            if (part.getManuHourFillet() > 0) {
-                addItem(manuFilter, TowerPart.MANU_FILLET);
-            }
-            if (part.getManuHourPushFlat() > 0) {
-                addItem(manuFilter, TowerPart.MANU_PUSH_FLAT);
-            }
-        }
-        List<Filter> filters = new ArrayList<>();
-        filters.add(towerTypeFilter);
-        filters.add(segStrFilter);
-        filters.add(materialFilter);
-        filters.add(specificationFilter);
-        filters.add(manuFilter);
-        return filters;
-
-    }
-
-    private List<Filter> getFilters(Task task, List<FilterQuery> filterQueries) {
-        Filter towerTypeFilter = new Filter(Filter.TYPE_TOWER_TYPE);
-        Filter segStrFilter = new Filter(Filter.TYPE_SEG_STR);
-        Filter materialFilter = new Filter(Filter.TYPE_MATERIAL_MARK);
-        Filter specificationFilter = new Filter(Filter.TYPE_SPECIFICATION);
-        Filter manuFilter = new Filter(Filter.TYPE_MANU);
-        for (TowerPart part : task.getPartList()) {
-
-            addItem(filterQueries, towerTypeFilter, part.getTowerTypeName());
-            addItem(filterQueries, segStrFilter, part.getSegStr());
-            addItem(filterQueries, materialFilter, part.getMaterialMark());
-            addItem(filterQueries, specificationFilter, part.getSpecification());
-            if (part.getManuHourWeld() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_WELD);
-            }
-            if (part.getManuHourZhiWan() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_ZHIWAN);
-            }
-            if (part.getManuHourCutAngle() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_CUT_ANGEL);
-            }
-            if (part.getManuHourCutBer() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_CUT_BER);
-            }
-            if (part.getManuHourCutRoot() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_CUT_ROOT);
-            }
-            if (part.getManuHourClashHole() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_CLASH_HOLE);
-            }
-            if (part.getManuHourBore() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_BORE);
-            }
-            if (part.getManuHourKaiHe() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_KAIHE);
-            }
-            if (part.getManuHourFillet() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_FILLET);
-            }
-            if (part.getManuHourPushFlat() > 0) {
-                addItem(filterQueries, manuFilter, TowerPart.MANU_PUSH_FLAT);
-            }
-        }
-        List<Filter> filters = new ArrayList<>();
-        filters.add(towerTypeFilter);
-        filters.add(segStrFilter);
-        filters.add(materialFilter);
-        filters.add(specificationFilter);
-        filters.add(manuFilter);
-        return filters;
-
-    }
-
-    private void addItem(Filter towerTypeFilter, String text) {
-        if (TextUtils.isEmpty(text)) {
-            return;
-        }
-        Filter.Item item = new Filter.Item(text, false);
-        if (!towerTypeFilter.getItems().contains(item)) {
-            towerTypeFilter.getItems().add(item);
-        }
-    }
-
-    private void addItem(List<FilterQuery> filterQueries, Filter towerTypeFilter, String text) {
-        if (TextUtils.isEmpty(text)) {
-            return;
-        }
-        FilterQuery filterQuery = getFilterQuery(filterQueries, towerTypeFilter.getType());
-        Filter.Item item = new Filter.Item(text, filterQuery.getItems().contains(text));
-        if (!towerTypeFilter.getItems().contains(item)) {
-            towerTypeFilter.getItems().add(item);
-        }
-    }
-
-    private FilterQuery getFilterQuery(List<FilterQuery> filterQueries, int type) {
-        for (FilterQuery filterQuery : filterQueries) {
-            if (filterQuery.getType() == type) {
-                return filterQuery;
-            }
-        }
-        return new FilterQuery();
     }
 }

@@ -23,8 +23,8 @@ public class TowerPartViewModel extends ViewModel {
     private final MutableLiveData<Param> param = new MutableLiveData<>();
     private final MutableLiveData<Task> task = new MutableLiveData<>();
     private final LiveData<ArrayList<TowerPart>> towerParts;
-    private final List<String> filterTitles;
-    private final List<List<MenuFilter>> filterLists;
+    private final LiveData<List<String>> filterTitles;
+    private final LiveData<List<List<MenuFilter>>> filterLists;
 
     @Inject
     public TowerPartViewModel(TowerRepository repository) {
@@ -36,8 +36,21 @@ public class TowerPartViewModel extends ViewModel {
             }
         });
 
-        filterTitles = repository.getFilterTitles();
-        filterLists = repository.getFilterLists();
+        filterLists = Transformations.switchMap(task, data -> {
+            if (data == null) {
+                return AbsentLiveData.create();
+            } else {
+                return repository.getFilterLists(data);
+            }
+        });
+
+        filterTitles = Transformations.switchMap(filterLists, data -> {
+            if (data == null || data.isEmpty()) {
+                return AbsentLiveData.create();
+            } else {
+                return repository.getFilterTitles();
+            }
+        });
     }
 
     void setTask(Task task) {
@@ -48,18 +61,6 @@ public class TowerPartViewModel extends ViewModel {
         Param param = new Param(task, null, null, null);
         this.param.setValue(param);
     }
-
-//    void clearFilters() {
-//        setFilters(Collections.emptyList());
-//    }
-//
-//    private void setFilters(List<FilterQuery> filters) {
-//        if (this.param.getValue() == null || this.param.getValue().task == null || Objects.equals(this.param.getValue().filter, filters)) {
-//            return;
-//        }
-//        Param param = new Param(this.param.getValue().task, filters);
-//        this.param.setValue(param);
-//    }
 
     void setQuery(String query) {
         MenuFilter filter = new PartNoMenuFilter(query);
@@ -90,12 +91,12 @@ public class TowerPartViewModel extends ViewModel {
         return towerParts;
     }
 
-    public List<String> getFilterTitles() {
-        return filterTitles;
+    public LiveData<List<List<MenuFilter>>> getFilterLists() {
+        return filterLists;
     }
 
-    public List<List<MenuFilter>> getFilterLists() {
-        return filterLists;
+    public LiveData<List<String>> getFilterTitles() {
+        return filterTitles;
     }
 
     static class Param {

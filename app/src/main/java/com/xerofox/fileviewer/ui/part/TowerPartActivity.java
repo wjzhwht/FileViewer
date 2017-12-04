@@ -93,14 +93,19 @@ public class TowerPartActivity extends BaseActivity {
 
         setSupportActionBar(binding.toolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        PartMenuAdapter partMenuAdapter = new PartMenuAdapter(this, viewModel.getFilterTitles(), viewModel.getFilterLists(), this::onFilterItemClick);
-        binding.dropMenu.setMenuAdapter(partMenuAdapter, viewModel.getFilterTitles());
-
+        initFilter();
         adapter = new TowerPartAdapter(this::jumpViewer);
         binding.list.setAdapter(adapter);
         initPartList();
         viewModel.setTask(getTask());
+    }
+
+    private void initFilter() {
+        viewModel.getFilterTitles().observe(this, data -> {
+            PartMenuAdapter partMenuAdapter = new PartMenuAdapter(this, viewModel.getFilterTitles().getValue(), viewModel.getFilterLists().getValue(), this::onFilterItemClick);
+            binding.dropMenu.setMenuAdapter(partMenuAdapter, viewModel.getFilterTitles().getValue());
+        });
+
     }
 
     private void onFilterItemClick(int position, MenuFilter menuFilter) {

@@ -8,13 +8,13 @@ import com.xerofox.fileviewer.AppExecutors;
 import com.xerofox.fileviewer.api.ApiResponse;
 import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.api.XeroApi;
-import com.xerofox.fileviewer.vo.Filter;
 import com.xerofox.fileviewer.vo.ManuMenuFilter;
 import com.xerofox.fileviewer.vo.MenuFilter;
 import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.SpecificationMenuFilter;
 import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
+import com.xerofox.fileviewer.vo.TowerTypeFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,67 +67,79 @@ public class TowerRepository {
         return fileHelper.loadTowerParts(task, menuFilters);
     }
 
-//    public LiveData<List<Filter>> getFilters(Task task, List<FilterQuery> filter) {
-//        return fileHelper.loadFilters(task, filter);
-//    }
-
-    public LiveData<List<Filter>> getFilters(Task task) {
-        return fileHelper.loadFilters(task);
+    public LiveData<List<String>> getFilterTitles() {
+        return new LiveData<List<String>>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                List<String> list = new ArrayList<>();
+                list.add("塔型");
+                list.add("规格");
+                list.add("工艺");
+                setValue(list);
+            }
+        };
     }
 
-    public List<String> getFilterTitles() {
-        List<String> list = new ArrayList<>();
-        list.add("规格");
-        list.add("工艺");
-        return list;
-    }
-
-    public List<List<MenuFilter>> getFilterLists() {
-        List<MenuFilter> menuFilters1 = new ArrayList<>();
-        SpecificationMenuFilter specificationMenuFilter = new SpecificationMenuFilter(SpecificationMenuFilter.MIN, 56);
-        SpecificationMenuFilter specificationMenuFilter2 = new SpecificationMenuFilter(63, 125);
-        SpecificationMenuFilter specificationMenuFilter3 = new SpecificationMenuFilter(140, SpecificationMenuFilter.MAX);
-        SpecificationMenuFilter specificationMenuFilter4 = new SpecificationMenuFilter(SpecificationMenuFilter.MIN, SpecificationMenuFilter.MAX);
-        menuFilters1.add(specificationMenuFilter);
-        menuFilters1.add(specificationMenuFilter2);
-        menuFilters1.add(specificationMenuFilter3);
-        menuFilters1.add(specificationMenuFilter4);
-
-        ManuMenuFilter manuMenuFilter = new ManuMenuFilter(TowerPart.MANU_ZHIWAN) {
+    public LiveData<List<List<MenuFilter>>> getFilterLists(Task task) {
+        return new LiveData<List<List<MenuFilter>>>() {
             @Override
-            public boolean match(TowerPart part) {
-                return part.getManuHourZhiWan() > 0;
+            protected void onActive() {
+                super.onActive();
+                List<List<MenuFilter>> lists = new ArrayList<>();
+
+                //塔型filter
+                Task t = fileHelper.loadTask(task);
+                if (t != null && t.getPartList() != null && !t.getPartList().isEmpty()) {
+                    List<MenuFilter> menuFilters = new ArrayList<>();
+                    for (TowerPart part : t.getPartList()) {
+                        TowerTypeFilter filter = new TowerTypeFilter(part.getTowerTypeName());
+                        if (!menuFilters.contains(filter)) {
+                            menuFilters.add(filter);
+                        }
+                    }
+                    lists.add(menuFilters);
+                }
+
+                //规格filter
+                List<MenuFilter> menuFilters1 = new ArrayList<>();
+                menuFilters1.add(new SpecificationMenuFilter(SpecificationMenuFilter.MIN, 56));
+                menuFilters1.add(new SpecificationMenuFilter(63, 125));
+                menuFilters1.add(new SpecificationMenuFilter(140, SpecificationMenuFilter.MAX));
+                menuFilters1.add(new SpecificationMenuFilter(SpecificationMenuFilter.MIN, SpecificationMenuFilter.MAX));
+                lists.add(menuFilters1);
+
+                //工艺filter
+                List<MenuFilter> menuFilters2 = new ArrayList<>();
+                menuFilters2.add(new ManuMenuFilter(TowerPart.MANU_ZHIWAN) {
+                    @Override
+                    public boolean match(TowerPart part) {
+                        return part.getManuHourZhiWan() > 0;
+                    }
+                });
+                menuFilters2.add(new ManuMenuFilter(TowerPart.MANU_CUT_ANGEL) {
+                    @Override
+                    public boolean match(TowerPart part) {
+                        return part.getManuHourCutAngle() > 0;
+                    }
+                });
+                menuFilters2.add(new ManuMenuFilter(TowerPart.MANU_KAIHE) {
+                    @Override
+                    public boolean match(TowerPart part) {
+                        return part.getManuHourKaiHe() > 0;
+                    }
+                });
+                menuFilters2.add(new ManuMenuFilter(MenuFilter.CLEAR) {
+
+                    @Override
+                    public boolean match(TowerPart part) {
+                        return true;
+                    }
+                });
+                lists.add(menuFilters2);
+
+                setValue(lists);
             }
         };
-        ManuMenuFilter manuMenuFilter2 = new ManuMenuFilter(TowerPart.MANU_CUT_ANGEL) {
-            @Override
-            public boolean match(TowerPart part) {
-                return part.getManuHourCutAngle() > 0;
-            }
-        };
-        ManuMenuFilter manuMenuFilter3 = new ManuMenuFilter(TowerPart.MANU_KAIHE) {
-            @Override
-            public boolean match(TowerPart part) {
-                return part.getManuHourKaiHe() > 0;
-            }
-        };
-
-        ManuMenuFilter manuMenuFilter4 = new ManuMenuFilter(MenuFilter.CLEAR) {
-
-            @Override
-            public boolean match(TowerPart part) {
-                return true;
-            }
-        };
-        List<MenuFilter> menuFilters2 = new ArrayList<>();
-        menuFilters2.add(manuMenuFilter);
-        menuFilters2.add(manuMenuFilter2);
-        menuFilters2.add(manuMenuFilter3);
-        menuFilters2.add(manuMenuFilter4);
-
-        List<List<MenuFilter>> lists = new ArrayList<>();
-        lists.add(menuFilters1);
-        lists.add(menuFilters2);
-        return lists;
     }
 }

@@ -1,7 +1,7 @@
 package com.xerofox.fileviewer.vo;
 
 public interface MenuFilter {
-    String CLEAR = "重置";
+    String CLEAR = "不限";
 
     String getText();
 

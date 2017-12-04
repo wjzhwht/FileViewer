@@ -29,12 +29,7 @@
                 android:id="@+id/task_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="16dp"
-                android:paddingEnd="32dp"
-                android:paddingLeft="32dp"
-                android:paddingRight="32dp"
-                android:paddingStart="32dp"
-                android:paddingTop="16dp"
+                android:padding="16dp"
                 android:text="@{String.valueOf(task.id)}"
                 android:textSize="@dimen/normal_text_size" />
 
@@ -42,13 +37,7 @@
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingBottom="16dp"
-                android:paddingEnd="32dp"
-                android:paddingLeft="32dp"
-                android:paddingRight="32dp"
-                android:paddingStart="32dp"
-                android:paddingTop="16dp"
+                android:padding="16dp"
                 android:text="@{task.name}"
                 android:textSize="@dimen/normal_text_size" />
 
@@ -56,12 +45,7 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="16dp"
-                android:paddingEnd="32dp"
-                android:paddingLeft="32dp"
-                android:paddingRight="32dp"
-                android:paddingStart="32dp"
-                android:paddingTop="16dp"
+                android:padding="16dp"
                 android:text="@{Util.formatTimeStamp(task.date.getTime())}"
                 android:textSize="@dimen/normal_text_size" />
         </LinearLayout>
