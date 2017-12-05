@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.xerofox.fileviewer.R;
-import com.xerofox.fileviewer.binding.FragmentDataBindingComponent;
 import com.xerofox.fileviewer.databinding.TowerPartActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
 import com.xerofox.fileviewer.ui.viewer.ViewerActivity;
@@ -49,13 +48,13 @@ public class TowerPartActivity extends BaseActivity {
             public boolean onQueryTextSubmit(String query) {
                 searchView.clearFocus();
                 searchView.onActionViewCollapsed();
-                viewModel.setQuery(query);
+                viewModel.setFilter(3, new PartNoMenuFilter(query));
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                viewModel.setQuery(newText);
+                viewModel.setFilter(3, new PartNoMenuFilter(newText));
                 return true;
             }
         });
@@ -72,12 +71,7 @@ public class TowerPartActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.filter:
-                FilterDialogFragment fragment = FilterDialogFragment.newInstance(new FilterDialogFragment.ViewModelProvider() {
-                    @Override
-                    TowerPartViewModel viewModel() {
-                        return viewModel;
-                    }
-                });
+                FilterDialogFragment fragment = FilterDialogFragment.newInstance();
                 fragment.show(getSupportFragmentManager(), "filter");
                 return true;
             default:
@@ -109,16 +103,7 @@ public class TowerPartActivity extends BaseActivity {
     }
 
     private void onFilterItemClick(int position, MenuFilter menuFilter) {
-        switch (position) {
-            case 0:
-                viewModel.setFilter1(menuFilter);
-                break;
-            case 1:
-                viewModel.setFilter2(menuFilter);
-                break;
-            default:
-                break;
-        }
+        viewModel.setFilter(position, menuFilter);
         binding.dropMenu.setPositionIndicatorText(position, menuFilter.getText());
         binding.dropMenu.close();
     }

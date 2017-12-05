@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.VisibleForTesting;
+import android.util.SparseArray;
 
 import com.xerofox.fileviewer.repository.TowerRepository;
 import com.xerofox.fileviewer.util.AbsentLiveData;
@@ -32,7 +33,7 @@ public class TowerPartViewModel extends ViewModel {
             if (input == null || input.task == null) {
                 return AbsentLiveData.create();
             } else {
-                return repository.getTowerParts(input.task, input.filter, input.filter1, input.filter2);
+                return repository.getTowerParts(input.task, input.array);
             }
         });
 
@@ -53,40 +54,6 @@ public class TowerPartViewModel extends ViewModel {
         });
     }
 
-    void setTask(Task task) {
-        if (Objects.equals(this.task.getValue(), task)) {
-            return;
-        }
-        this.task.setValue(task);
-        Param param = new Param(task, null, null, null);
-        this.param.setValue(param);
-    }
-
-    void setQuery(String query) {
-        MenuFilter filter = new PartNoMenuFilter(query);
-        Param param = new Param(this.task.getValue(), filter, this.param.getValue().getFilter1(), this.param.getValue().getFilter2());
-        if (Objects.equals(param, this.param.getValue())) {
-            return;
-        }
-        this.param.setValue(param);
-    }
-
-    void setFilter1(MenuFilter filter1) {
-        Param param = new Param(this.task.getValue(), this.param.getValue().getFilter(), filter1, this.param.getValue().getFilter2());
-        if (Objects.equals(param, this.param.getValue())) {
-            return;
-        }
-        this.param.setValue(param);
-    }
-
-    void setFilter2(MenuFilter filter2) {
-        Param param = new Param(this.task.getValue(), this.param.getValue().getFilter(), this.param.getValue().getFilter1(), filter2);
-        if (Objects.equals(param, this.param.getValue())) {
-            return;
-        }
-        this.param.setValue(param);
-    }
-
     LiveData<ArrayList<TowerPart>> getTowerParts() {
         return towerParts;
     }
@@ -99,33 +66,71 @@ public class TowerPartViewModel extends ViewModel {
         return filterTitles;
     }
 
+    void setTask(Task task) {
+        if (Objects.equals(this.task.getValue(), task)) {
+            return;
+        }
+        this.task.setValue(task);
+        Param param = new Param(task);
+        this.param.setValue(param);
+    }
+
+//    void setQuery(String query) {
+//        MenuFilter filter = new PartNoMenuFilter(query);
+//        Param param = new Param(this.task.getValue(), filter, this.param.getValue().getFilter1(), this.param.getValue().getFilter2());
+//        if (Objects.equals(param, this.param.getValue())) {
+//            return;
+//        }
+//        this.param.setValue(param);
+//    }
+//
+//    void setFilter1(MenuFilter filter1) {
+//        Param param = new Param(this.task.getValue(), this.param.getValue().getFilter(), filter1, this.param.getValue().getFilter2());
+//        if (Objects.equals(param, this.param.getValue())) {
+//            return;
+//        }
+//        this.param.setValue(param);
+//    }
+//
+//    void setFilter2(MenuFilter filter2) {
+//        Param param = new Param(this.task.getValue(), this.param.getValue().getFilter(), this.param.getValue().getFilter1(), filter2);
+//        if (Objects.equals(param, this.param.getValue())) {
+//            return;
+//        }
+//        this.param.setValue(param);
+//    }
+
+    void setFilter(int position, MenuFilter menuFilter) {
+        Param param = this.param.getValue().setFilter(position, menuFilter);
+        if (Objects.equals(param, this.param.getValue())) {
+            return;
+        }
+        this.param.setValue(param);
+    }
+
     static class Param {
         public final Task task;
-        public final MenuFilter filter;
-        public final MenuFilter filter1;
-        public final MenuFilter filter2;
+        final List<MenuFilter> array;
+        final long timeStamp;
 
-        public Param(Task task, MenuFilter filter, MenuFilter filter1, MenuFilter filter2) {
+        public Param(Task task) {
             this.task = task;
-            this.filter = filter;
-            this.filter1 = filter1;
-            this.filter2 = filter2;
+            array = new ArrayList<>();
+            timeStamp = System.currentTimeMillis();
         }
 
-        public Task getTask() {
-            return task;
+        Param(Task task, List<MenuFilter> array) {
+            this.task = task;
+            this.array = array;
+            timeStamp = System.currentTimeMillis();
         }
 
-        public MenuFilter getFilter() {
-            return filter;
-        }
-
-        public MenuFilter getFilter1() {
-            return filter1;
-        }
-
-        public MenuFilter getFilter2() {
-            return filter2;
+        Param setFilter(int position, MenuFilter filter) {
+            if (Objects.equals(array.get(position), filter)) {
+                return this;
+            }
+            array.add(position, filter);
+            return new Param(task, array);
         }
 
         @Override
@@ -135,20 +140,12 @@ public class TowerPartViewModel extends ViewModel {
 
             Param param = (Param) o;
 
-            if (task != null ? !task.equals(param.task) : param.task != null) return false;
-            if (filter != null ? !filter.equals(param.filter) : param.filter != null) return false;
-            if (filter1 != null ? !filter1.equals(param.filter1) : param.filter1 != null)
-                return false;
-            return filter2 != null ? filter2.equals(param.filter2) : param.filter2 == null;
+            return timeStamp == param.timeStamp;
         }
 
         @Override
         public int hashCode() {
-            int result = task != null ? task.hashCode() : 0;
-            result = 31 * result + (filter != null ? filter.hashCode() : 0);
-            result = 31 * result + (filter1 != null ? filter1.hashCode() : 0);
-            result = 31 * result + (filter2 != null ? filter2.hashCode() : 0);
-            return result;
+            return (int) (timeStamp ^ (timeStamp >>> 32));
         }
     }
 

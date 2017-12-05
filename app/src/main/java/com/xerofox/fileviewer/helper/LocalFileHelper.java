@@ -3,14 +3,11 @@ package com.xerofox.fileviewer.helper;
 import android.arch.lifecycle.LiveData;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.util.ByteBufferReader;
 import com.xerofox.fileviewer.util.ByteBufferWriter;
 import com.xerofox.fileviewer.util.FileUtil;
-import com.xerofox.fileviewer.vo.Filter;
-import com.xerofox.fileviewer.vo.FilterQuery;
 import com.xerofox.fileviewer.vo.MenuFilter;
 import com.xerofox.fileviewer.vo.PartFile;
 import com.xerofox.fileviewer.vo.Task;
@@ -172,7 +169,7 @@ public class LocalFileHelper implements FileHelper {
     }
 
     @Override
-    public LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, MenuFilter[] filters) {
+    public LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, List<MenuFilter> filters) {
         return new LiveData<ArrayList<TowerPart>>() {
             @Override
             protected void onActive() {
@@ -183,8 +180,8 @@ public class LocalFileHelper implements FileHelper {
     }
 
     @NonNull
-    private ArrayList<TowerPart> doFilter(Task taskNew, MenuFilter[] filters) {
-        if (filters == null || filters.length == 0) {
+    private ArrayList<TowerPart> doFilter(Task taskNew, List<MenuFilter> filters) {
+        if (filters == null || filters.size() == 0) {
             return taskNew.getPartList();
         }
         ArrayList<TowerPart> partList = new ArrayList<>();

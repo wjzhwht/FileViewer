@@ -23,5 +23,17 @@
     <string name="look_over_task">查看任务</string>
     <string name="task_manage">任务管理</string>
     <string name="place_holder_string_string">%1$s-%2$s</string>
+    <string name="input_seg_str">请输入段号</string>
+    <string name="text_seg_str">段号：</string>
+    <string name="text_material">材质：</string>
+    <string name="text_cut_angel">切角</string>
+    <string name="text_zhiwan">制弯</string>
+    <string name="text_weld">切割</string>
+    <string name="text_kaihe">开合角</string>
+    <string name="all_in">全有</string>
+    <string name="yes">有</string>
+    <string name="all_no">全无</string>
+    <string name="no">无</string>
+    <string name="reset">重置</string>
 
 </resources>

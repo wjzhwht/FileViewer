@@ -63,8 +63,8 @@ public class TowerRepository {
         }.asLiveData();
     }
 
-    public LiveData<ArrayList<TowerPart>> getTowerParts(Task task, MenuFilter... menuFilters) {
-        return fileHelper.loadTowerParts(task, menuFilters);
+    public LiveData<ArrayList<TowerPart>> getTowerParts(Task task, List<MenuFilter> filters) {
+        return fileHelper.loadTowerParts(task, filters);
     }
 
     public LiveData<List<String>> getFilterTitles() {

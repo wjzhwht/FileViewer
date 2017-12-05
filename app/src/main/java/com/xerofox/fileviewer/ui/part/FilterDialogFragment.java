@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
@@ -17,8 +15,6 @@ import android.view.View;
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.databinding.FilterDialogFragmentBinding;
 
-import java.util.Collections;
-
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjector;
@@ -27,29 +23,14 @@ import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.HasSupportFragmentInjector;
 
 public class FilterDialogFragment extends BottomSheetDialogFragment implements HasSupportFragmentInjector {
-    private static final String ARG_VIEW_MODEL = "view model";
 
     @Inject
     DispatchingAndroidInjector<Fragment> childFragmentInjector;
+    private FilterDialogFragmentBinding binding;
 
-    abstract static class ViewModelProvider implements Parcelable {
-        abstract TowerPartViewModel viewModel();
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-
-        }
-    }
-
-    public static FilterDialogFragment newInstance(ViewModelProvider viewModelProvider) {
+    public static FilterDialogFragment newInstance() {
 
         Bundle args = new Bundle();
-        args.putParcelable(ARG_VIEW_MODEL, viewModelProvider);
 
         FilterDialogFragment fragment = new FilterDialogFragment();
         fragment.setArguments(args);
@@ -85,7 +66,7 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);
 
-        FilterDialogFragmentBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.filter_dialog_fragment, null, false);
+        binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.filter_dialog_fragment, null, false);
         initView(binding);
         dialog.setContentView(binding.getRoot());
 
@@ -99,28 +80,70 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
     }
 
     protected void initView(FilterDialogFragmentBinding binding) {
-        binding.clear.setOnClickListener(v -> {
-//            getViewModelProvider().viewModel().clearFilters();
-            dismiss();
-        });
         binding.done.setOnClickListener(v -> {
-//            getViewModelProvider().viewModel().doFilters();
-            dismiss();
+
         });
-        FilterAdapter adapter = new FilterAdapter(getActivity());
-        binding.list.setAdapter(adapter);
-//        getViewModelProvider().viewModel().getFilters().observe(this, data -> {
-//            if (data == null) {
-//                adapter.replace(Collections.emptyList());
-//            } else {
-//                adapter.replace(data);
-//            }
-//        });
-//        adapter.replace(getViewModelProvider().viewModel().getFilters().getValue());
+        binding.clear.setOnClickListener(v -> {
+
+        });
+        binding.checkAllMaterial.setOnClickListener(v -> {
+            boolean checked = binding.checkAllMaterial.isChecked();
+            binding.checkMaterial1.setChecked(checked);
+            binding.checkMaterial2.setChecked(checked);
+            binding.checkMaterial3.setChecked(checked);
+            binding.checkMaterial4.setChecked(checked);
+            binding.checkMaterial5.setChecked(checked);
+        });
+        binding.checkMaterial1.setOnClickListener(v -> updateMaterialAll());
+        binding.checkMaterial2.setOnClickListener(v -> updateMaterialAll());
+        binding.checkMaterial3.setOnClickListener(v -> updateMaterialAll());
+        binding.checkMaterial4.setOnClickListener(v -> updateMaterialAll());
+        binding.checkMaterial5.setOnClickListener(v -> updateMaterialAll());
+
+
+        binding.manuAllYes.setOnClickListener(v -> updateManu(true));
+        binding.manuAllNo.setOnClickListener(v -> updateManu(false));
+
+        binding.manuCutAngelYes.setOnClickListener(v -> updateManuAll());
+        binding.manuCutAngelNo.setOnClickListener(v -> updateManuAll());
+        binding.manuZhiwanYes.setOnClickListener(v -> updateManuAll());
+        binding.manuZhiwanNo.setOnClickListener(v -> updateManuAll());
+        binding.manuWeldYes.setOnClickListener(v -> updateManuAll());
+        binding.manuWeldNo.setOnClickListener(v -> updateManuAll());
+        binding.manuKaiheYes.setOnClickListener(v -> updateManuAll());
+        binding.manuKaiheNo.setOnClickListener(v -> updateManuAll());
+
     }
 
-    private ViewModelProvider getViewModelProvider() {
-        return getArguments().getParcelable(ARG_VIEW_MODEL);
+    private void updateManuAll() {
+        boolean b = binding.groupCutAngel.getCheckedRadioButtonId() == R.id.manu_cut_angel_yes;
+        boolean b1 = binding.groupZhiwan.getCheckedRadioButtonId() == R.id.manu_zhiwan_yes;
+        boolean b2 = binding.groupWeld.getCheckedRadioButtonId() == R.id.manu_weld_yes;
+        boolean b3 = binding.groupKaihe.getCheckedRadioButtonId() == R.id.manu_kaihe_yes;
+        if (b && b1 && b2 && b3) {
+            binding.groupManuAll.check(R.id.manu_all_yes);
+        } else if (!b && !b1 && !b2 && !b3) {
+            binding.groupManuAll.check(R.id.manu_all_no);
+        } else {
+            binding.groupManuAll.clearCheck();
+        }
+    }
+
+    private void updateManu(boolean check) {
+        binding.groupCutAngel.check(check ? R.id.manu_cut_angel_yes : R.id.manu_cut_angel_no);
+        binding.groupZhiwan.check(check ? R.id.manu_zhiwan_yes : R.id.manu_zhiwan_no);
+        binding.groupWeld.check(check ? R.id.manu_weld_yes : R.id.manu_weld_no);
+        binding.groupKaihe.check(check ? R.id.manu_kaihe_yes : R.id.manu_kaihe_no);
+    }
+
+    private void updateMaterialAll() {
+        boolean checked1 = binding.checkMaterial1.isChecked();
+        boolean checked2 = binding.checkMaterial2.isChecked();
+        boolean checked3 = binding.checkMaterial3.isChecked();
+        boolean checked4 = binding.checkMaterial4.isChecked();
+        boolean checked5 = binding.checkMaterial5.isChecked();
+        binding.checkAllMaterial.setChecked(checked1 && checked2 && checked3 && checked4 && checked5);
+
     }
 
 }
