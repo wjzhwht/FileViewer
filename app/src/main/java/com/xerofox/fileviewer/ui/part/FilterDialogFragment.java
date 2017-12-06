@@ -148,37 +148,37 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
 
                 @Override
                 public boolean match(TowerPart part) {
-                    int segNo = Integer.parseInt(part.getSegStr(), 16);
+                    int segNo = Integer.parseInt(part.getSegStr());
                     boolean b = segList.isEmpty() || segList.contains(segNo);
 
                     boolean b1 = materials.isEmpty() || materials.contains(part.getMaterialMark());
 
                     boolean b2 = true;
-                    if (buttonId1 == R.id.manu_cut_angel_yes){
-                        b2 = part.getManuHourCutAngle()>0;
-                    } else if (buttonId1 == R.id.manu_cut_angel_no){
-                        b2 = part.getManuHourCutAngle()==0;
+                    if (buttonId1 == R.id.manu_cut_angel_yes) {
+                        b2 = part.getManuHourCutAngle() > 0;
+                    } else if (buttonId1 == R.id.manu_cut_angel_no) {
+                        b2 = part.getManuHourCutAngle() == 0;
                     }
 
                     boolean b3 = true;
-                    if (buttonId2 ==R.id.manu_zhiwan_yes){
-                        b3 = part.getManuHourZhiWan()>0;
-                    } else if (buttonId2 ==R.id.manu_zhiwan_no){
-                        b3 = part.getManuHourZhiWan()==0;
+                    if (buttonId2 == R.id.manu_zhiwan_yes) {
+                        b3 = part.getManuHourZhiWan() > 0;
+                    } else if (buttonId2 == R.id.manu_zhiwan_no) {
+                        b3 = part.getManuHourZhiWan() == 0;
                     }
 
                     boolean b4 = true;
-                    if (buttonId3 == R.id.manu_weld_yes){
-                        b4 = part.getManuHourWeld()>0;
-                    } else if (buttonId3 == R.id.manu_weld_no){
-                        b4 = part.getManuHourWeld()==0;
+                    if (buttonId3 == R.id.manu_weld_yes) {
+                        b4 = part.getManuHourWeld() > 0;
+                    } else if (buttonId3 == R.id.manu_weld_no) {
+                        b4 = part.getManuHourWeld() == 0;
                     }
 
                     boolean b5 = true;
-                    if (buttonId4 == R.id.manu_kaihe_yes){
-                        b5 = part.getManuHourKaiHe()>0;
-                    } else if (buttonId4 == R.id.manu_kaihe_no){
-                        b5 = part.getManuHourKaiHe()==0;
+                    if (buttonId4 == R.id.manu_kaihe_yes) {
+                        b5 = part.getManuHourKaiHe() > 0;
+                    } else if (buttonId4 == R.id.manu_kaihe_no) {
+                        b5 = part.getManuHourKaiHe() == 0;
                     }
                     return b && b1 && (b2 && b3 && b4 && b5);
                 }
@@ -195,19 +195,19 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
     @NonNull
     private List<String> getMaterials() {
         List<String> materials = new ArrayList<>(5);
-        if (binding.checkMaterial1.isChecked()){
+        if (binding.checkMaterial1.isChecked()) {
             materials.add(binding.checkMaterial1.getText().toString());
         }
-        if (binding.checkMaterial2.isChecked()){
+        if (binding.checkMaterial2.isChecked()) {
             materials.add(binding.checkMaterial2.getText().toString());
         }
-        if (binding.checkMaterial3.isChecked()){
+        if (binding.checkMaterial3.isChecked()) {
             materials.add(binding.checkMaterial3.getText().toString());
         }
-        if (binding.checkMaterial4.isChecked()){
+        if (binding.checkMaterial4.isChecked()) {
             materials.add(binding.checkMaterial4.getText().toString());
         }
-        if (binding.checkMaterial5.isChecked()){
+        if (binding.checkMaterial5.isChecked()) {
             materials.add(binding.checkMaterial5.getText().toString());
         }
         return materials;

@@ -46,7 +46,7 @@ public class ViewerAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         PhotoView view = new PhotoView(container.getContext());
         view.enable();
-        view.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        view.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         TowerPart part = data.get(position);
         if (part.getPartFile() != null) {
             String url = path + part.getPartFile().getFileType() + FileHelper.PART_FOLDER_SUFFIX + File.separator

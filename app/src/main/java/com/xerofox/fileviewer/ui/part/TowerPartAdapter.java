@@ -1,6 +1,5 @@
 package com.xerofox.fileviewer.ui.part;
 
-import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;

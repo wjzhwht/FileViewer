@@ -61,7 +61,7 @@ public class ViewerActivity extends AppCompatActivity {
         ViewPager viewPager = findViewById(R.id.pager);
         String path = directory.getPath() + File.separator
                 + FileHelper.PATH_ROOT + File.separator
-                + FileHelper.TASK_PRIFIX + getTask().getId() + FileHelper.TASK_SEPARATION + getTask().getName() + File.separator;
+                + getTask().getTaskDirectoryName() + File.separator;
         ViewerAdapter adapter = new ViewerAdapter(path, getTowerParts());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {

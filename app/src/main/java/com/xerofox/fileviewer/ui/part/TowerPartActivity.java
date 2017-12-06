@@ -36,6 +36,7 @@ public class TowerPartActivity extends BaseActivity {
     DataBindingComponent dataBindingComponent;
     TowerPartActivityBinding binding;
     TowerPartAdapter adapter;
+    private PartMenuAdapter partMenuAdapter;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -97,8 +98,12 @@ public class TowerPartActivity extends BaseActivity {
 
     private void initFilter() {
         viewModel.getFilterTitles().observe(this, data -> {
-            PartMenuAdapter partMenuAdapter = new PartMenuAdapter(this, viewModel.getFilterTitles().getValue(), viewModel.getFilterLists().getValue(), this::onFilterItemClick);
-            binding.dropMenu.setMenuAdapter(partMenuAdapter, viewModel.getFilterTitles().getValue());
+            if (partMenuAdapter == null) {
+                if (data != null && !data.isEmpty()) {
+                    partMenuAdapter = new PartMenuAdapter(this, viewModel.getFilterTitles().getValue(), viewModel.getFilterLists().getValue(), this::onFilterItemClick);
+                    binding.dropMenu.setMenuAdapter(partMenuAdapter, viewModel.getFilterTitles().getValue());
+                }
+            }
         });
 
     }
