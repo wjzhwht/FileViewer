@@ -58,11 +58,11 @@ public class TowerPartViewModel extends ViewModel {
         return towerParts;
     }
 
-    public LiveData<List<List<MenuFilter>>> getFilterLists() {
+    LiveData<List<List<MenuFilter>>> getFilterLists() {
         return filterLists;
     }
 
-    public LiveData<List<String>> getFilterTitles() {
+    LiveData<List<String>> getFilterTitles() {
         return filterTitles;
     }
 
@@ -75,31 +75,6 @@ public class TowerPartViewModel extends ViewModel {
         this.param.setValue(param);
     }
 
-//    void setQuery(String query) {
-//        MenuFilter filter = new PartNoMenuFilter(query);
-//        Param param = new Param(this.task.getValue(), filter, this.param.getValue().getFilter1(), this.param.getValue().getFilter2());
-//        if (Objects.equals(param, this.param.getValue())) {
-//            return;
-//        }
-//        this.param.setValue(param);
-//    }
-//
-//    void setFilter1(MenuFilter filter1) {
-//        Param param = new Param(this.task.getValue(), this.param.getValue().getFilter(), filter1, this.param.getValue().getFilter2());
-//        if (Objects.equals(param, this.param.getValue())) {
-//            return;
-//        }
-//        this.param.setValue(param);
-//    }
-//
-//    void setFilter2(MenuFilter filter2) {
-//        Param param = new Param(this.task.getValue(), this.param.getValue().getFilter(), this.param.getValue().getFilter1(), filter2);
-//        if (Objects.equals(param, this.param.getValue())) {
-//            return;
-//        }
-//        this.param.setValue(param);
-//    }
-
     void setFilter(int position, MenuFilter menuFilter) {
         Param param = this.param.getValue().setFilter(position, menuFilter);
         if (Objects.equals(param, this.param.getValue())) {
@@ -110,26 +85,26 @@ public class TowerPartViewModel extends ViewModel {
 
     static class Param {
         public final Task task;
-        final List<MenuFilter> array;
+        final SparseArray<MenuFilter> array;
         final long timeStamp;
 
         public Param(Task task) {
             this.task = task;
-            array = new ArrayList<>();
+            array = new SparseArray<>(5);
             timeStamp = System.currentTimeMillis();
         }
 
-        Param(Task task, List<MenuFilter> array) {
+        Param(Task task, SparseArray<MenuFilter> array) {
             this.task = task;
             this.array = array;
             timeStamp = System.currentTimeMillis();
         }
 
         Param setFilter(int position, MenuFilter filter) {
-            if (Objects.equals(array.get(position), filter)) {
+            if (position < array.size() && Objects.equals(array.get(position), filter)) {
                 return this;
             }
-            array.add(position, filter);
+            array.put(position, filter);
             return new Param(task, array);
         }
 

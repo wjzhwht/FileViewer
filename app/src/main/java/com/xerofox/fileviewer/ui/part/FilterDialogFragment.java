@@ -14,6 +14,12 @@ import android.view.View;
 
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.databinding.FilterDialogFragmentBinding;
+import com.xerofox.fileviewer.util.ToastUtils;
+import com.xerofox.fileviewer.vo.MenuFilter;
+import com.xerofox.fileviewer.vo.TowerPart;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -27,6 +33,15 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
     @Inject
     DispatchingAndroidInjector<Fragment> childFragmentInjector;
     private FilterDialogFragmentBinding binding;
+    private Callback callback;
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
+
+    interface Callback {
+        void callback(MenuFilter filter);
+    }
 
     public static FilterDialogFragment newInstance() {
 
@@ -80,12 +95,6 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
     }
 
     protected void initView(FilterDialogFragmentBinding binding) {
-        binding.done.setOnClickListener(v -> {
-
-        });
-        binding.clear.setOnClickListener(v -> {
-
-        });
         binding.checkAllMaterial.setOnClickListener(v -> {
             boolean checked = binding.checkAllMaterial.isChecked();
             binding.checkMaterial1.setChecked(checked);
@@ -113,6 +122,113 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
         binding.manuKaiheYes.setOnClickListener(v -> updateManuAll());
         binding.manuKaiheNo.setOnClickListener(v -> updateManuAll());
 
+        binding.done.setOnClickListener(v -> done());
+        binding.clear.setOnClickListener(v -> clear());
+
+    }
+
+    private void done() {
+        try {
+            String segStr = binding.segStr.getText().toString().trim();
+            List<Integer> segList = SegStringParser.parse(segStr);
+
+            List<String> materials = getMaterials();
+
+            int buttonId1 = binding.groupCutAngel.getCheckedRadioButtonId();
+            int buttonId2 = binding.groupZhiwan.getCheckedRadioButtonId();
+            int buttonId3 = binding.groupWeld.getCheckedRadioButtonId();
+            int buttonId4 = binding.groupKaihe.getCheckedRadioButtonId();
+
+            MenuFilter filter = new MenuFilter() {
+
+                @Override
+                public String getText() {
+                    return "";
+                }
+
+                @Override
+                public boolean match(TowerPart part) {
+                    int segNo = Integer.parseInt(part.getSegStr(), 16);
+                    boolean b = segList.isEmpty() || segList.contains(segNo);
+
+                    boolean b1 = materials.isEmpty() || materials.contains(part.getMaterialMark());
+
+                    boolean b2 = true;
+                    if (buttonId1 == R.id.manu_cut_angel_yes){
+                        b2 = part.getManuHourCutAngle()>0;
+                    } else if (buttonId1 == R.id.manu_cut_angel_no){
+                        b2 = part.getManuHourCutAngle()==0;
+                    }
+
+                    boolean b3 = true;
+                    if (buttonId2 ==R.id.manu_zhiwan_yes){
+                        b3 = part.getManuHourZhiWan()>0;
+                    } else if (buttonId2 ==R.id.manu_zhiwan_no){
+                        b3 = part.getManuHourZhiWan()==0;
+                    }
+
+                    boolean b4 = true;
+                    if (buttonId3 == R.id.manu_weld_yes){
+                        b4 = part.getManuHourWeld()>0;
+                    } else if (buttonId3 == R.id.manu_weld_no){
+                        b4 = part.getManuHourWeld()==0;
+                    }
+
+                    boolean b5 = true;
+                    if (buttonId4 == R.id.manu_kaihe_yes){
+                        b5 = part.getManuHourKaiHe()>0;
+                    } else if (buttonId4 == R.id.manu_kaihe_no){
+                        b5 = part.getManuHourKaiHe()==0;
+                    }
+                    return b && b1 && (b2 && b3 && b4 && b5);
+                }
+            };
+            if (callback != null) {
+                callback.callback(filter);
+            }
+            dismiss();
+        } catch (RuntimeException e) {
+            ToastUtils.showToast(e.getMessage());
+        }
+    }
+
+    @NonNull
+    private List<String> getMaterials() {
+        List<String> materials = new ArrayList<>(5);
+        if (binding.checkMaterial1.isChecked()){
+            materials.add(binding.checkMaterial1.getText().toString());
+        }
+        if (binding.checkMaterial2.isChecked()){
+            materials.add(binding.checkMaterial2.getText().toString());
+        }
+        if (binding.checkMaterial3.isChecked()){
+            materials.add(binding.checkMaterial3.getText().toString());
+        }
+        if (binding.checkMaterial4.isChecked()){
+            materials.add(binding.checkMaterial4.getText().toString());
+        }
+        if (binding.checkMaterial5.isChecked()){
+            materials.add(binding.checkMaterial5.getText().toString());
+        }
+        return materials;
+    }
+
+    private void clear() {
+        MenuFilter filter = new MenuFilter() {
+            @Override
+            public String getText() {
+                return "";
+            }
+
+            @Override
+            public boolean match(TowerPart part) {
+                return true;
+            }
+        };
+        if (callback != null) {
+            callback.callback(filter);
+        }
+        dismiss();
     }
 
     private void updateManuAll() {

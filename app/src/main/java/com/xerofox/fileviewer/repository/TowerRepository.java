@@ -3,6 +3,7 @@ package com.xerofox.fileviewer.repository;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.SparseArray;
 
 import com.xerofox.fileviewer.AppExecutors;
 import com.xerofox.fileviewer.api.ApiResponse;
@@ -63,7 +64,7 @@ public class TowerRepository {
         }.asLiveData();
     }
 
-    public LiveData<ArrayList<TowerPart>> getTowerParts(Task task, List<MenuFilter> filters) {
+    public LiveData<ArrayList<TowerPart>> getTowerParts(Task task, SparseArray<MenuFilter> filters) {
         return fileHelper.loadTowerParts(task, filters);
     }
 

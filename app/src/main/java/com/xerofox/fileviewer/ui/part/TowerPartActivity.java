@@ -72,6 +72,7 @@ public class TowerPartActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.filter:
                 FilterDialogFragment fragment = FilterDialogFragment.newInstance();
+                fragment.setCallback(filter -> viewModel.setFilter(4, filter));
                 fragment.show(getSupportFragmentManager(), "filter");
                 return true;
             default:

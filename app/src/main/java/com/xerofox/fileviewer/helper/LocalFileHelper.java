@@ -3,6 +3,7 @@ package com.xerofox.fileviewer.helper;
 import android.arch.lifecycle.LiveData;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.util.SparseArray;
 
 import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.util.ByteBufferReader;
@@ -169,7 +170,7 @@ public class LocalFileHelper implements FileHelper {
     }
 
     @Override
-    public LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, List<MenuFilter> filters) {
+    public LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, SparseArray<MenuFilter> filters) {
         return new LiveData<ArrayList<TowerPart>>() {
             @Override
             protected void onActive() {
@@ -180,14 +181,15 @@ public class LocalFileHelper implements FileHelper {
     }
 
     @NonNull
-    private ArrayList<TowerPart> doFilter(Task taskNew, List<MenuFilter> filters) {
+    private ArrayList<TowerPart> doFilter(Task taskNew, SparseArray<MenuFilter> filters) {
         if (filters == null || filters.size() == 0) {
             return taskNew.getPartList();
         }
         ArrayList<TowerPart> partList = new ArrayList<>();
         for (TowerPart part : taskNew.getPartList()) {
             boolean add = true;
-            for (MenuFilter filter : filters) {
+            for (int i = 0; i < filters.size(); i++) {
+                MenuFilter filter = filters.valueAt(i);
                 if (filter != null) {
                     add = filter.match(part);
                 }

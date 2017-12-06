@@ -2,6 +2,7 @@ package com.xerofox.fileviewer.api;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import android.util.SparseArray;
 
 import com.xerofox.fileviewer.vo.MenuFilter;
 import com.xerofox.fileviewer.vo.Task;
@@ -23,7 +24,7 @@ public interface FileHelper {
 
     void saveTasks(List<Task> tasks);
 
-    LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, List<MenuFilter> filters);
+    LiveData<ArrayList<TowerPart>> loadTowerParts(Task task, SparseArray<MenuFilter> filters);
 
     Task loadTask(Task task);
 
