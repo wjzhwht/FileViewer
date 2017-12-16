@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">工艺卡查看器</string>
     <string name="task_list">任务列表</string>
+    <string name="download_list">下载列表</string>
     <string name="title_activity_initialization">设置端口</string>
     <string name="ok">确定</string>
     <string name="empty_search_result">暂无数据</string>
@@ -35,5 +36,8 @@
     <string name="all_no">全无</string>
     <string name="no">无</string>
     <string name="reset">重置</string>
+    <string name="download_warning">确定要下载%1$s</string>
+    <string name="cancel">取消</string>
+    <string name="warning">提示</string>
 
 </resources>

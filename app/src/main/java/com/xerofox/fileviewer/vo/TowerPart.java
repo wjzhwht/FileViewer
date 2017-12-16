@@ -176,6 +176,10 @@ public class TowerPart implements Parcelable {
 
     private PartFile partFile;
 
+    private String md5;
+
+    private boolean needUpdated;    //不存储，记录构件是否需要更新
+
     public TowerPart() {
     }
 
@@ -210,6 +214,7 @@ public class TowerPart implements Parcelable {
         this.m20LsNum = br.readInt();
         this.m24LsNum = br.readInt();
         this.mxLsNum = br.readInt();
+        this.md5 = br.readString();
         this.fileCount = br.readInt();
         if (fileCount == 1) {
             this.partFile = new PartFile(br);
@@ -247,6 +252,7 @@ public class TowerPart implements Parcelable {
         this.m20LsNum = br.readInt();
         this.m24LsNum = br.readInt();
         this.mxLsNum = br.readInt();
+        this.md5 = br.readString();
         this.fileCount = br.readInt();
         if (fileCount == 1) {
             this.partFile = new PartFile(br, readBytes);
@@ -284,6 +290,7 @@ public class TowerPart implements Parcelable {
         br.write(m20LsNum);
         br.write(m24LsNum);
         br.write(mxLsNum);
+        br.write(md5);
         br.write(fileCount);
         if (fileCount == 1) {
             this.partFile.saveByteArray(br);
@@ -563,6 +570,14 @@ public class TowerPart implements Parcelable {
         this.m24LsNum = m24LsNum;
     }
 
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5Code) {
+        this.md5 = md5Code;
+    }
+
     public int getMxLsNum() {
         return mxLsNum;
     }
@@ -586,6 +601,10 @@ public class TowerPart implements Parcelable {
     public void setPartFile(PartFile partFile) {
         this.partFile = partFile;
     }
+
+    public boolean isNeedUpdated() { return needUpdated;}
+
+    public void setNeedUpdated(boolean needUpdated) { this.needUpdated = needUpdated;}
 
     @Override
     public int describeContents() {
@@ -624,6 +643,7 @@ public class TowerPart implements Parcelable {
         dest.writeInt(this.m20LsNum);
         dest.writeInt(this.m24LsNum);
         dest.writeInt(this.mxLsNum);
+        dest.writeString(this.md5);
         dest.writeInt(this.fileCount);
         dest.writeParcelable(this.partFile, flags);
     }
@@ -659,6 +679,7 @@ public class TowerPart implements Parcelable {
         this.m20LsNum = in.readInt();
         this.m24LsNum = in.readInt();
         this.mxLsNum = in.readInt();
+        this.md5 = in.readString();
         this.fileCount = in.readInt();
         this.partFile = in.readParcelable(PartFile.class.getClassLoader());
     }

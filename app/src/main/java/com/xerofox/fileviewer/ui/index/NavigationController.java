@@ -4,7 +4,9 @@ import android.support.v4.app.FragmentManager;
 
 import com.xerofox.fileviewer.MainActivity;
 import com.xerofox.fileviewer.R;
+import com.xerofox.fileviewer.ui.download.DownloadFragment;
 import com.xerofox.fileviewer.ui.settings.SettingsFragment;
+import com.xerofox.fileviewer.ui.task.TaskFragment;
 
 import javax.inject.Inject;
 
@@ -28,7 +30,7 @@ public class NavigationController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToSearch() {
+    void navigateToSearch() {
         TaskFragment searchFragment = new TaskFragment();
         fragmentManager.beginTransaction()
                 .replace(containerId, searchFragment)
@@ -36,8 +38,16 @@ public class NavigationController {
                 .commitAllowingStateLoss();
     }
 
-    public void navigateToSettings() {
+    void navigateToSettings() {
         SettingsFragment fragment = SettingsFragment.newInstance();
+        fragmentManager.beginTransaction()
+                .replace(containerId, fragment)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
+    void navigateToDownlaod(){
+        DownloadFragment fragment = DownloadFragment.newInstance();
         fragmentManager.beginTransaction()
                 .replace(containerId, fragment)
                 .addToBackStack(null)

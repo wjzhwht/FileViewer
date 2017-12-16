@@ -29,6 +29,12 @@ public class ApiResponse<T> {
         this.errorMessage = errorMessage;
     }
 
+    public ApiResponse(T body){
+        this.code = 200;
+        this.body = body;
+        this.errorMessage = "";
+    }
+
     public ApiResponse(Response<T> response) {
         code = response.code();
         if(response.isSuccessful()) {

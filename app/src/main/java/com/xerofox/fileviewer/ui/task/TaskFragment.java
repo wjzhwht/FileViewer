@@ -1,4 +1,4 @@
-package com.xerofox.fileviewer.ui.index;
+package com.xerofox.fileviewer.ui.task;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;

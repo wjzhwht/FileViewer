@@ -34,6 +34,7 @@ public class Task implements Parcelable {
     private String name;
     private Date date;
     private int state;
+    private boolean needUpdate;
     private ArrayList<TowerPart> partList;
     private int count;
 
@@ -207,6 +208,10 @@ public class Task implements Parcelable {
     public void setCount(int count) {
         this.count = count;
     }
+
+    public boolean isNeedUpdate() { return needUpdate;}
+
+    public void setNeedUpdate(boolean needUpdate) {this.needUpdate = needUpdate;}
 
     @Override
     public int describeContents() {

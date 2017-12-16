@@ -203,4 +203,24 @@ public class LocalFileHelper implements FileHelper {
         }
         return partList;
     }
+
+    @Override
+    public int[] getLocalTaskIds() {
+        String rootPath = directory.getPath() + File.separator + PATH_ROOT;
+        if (!FileUtil.isFileExists(rootPath)) {
+            return new int[0];
+        }
+        List<File> taskFiles = FileUtil.listFilesInDir(rootPath);
+        if (taskFiles == null || taskFiles.isEmpty()) {
+            return new int[0];
+        }
+        int[] array = new int[taskFiles.size()];
+        for (int i = 0; i < taskFiles.size(); i++) {
+            File file = taskFiles.get(i);
+            Task task = new Task(file.getName());
+            array[i] = task.getId();
+        }
+        return array;
+
+    }
 }
