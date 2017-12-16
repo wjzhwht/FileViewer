@@ -21,29 +21,29 @@ import com.xerofox.fileviewer.util.XmlUtil;
 public class XeroNetApi {
     public static String IP = "192.168.2.6";
     public static final String NAMESPACE = "http://xerofox.com/TMSService/";
-    public static String URL = "http://"+IP+"/TMSServ/TMSService.asmx";
+    public static String URL = "http://" + IP + "/TMSServ/TMSService.asmx";
     public static HttpTransportSE ht = null;
     public static int sessionId = 0;
+
     ////////////////////////////////////
     // service的调用函数
     ////////////////////////////////////
     // 从服务器下载任务列表
-    private ArrayList<Task> downloadSimpleTaskListFromServer(int[] localTaskIdArr,boolean queryState){
+    private ArrayList<Task> downloadSimpleTaskListFromServer(int[] localTaskIdArr, boolean queryState) {
         GetSessionId();
         ArrayList<Task> taskList = new ArrayList<Task>();
-        try
-        {
+        try {
             long startTime = System.currentTimeMillis();
             Logger.d(String.valueOf(startTime));
             SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
             //设置参数
-            rpc.addProperty("sessionId",sessionId);
-            rpc.addProperty("clsName","ManuElemTask");
+            rpc.addProperty("sessionId", sessionId);
+            rpc.addProperty("clsName", "ManuElemTask");
             XmlUtil xmlHelper = new XmlUtil();
-            xmlHelper.AppendValue("IdArr","id",localTaskIdArr);
-            if(queryState)  //查询指定任务状态
-                xmlHelper.AppendValue("QueryType",1);
-            rpc.addProperty("xmlScope",xmlHelper.ToXml());
+            xmlHelper.AppendValue("IdArr", "id", localTaskIdArr);
+            if (queryState)  //查询指定任务状态
+                xmlHelper.AppendValue("QueryType", 1);
+            rpc.addProperty("xmlScope", xmlHelper.ToXml());
             //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
@@ -52,15 +52,15 @@ public class XeroNetApi {
             //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
             //建立连接
-            if(ht==null)
-                ht = new HttpTransportSE(URL,100000);
+            if (ht == null)
+                ht = new HttpTransportSE(URL, 100000);
             //发送请求
             ht.call(null, envelope);
-            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
             startTime = System.currentTimeMillis();
             //
             Object ret = envelope.getResponse();
-            if(ret==null){
+            if (ret == null) {
                 //MessageBox.show(context, "没有需要下载的新任务!");
                 return taskList;
             }
@@ -69,19 +69,18 @@ public class XeroNetApi {
             //解析byte[]
             ByteBufferReader br = new ByteBufferReader(retByteArr);
             int taskArrLen = br.readInt();
-            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:"+String.valueOf(taskArrLen));
-            for(int i=0;i<taskArrLen;i++)
-            {
-                int id=br.readInt();
-                String name=br.readString();
-                Task task = new Task(id,name);
+            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:" + String.valueOf(taskArrLen));
+            for (int i = 0; i < taskArrLen; i++) {
+                int id = br.readInt();
+                String name = br.readString();
+                Task task = new Task(id, name);
                 task.setDate(br.readDate());
-                if(queryState)
-                    task.setNeedUpdate(br.readInt()>0);
+                if (queryState)
+                    task.setNeedUpdate(br.readInt() > 0);
                 else
                     task.setState(br.readInt());
                 taskList.add(task);
-                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis() - startTime));
                 startTime = System.currentTimeMillis();
             }
             //Logger.d("parse Time:" + String.valueOf(System.currentTimeMillis()-startTime));
@@ -96,17 +95,17 @@ public class XeroNetApi {
         }
     }
 
-    private static int loginUser(String userName,String password){
-        try{
+    private static int loginUser(String userName, String password) {
+        try {
             sessionId = 0;
             //
             long startTime = System.currentTimeMillis();
             Logger.d(String.valueOf(startTime));
             SoapObject rpc = new SoapObject(NAMESPACE, "loginUser");
             //设置参数
-            rpc.addProperty("userName",userName);
-            rpc.addProperty("password",password);
-            rpc.addProperty("fingerprint",null);
+            rpc.addProperty("userName", userName);
+            rpc.addProperty("password", password);
+            rpc.addProperty("fingerprint", null);
             //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
@@ -115,15 +114,15 @@ public class XeroNetApi {
             //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
             //建立连接
-            if(ht==null)
-                ht = new HttpTransportSE(URL,100000);
+            if (ht == null)
+                ht = new HttpTransportSE(URL, 100000);
             //发送请求
             ht.call(null, envelope);
-            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
             startTime = System.currentTimeMillis();
             //
             Object ret = envelope.getResponse();
-            if(ret==null){
+            if (ret == null) {
                 //MessageBox.show(context, "没有需要下载的新任务!");
                 return 0;
             }
@@ -138,25 +137,27 @@ public class XeroNetApi {
             return sessionId;
         }
     }
-    public static int GetSessionId(){
-        if(sessionId>0)
+
+    public static int GetSessionId() {
+        if (sessionId > 0)
             return sessionId;
         else
-            return loginUser("wjh","");
-    }
-    private byte[] DownloadTaskById(int taskId){
-        return XeroFtpApi.DownloadServerObject(taskId,"ManuElemTask");
+            return loginUser("wjh", "");
     }
 
-    public ArrayList<Task> DownloadTaskArr(){
+    private byte[] DownloadTaskById(int taskId) {
+        return XeroFtpApi.DownloadServerObject(taskId, "ManuElemTask");
+    }
+
+    public ArrayList<Task> DownloadTaskArr() {
         //1.获取本地任务id数组
         int[] localTaskIdArr = null;
         //2.查询服务器新任务idArr
-        ArrayList<Task> taskList = downloadSimpleTaskListFromServer(localTaskIdArr,false);
-        for(int i=0;i<taskList.size();i++){
+        ArrayList<Task> taskList = downloadSimpleTaskListFromServer(localTaskIdArr, false);
+        for (int i = 0; i < taskList.size(); i++) {
             Task task = taskList.get(i);
             byte[] byteArr = DownloadTaskById(task.getId());
-            if(byteArr==null)
+            if (byteArr == null)
                 continue;
             ByteBufferReader br = new ByteBufferReader(byteArr);
             task = new Task(br);
@@ -164,35 +165,36 @@ public class XeroNetApi {
         //3.保存任务为本地文件
         return taskList;
     }
+
     // 查询任务更新状态
-    public List<Task> QueryTaskUpdateState(int[] taskIdArr){
-        return downloadSimpleTaskListFromServer(taskIdArr,false);
+    public List<Task> QueryTaskUpdateState(int[] taskIdArr) {
+        return downloadSimpleTaskListFromServer(taskIdArr, false);
     }
+
     // 查询任务构件更新状态
-    public boolean QueryTaskPartsUpdateState(Task task){
-        if(task==null||task.getPartList().size()==0)
+    public boolean QueryTaskPartsUpdateState(Task task) {
+        if (task == null || task.getPartList().size() == 0)
             return false;
         GetSessionId();
-        try{
-            Hashtable<Integer,TowerPart>  hashPartById = new Hashtable<Integer,TowerPart>();
+        try {
+            Hashtable<Integer, TowerPart> hashPartById = new Hashtable<Integer, TowerPart>();
             long startTime = System.currentTimeMillis();
             Logger.d(String.valueOf(startTime));
             SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
             //设置参数
-            rpc.addProperty("sessionId",sessionId);
-            rpc.addProperty("clsName","ManuElemTaskPartId");
+            rpc.addProperty("sessionId", sessionId);
+            rpc.addProperty("clsName", "ManuElemTaskPartId");
             XmlUtil xmlHelper = new XmlUtil();
-            xmlHelper.AppendValue("ManuElemTaskId",task.getId());
+            xmlHelper.AppendValue("ManuElemTaskId", task.getId());
             ArrayList<String> md5List = new ArrayList<String>();
-            for(int i=0;i<task.getPartList().size();i++)
-            {
+            for (int i = 0; i < task.getPartList().size(); i++) {
                 TowerPart part = task.getPartList().get(i);
                 md5List.add(part.getMd5());
-                hashPartById.put(part.getId(),part);
+                hashPartById.put(part.getId(), part);
                 part.setNeedUpdated(false); //初始化构件更新状态
             }
-            xmlHelper.AppendValue("PartLabelArr","md5",(String[])md5List.toArray());
-            rpc.addProperty("xmlScope",xmlHelper.ToXml());
+//            xmlHelper.AppendValue("PartMd5Arr","md5",(String[])md5List.toArray());
+            rpc.addProperty("xmlScope", xmlHelper.ToXml());
             //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
@@ -201,15 +203,15 @@ public class XeroNetApi {
             //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
             //建立连接
-            if(ht==null)
-                ht = new HttpTransportSE(URL,100000);
+            if (ht == null)
+                ht = new HttpTransportSE(URL, 100000);
             //发送请求
             ht.call(null, envelope);
-            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
             startTime = System.currentTimeMillis();
             //
             Object ret = envelope.getResponse();
-            if(ret==null){
+            if (ret == null) {
                 //MessageBox.show(context, "没有需要下载的新任务!");
                 return false;
             }
@@ -218,14 +220,13 @@ public class XeroNetApi {
             //解析byte[]
             ByteBufferReader br = new ByteBufferReader(retByteArr);
             int taskArrLen = br.readInt();
-            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:"+String.valueOf(taskArrLen));
-            for(int i=0;i<taskArrLen;i++)
-            {
-                int id=br.readInt();
+            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:" + String.valueOf(taskArrLen));
+            for (int i = 0; i < taskArrLen; i++) {
+                int id = br.readInt();
                 TowerPart part = hashPartById.get(id);
-                if(part!=null)
+                if (part != null)
                     part.setNeedUpdated(true);
-                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis() - startTime));
                 startTime = System.currentTimeMillis();
             }
             //Logger.d("parse Time:" + String.valueOf(System.currentTimeMillis()-startTime));
@@ -239,21 +240,23 @@ public class XeroNetApi {
             return false;
         }
     }
+
     // 根据构件id更新构件
-    public static TowerPart[] QueryTaskParts(int[] partIdArr){
-        if(partIdArr==null||partIdArr.length==0)
+    public static TowerPart[] QueryTaskParts(int taskId, int[] partIdArr) {
+        if (partIdArr == null || partIdArr.length == 0)
             return null;
         GetSessionId();
-        try{
+        try {
             long startTime = System.currentTimeMillis();
             Logger.d(String.valueOf(startTime));
             SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
             //设置参数
-            rpc.addProperty("sessionId",sessionId);
-            rpc.addProperty("clsName","ManuElemTaskPart");
+            rpc.addProperty("sessionId", sessionId);
+            rpc.addProperty("clsName", "ManuElemTaskPart");
             XmlUtil xmlHelper = new XmlUtil();
-            xmlHelper.AppendValue("IdArr","id",partIdArr);
-            rpc.addProperty("xmlScope",xmlHelper.ToXml());
+            xmlHelper.AppendValue("ManuElemTaskId", taskId);
+            xmlHelper.AppendValue("IdArr", "id", partIdArr);
+            rpc.addProperty("xmlScope", xmlHelper.ToXml());
             //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
@@ -262,33 +265,32 @@ public class XeroNetApi {
             //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
             //建立连接
-            if(ht==null)
-                ht = new HttpTransportSE(URL,100000);
+            if (ht == null)
+                ht = new HttpTransportSE(URL, 100000);
             //发送请求
             ht.call(null, envelope);
-            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
             startTime = System.currentTimeMillis();
             //
             Object ret = envelope.getResponse();
-            if(ret==null){
+            if (ret == null) {
                 //MessageBox.show(context, "没有需要下载的新任务!");
                 return null;
             }
             String retString = String.valueOf(ret);
             byte[] retByteArr = Base64.decode(retString);
             //解析byte[]
-            ArrayList<TowerPart> partList = new ArrayList<TowerPart>();
+            ArrayList<TowerPart> partList = new ArrayList<>();
             ByteBufferReader br = new ByteBufferReader(retByteArr);
             int taskArrLen = br.readInt();
-            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:"+String.valueOf(taskArrLen));
-            for(int i=0;i<taskArrLen;i++)
-            {
+            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:" + String.valueOf(taskArrLen));
+            for (int i = 0; i < taskArrLen; i++) {
                 partList.add(new TowerPart(br));
-                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis() - startTime));
                 startTime = System.currentTimeMillis();
             }
             //Logger.d("parse Time:" + String.valueOf(System.currentTimeMillis()-startTime));
-            return (TowerPart[])partList.toArray();
+            return (TowerPart[]) partList.toArray();
         } catch (SocketTimeoutException timeoutException) {
             // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
             return null;
@@ -299,9 +301,9 @@ public class XeroNetApi {
         }
     }
 
-    public static void SetServerIP(String ip){
+    public static void SetServerIP(String ip) {
         IP = ip;
-        URL = "http://"+IP+"/TMSServ/TMSService.asmx";
+        URL = "http://" + IP + "/TMSServ/TMSService.asmx";
         sessionId = 0;
         ht = null;
     }

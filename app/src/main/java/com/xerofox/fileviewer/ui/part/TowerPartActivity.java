@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.xerofox.fileviewer.R;
+import com.xerofox.fileviewer.api.XeroApiImpl;
+import com.xerofox.fileviewer.api.XeroNetApi;
 import com.xerofox.fileviewer.databinding.TowerPartActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
 import com.xerofox.fileviewer.ui.viewer.ViewerActivity;
@@ -20,6 +22,7 @@ import com.xerofox.fileviewer.vo.TowerPart;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -37,6 +40,8 @@ public class TowerPartActivity extends BaseActivity {
     TowerPartActivityBinding binding;
     TowerPartAdapter adapter;
     private PartMenuAdapter partMenuAdapter;
+
+    private List<TowerPart> allParts;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -76,6 +81,9 @@ public class TowerPartActivity extends BaseActivity {
                 fragment.setCallback(filter -> viewModel.setFilter(4, filter));
                 fragment.show(getSupportFragmentManager(), "filter");
                 return true;
+            case R.id.download:
+                new Thread(() -> XeroApiImpl.queryTaskPartsUpdateState(getTask().getId(), allParts)).start();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -90,10 +98,14 @@ public class TowerPartActivity extends BaseActivity {
         setSupportActionBar(binding.toolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         initFilter();
-        adapter = new TowerPartAdapter(this::jumpViewer);
+        adapter = new TowerPartAdapter(this::jumpViewer, this::onItemDownload);
         binding.list.setAdapter(adapter);
         initPartList();
         viewModel.setTask(getTask());
+    }
+
+    private void onItemDownload(TowerPart part) {
+        new Thread(() -> XeroNetApi.QueryTaskParts(getTask().getId(), new int[]{part.getId()})).start();
     }
 
     private void initFilter() {
@@ -126,7 +138,10 @@ public class TowerPartActivity extends BaseActivity {
 
     private void initPartList() {
         viewModel.getTowerParts().observe(this, data -> {
-            if (data != null) {
+            if (data != null && !data.isEmpty()) {
+                if (allParts == null) {
+                    allParts = data;
+                }
                 adapter.replace(data);
             } else {
                 adapter.replace(Collections.emptyList());

@@ -14,9 +14,15 @@ import com.xerofox.fileviewer.vo.TowerPart;
 public class TowerPartAdapter extends DataBoundListAdapter<TowerPart, TowerPartItemBinding> {
 
     private final OnItemClickListener<TowerPart> onItemClickListener;
+    private final OnDownloadListener onDownloadListener;
 
-    public TowerPartAdapter(OnItemClickListener<TowerPart> onItemClickListener) {
+    interface OnDownloadListener {
+        void onclick(TowerPart part);
+    }
+
+    public TowerPartAdapter(OnItemClickListener<TowerPart> onItemClickListener, OnDownloadListener onDownloadListener) {
         this.onItemClickListener = onItemClickListener;
+        this.onDownloadListener = onDownloadListener;
     }
 
     @Override
@@ -28,6 +34,11 @@ public class TowerPartAdapter extends DataBoundListAdapter<TowerPart, TowerPartI
             TowerPart part = binding.getPart();
             if (part != null && onItemClickListener != null) {
                 onItemClickListener.onClick(part);
+            }
+        });
+        binding.download.setOnClickListener(v -> {
+            if (onDownloadListener != null) {
+                onDownloadListener.onclick(binding.getPart());
             }
         });
         return binding;

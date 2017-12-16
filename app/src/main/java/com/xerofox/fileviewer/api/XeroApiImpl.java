@@ -11,6 +11,7 @@ import com.xerofox.fileviewer.util.Logger;
 import com.xerofox.fileviewer.util.XmlUtil;
 import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.Task;
+import com.xerofox.fileviewer.vo.TowerPart;
 
 import org.kobjects.base64.Base64;
 import org.ksoap2.SoapEnvelope;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -398,6 +400,74 @@ public class XeroApiImpl implements XeroApi {
             }
             String retString = String.valueOf(ret);
             return Boolean.valueOf(retString);
+        } catch (SocketTimeoutException timeoutException) {
+            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
+            return false;
+        } catch (Exception e) {
+            //CrashHandler.saveExceptionInfo2File(e);
+            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean queryTaskPartsUpdateState(int id, List<TowerPart> parts) {
+        if (parts == null || parts.isEmpty()) {
+            return false;
+        }
+        GetSessionId();
+        try {
+            Hashtable<Integer, TowerPart> hashPartById = new Hashtable<>();
+            long startTime = System.currentTimeMillis();
+            Logger.d(String.valueOf(startTime));
+            SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
+            //设置参数
+            rpc.addProperty("sessionId", sessionId);
+            rpc.addProperty("clsName", "ManuElemTaskPartId");
+            XmlUtil xmlHelper = new XmlUtil();
+            xmlHelper.AppendValue("ManuElemTaskId", id);
+            for (int i = 0; i < parts.size(); i++) {
+                TowerPart part = parts.get(i);
+                hashPartById.put(part.getId(), part);
+                part.setNeedUpdated(false); //初始化构件更新状态
+            }
+            xmlHelper.AppendValue("PartMd5Arr", parts);
+            rpc.addProperty("xmlScope", xmlHelper.ToXml());
+            //设置版本
+            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
+            envelope.bodyOut = rpc;
+            envelope.dotNet = true;
+            //envelope.setOutputSoapObject(rpc);
+            //传递byte[]时需要事先注册
+            new MarshalBase64().register(envelope);
+            //建立连接
+            if (ht == null)
+                ht = new HttpTransportSE(URL, 100000);
+            //发送请求
+            ht.call(null, envelope);
+            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
+            startTime = System.currentTimeMillis();
+            //
+            Object ret = envelope.getResponse();
+            if (ret == null) {
+                //MessageBox.show(context, "没有需要下载的新任务!");
+                return false;
+            }
+            String retString = String.valueOf(ret);
+            byte[] retByteArr = Base64.decode(retString);
+            //解析byte[]
+            ByteBufferReader br = new ByteBufferReader(retByteArr);
+            int taskArrLen = br.readInt();
+            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:" + String.valueOf(taskArrLen));
+            for (int i = 0; i < taskArrLen; i++) {
+                int partId = br.readInt();
+                TowerPart part = hashPartById.get(partId);
+                if (part != null)
+                    part.setNeedUpdated(true);
+                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis() - startTime));
+                startTime = System.currentTimeMillis();
+            }
+            //Logger.d("parse Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+            return true;
         } catch (SocketTimeoutException timeoutException) {
             // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
             return false;

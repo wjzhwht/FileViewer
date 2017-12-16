@@ -33,7 +33,8 @@ public class TowerPartViewModel extends ViewModel {
             if (input == null || input.task == null) {
                 return AbsentLiveData.create();
             } else {
-                return repository.getTowerParts(input.task, input.array);
+                LiveData<ArrayList<TowerPart>> towerParts = repository.getTowerParts(input.task, input.array);
+                return towerParts;
             }
         });
 
@@ -88,7 +89,7 @@ public class TowerPartViewModel extends ViewModel {
         final SparseArray<MenuFilter> array;
         final long timeStamp;
 
-        public Param(Task task) {
+        Param(Task task) {
             this.task = task;
             array = new SparseArray<>(5);
             timeStamp = System.currentTimeMillis();
