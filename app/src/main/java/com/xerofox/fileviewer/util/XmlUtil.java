@@ -71,16 +71,14 @@ public class XmlUtil {
         //首先获取当前节点的所有属性节点
         List<Attribute> list = node.attributes();
         for(Attribute attribute : list){
-            if(hashPropByName.get(attribute.getName())!=null)
+            if(hashPropByName.get(attribute.getName())==null)
                 hashPropByName.put(attribute.getName(),attribute.getStringValue());
         }
         //如果当前节点内容不为空，则输出
-        if(!(node.getTextTrim().equals(""))){
-            if(hashPropByName.get(node.getName())!=null)
-                hashPropByName.put(node.getName(),node.getTextTrim());
-            if(hashNodeByName.get(node.getName())!=null)
-                hashNodeByName.put(node.getName(),node);
-        }
+        if(hashPropByName.get(node.getName())==null)
+            hashPropByName.put(node.getName(),node.getTextTrim());
+        if(hashNodeByName.get(node.getName())==null)
+            hashNodeByName.put(node.getName(),node);
         //同时迭代当前节点下面的所有子节点
         Iterator<Element> iterator = node.elementIterator();
         while(iterator.hasNext()){
@@ -90,6 +88,8 @@ public class XmlUtil {
     }
     public String GetValue(String nodeName,String propName) {
         Element node = hashNodeByName.get(nodeName);
+        if(node==null)
+            return "";
         List<Attribute> list = node.attributes();
         for(Attribute attribute : list){
             if(attribute.getName().equals(propName)) {

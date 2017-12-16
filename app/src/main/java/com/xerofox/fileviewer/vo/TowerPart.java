@@ -38,6 +38,8 @@ public class TowerPart implements Parcelable {
      */
     private String towerTypeName;
 
+    private String towerTypeCode;
+
     /**
      * 构件Id
      */
@@ -188,6 +190,7 @@ public class TowerPart implements Parcelable {
         this.projectName = br.readString();
         this.towerTypeId = br.readInt();
         this.towerTypeName = br.readString();
+        this.towerTypeCode = br.readString();
         this.id = br.readInt();
         this.partNo = br.readString();
         this.num = br.readInt();
@@ -226,6 +229,7 @@ public class TowerPart implements Parcelable {
         this.projectName = br.readString();
         this.towerTypeId = br.readInt();
         this.towerTypeName = br.readString();
+        this.towerTypeCode = br.readString();
         this.id = br.readInt();
         this.partNo = br.readString();
         this.num = br.readInt();
@@ -264,6 +268,7 @@ public class TowerPart implements Parcelable {
         br.write(projectName);
         br.write(towerTypeId);
         br.write(towerTypeName);
+        br.write(towerTypeCode);
         br.write(id);
         br.write(partNo);
         br.write(num);
@@ -368,6 +373,14 @@ public class TowerPart implements Parcelable {
 
     public void setTowerTypeName(String towerTypeName) {
         this.towerTypeName = towerTypeName;
+    }
+
+    public String getTowerTypeCode() {
+        return towerTypeCode;
+    }
+
+    public void setTowerTypeCode(String towerTypeCode) {
+        this.towerTypeCode = towerTypeCode;
     }
 
     public int getId() {
@@ -617,6 +630,7 @@ public class TowerPart implements Parcelable {
         dest.writeString(this.projectName);
         dest.writeInt(this.towerTypeId);
         dest.writeString(this.towerTypeName);
+        dest.writeString(this.towerTypeCode);
         dest.writeInt(this.id);
         dest.writeString(this.partNo);
         dest.writeInt(this.num);
@@ -653,6 +667,7 @@ public class TowerPart implements Parcelable {
         this.projectName = in.readString();
         this.towerTypeId = in.readInt();
         this.towerTypeName = in.readString();
+        this.towerTypeCode = in.readString();
         this.id = in.readInt();
         this.partNo = in.readString();
         this.num = in.readInt();

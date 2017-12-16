@@ -30,4 +30,32 @@ public class TaskRepository {
     public LiveData<Resource<List<Task>>> getDownloadTasks() {
         return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
     }
+
+    public LiveData<Resource<Boolean>> downloadTasks(List<Task> data) {
+//        return new NetworkBoundResource<Boolean,Boolean>(appExecutors){
+//
+//            @Override
+//            protected void saveCallResult(@NonNull Boolean item) {
+//
+//            }
+//
+//            @Override
+//            protected boolean shouldFetch(@Nullable Boolean data) {
+//                return true;
+//            }
+//
+//            @NonNull
+//            @Override
+//            protected LiveData<Boolean> loadFromDb() {
+//                return AbsentLiveData.create();
+//            }
+//
+//            @NonNull
+//            @Override
+//            protected LiveData<ApiResponse<Boolean>> createCall() {
+//                return null;
+//            }
+//        }.asLiveData();
+        return api.downloadTasks(appExecutors, fileHelper, data);
+    }
 }

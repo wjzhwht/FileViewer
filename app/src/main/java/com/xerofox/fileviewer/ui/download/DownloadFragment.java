@@ -80,22 +80,26 @@ public class DownloadFragment extends BaseFragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(DownloadViewModel.class);
         initRecyclerView();
-        DownloadListAdapter rvAdapter = new DownloadListAdapter(task ->
-                new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogStyle))
-                        .setTitle(R.string.warning)
-                        .setMessage(getString(R.string.download_warning, task.getName()))
-                        .setPositiveButton(R.string.ok, ((dialog, which) -> {
-                            // FIXME: 2017/12/16 start download
-//                            new Thread(() -> {
-//                                XeroNetApi net = new XeroNetApi();
-//                                ArrayList<Task> taskList = net.DownloadTaskArr();
-//                                LocalFileHelper fileHelper = new LocalFileHelper();
-//                                fileHelper.saveTasks(taskList);
-//                            }).start();
-                        }))
-                        .setNegativeButton(R.string.cancel, null)
-                        .create()
-                        .show());
+        DownloadListAdapter rvAdapter = new DownloadListAdapter(task -> {
+            viewModel.downloadTask(task);
+        });
+//        DownloadListAdapter rvAdapter = new DownloadListAdapter(task ->
+//                new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogStyle))
+//                        .setTitle(R.string.warning)
+//                        .setMessage(getString(R.string.download_warning, task.getName()))
+//                        .setPositiveButton(R.string.ok, ((dialog, which) -> {
+//                            // FIXME: 2017/12/16 start download
+//
+////                            new Thread(() -> {
+////                                XeroNetApi net = new XeroNetApi();
+////                                ArrayList<Task> taskList = net.DownloadTaskArr();
+////                                LocalFileHelper fileHelper = new LocalFileHelper();
+////                                fileHelper.saveTasks(taskList);
+////                            }).start();
+//                        }))
+//                        .setNegativeButton(R.string.cancel, null)
+//                        .create()
+//                        .show());
         binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
         setHasOptionsMenu(true);

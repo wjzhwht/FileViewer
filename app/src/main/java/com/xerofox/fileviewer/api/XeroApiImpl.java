@@ -5,6 +5,7 @@ import android.os.Environment;
 
 import com.xerofox.fileviewer.AppExecutors;
 import com.xerofox.fileviewer.util.ByteBufferReader;
+import com.xerofox.fileviewer.util.ByteBufferWriter;
 import com.xerofox.fileviewer.util.FileUtil;
 import com.xerofox.fileviewer.util.Logger;
 import com.xerofox.fileviewer.util.XmlUtil;
@@ -18,6 +19,7 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -28,11 +30,11 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class XeroApiImpl implements XeroApi {
-    public static String IP = "192.168.2.217";
-    public static final String NAMESPACE = "http://xerofox.com/TMSService/";
-    public static String URL = "http://" + IP + "/TMSServ/TMSService.asmx";
-    public static HttpTransportSE ht = null;
-    public static int sessionId = 0;
+    private static String IP = "192.168.2.6";
+    private static final String NAMESPACE = "http://xerofox.com/TMSService/";
+    private static String URL = "http://" + IP + "/TMSServ/TMSService.asmx";
+    private static HttpTransportSE ht = null;
+    private static int sessionId = 0;
 
     @Inject
     public XeroApiImpl() {
@@ -193,6 +195,216 @@ public class XeroApiImpl implements XeroApi {
             //CrashHandler.saveExceptionInfo2File(e);
             //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
             return sessionId;
+        }
+    }
+
+    @Override
+    public LiveData<Resource<Boolean>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data) {
+// FIXME: 2017/12/16 no download
+        //        appExecutors.networkIO().execute(() -> {
+//            List<Task> downloadedTask = new ArrayList<>();
+//            for (int i = 0; i < data.size(); i++) {
+//                Task task = data.get(i);
+//                byte[] byteArr = downloadServerObject(task.getId(), "ManuElemTask");
+//                if (byteArr == null)
+//                    continue;
+//                ByteBufferReader br = new ByteBufferReader(byteArr);
+//                task = new Task(br);
+//                downloadedTask.add(task);
+//            }
+//            appExecutors.diskIO().execute(() -> {
+//                fileHelper.saveTasks(downloadedTask);
+//            });
+//        });
+        return new LiveData<Resource<Boolean>>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                postValue(Resource.loading(true));
+                appExecutors.networkIO().execute(() -> {
+                    List<Task> downloadedTask = new ArrayList<>();
+                    for (int i = 0; i < data.size(); i++) {
+                        Task task = data.get(i);
+                        byte[] byteArr = downloadServerObject(task.getId(), "ManuElemTask");
+                        if (byteArr == null)
+                            continue;
+                        ByteBufferReader br = new ByteBufferReader(byteArr);
+                        task = new Task(br);
+                        downloadedTask.add(task);
+                    }
+                    appExecutors.diskIO().execute(() -> {
+                        fileHelper.saveTasks(downloadedTask);
+                        postValue(Resource.success(true));
+                    });
+                });
+            }
+
+            @Override
+            protected void onInactive() {
+                super.onInactive();
+                Logger.d("onInactive");
+            }
+        };
+    }
+
+    private byte[] downloadServerObject(int objId, String cls_name) {
+        int fileObjId = 0;
+        int uiFileDataLength = 0;
+        int sessionId = GetSessionId();
+        try {
+            String retXML = openServerObjectDataProvider(sessionId, objId, cls_name, false);
+            if (retXML != null && retXML.length() > 0) {
+                XmlUtil xmlQuery = new XmlUtil(retXML);
+                String idStr = xmlQuery.GetValue("fileObjId");
+                if (idStr != null && idStr.length() > 0)
+                    fileObjId = Integer.valueOf(idStr);
+                String sizeStr = xmlQuery.GetValue("size");
+                if (sizeStr != null && sizeStr.length() > 0)
+                    uiFileDataLength = Integer.valueOf(sizeStr);
+            }
+            if (uiFileDataLength == 0 || fileObjId <= 0)
+                return null;
+            int indexpos = 0;
+            int uiLeastSize = uiFileDataLength;
+            ByteBufferWriter bw = new ByteBufferWriter(new ByteArrayOutputStream(1000));
+            while (uiLeastSize > 0) {
+                int uiDownloadSize = Math.min(uiLeastSize, 0x500000);
+                byte[] byteArr = downloadFileObject(sessionId, fileObjId, indexpos, uiDownloadSize, false);
+                if (byteArr == null || byteArr.length < uiDownloadSize) {
+                    break;    //下载失败
+                }
+                bw.write(byteArr);
+                indexpos += uiDownloadSize;
+                uiLeastSize -= uiDownloadSize;
+            }
+            closeFileObjectDataProvider(sessionId, fileObjId);
+            if (uiLeastSize == 0)
+                return bw.toByteArray();
+            else {
+                //AfxMessageBox("数据文件下载失败!");
+                return null;
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private byte[] downloadFileObject(int sessionId, int idFileObj, int startposition, int download_size, boolean compressed) {
+        try {
+            long startTime = System.currentTimeMillis();
+            Logger.d(String.valueOf(startTime));
+            SoapObject rpc = new SoapObject(XeroNetApi.NAMESPACE, "DownloadFileObject");
+            //设置参数
+            rpc.addProperty("sessionId", sessionId);
+            rpc.addProperty("idFileObj", idFileObj);
+            rpc.addProperty("startposition", startposition);
+            rpc.addProperty("download_size", download_size);
+            rpc.addProperty("compressed", compressed);
+            //设置版本
+            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
+            envelope.bodyOut = rpc;
+            envelope.dotNet = true;
+            //envelope.setOutputSoapObject(rpc);
+            //传递byte[]时需要事先注册
+            new MarshalBase64().register(envelope);
+            //建立连接
+            if (XeroNetApi.ht == null)
+                XeroNetApi.ht = new HttpTransportSE(XeroNetApi.URL, 100000);
+            //发送请求
+            XeroNetApi.ht.call(null, envelope);
+            //
+            Object ret = envelope.getResponse();
+            if (ret == null) {
+                //MessageBox.show(context, "没有需要下载的新任务!");
+                return null;
+            }
+            return Base64.decode(String.valueOf(ret));
+        } catch (SocketTimeoutException timeoutException) {
+            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
+            return null;
+        } catch (Exception e) {
+            //CrashHandler.saveExceptionInfo2File(e);
+            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
+            return null;
+        }
+    }
+
+
+    private String openServerObjectDataProvider(int sessionId, int idObject, String cls_name, boolean compressed) {
+        try {
+            long startTime = System.currentTimeMillis();
+            Logger.d(String.valueOf(startTime));
+            SoapObject rpc = new SoapObject(XeroNetApi.NAMESPACE, "OpenServerObjectDataProvider");
+            //设置参数
+            rpc.addProperty("sessionId", sessionId);
+            rpc.addProperty("idObject", idObject);
+            rpc.addProperty("cls_name", cls_name);
+            rpc.addProperty("compressed", compressed);
+            //设置版本
+            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
+            envelope.bodyOut = rpc;
+            envelope.dotNet = true;
+            //envelope.setOutputSoapObject(rpc);
+            //传递byte[]时需要事先注册
+            new MarshalBase64().register(envelope);
+            //建立连接
+            if (XeroNetApi.ht == null)
+                XeroNetApi.ht = new HttpTransportSE(XeroNetApi.URL, 100000);
+            //发送请求
+            XeroNetApi.ht.call(null, envelope);
+            //
+            Object ret = envelope.getResponse();
+            if (ret == null) {
+                //MessageBox.show(context, "没有需要下载的新任务!");
+                return null;
+            }
+            return String.valueOf(ret);
+        } catch (SocketTimeoutException timeoutException) {
+            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
+            return null;
+        } catch (Exception e) {
+            //CrashHandler.saveExceptionInfo2File(e);
+            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
+            return null;
+        }
+    }
+
+
+    private boolean closeFileObjectDataProvider(int sessionId, int fileObjId) {
+        try {
+            long startTime = System.currentTimeMillis();
+            Logger.d(String.valueOf(startTime));
+            SoapObject rpc = new SoapObject(XeroNetApi.NAMESPACE, "CloseFileObjectDataProvider");
+            //设置参数
+            rpc.addProperty("sessionId", sessionId);
+            rpc.addProperty("idFileObj", fileObjId);
+            //设置版本
+            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
+            envelope.bodyOut = rpc;
+            envelope.dotNet = true;
+            //envelope.setOutputSoapObject(rpc);
+            //传递byte[]时需要事先注册
+            new MarshalBase64().register(envelope);
+            //建立连接
+            if (XeroNetApi.ht == null)
+                XeroNetApi.ht = new HttpTransportSE(XeroNetApi.URL, 100000);
+            //发送请求
+            XeroNetApi.ht.call(null, envelope);
+            //
+            Object ret = envelope.getResponse();
+            if (ret == null) {
+                //MessageBox.show(context, "没有需要下载的新任务!");
+                return false;
+            }
+            String retString = String.valueOf(ret);
+            return Boolean.valueOf(retString);
+        } catch (SocketTimeoutException timeoutException) {
+            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
+            return false;
+        } catch (Exception e) {
+            //CrashHandler.saveExceptionInfo2File(e);
+            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
+            return false;
         }
     }
 }

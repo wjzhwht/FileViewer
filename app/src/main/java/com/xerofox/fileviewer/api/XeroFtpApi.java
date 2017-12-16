@@ -101,7 +101,7 @@ public class XeroFtpApi {
             SoapObject rpc = new SoapObject(XeroNetApi.NAMESPACE, "DownloadFileObject");
             //设置参数
             rpc.addProperty("sessionId",sessionId);
-            rpc.addProperty("idObject",idFileObj);
+            rpc.addProperty("idFileObj",idFileObj);
             rpc.addProperty("startposition",startposition);
             rpc.addProperty("download_size",download_size);
             rpc.addProperty("compressed",compressed);
@@ -140,7 +140,7 @@ public class XeroFtpApi {
             SoapObject rpc = new SoapObject(XeroNetApi.NAMESPACE, "CloseFileObjectDataProvider");
             //设置参数
             rpc.addProperty("sessionId",sessionId);
-            rpc.addProperty("fileObjId",fileObjId);
+            rpc.addProperty("idFileObj",fileObjId);
             //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
@@ -179,10 +179,10 @@ public class XeroFtpApi {
             String retXML = OpenServerObjectDataProvider(sessionId,objId,cls_name,false);
             if (retXML != null && retXML.length() > 0){
                 XmlUtil xmlQuery = new XmlUtil(retXML);
-                String idStr = xmlQuery.GetValue("ServerObjectDataProvider", "fileObjId");
+                String idStr = xmlQuery.GetValue("fileObjId");
                 if(idStr!=null&&idStr.length()>0)
                     fileObjId = Integer.valueOf(idStr);
-                String sizeStr = xmlQuery.GetValue("ServerObjectDataProvider", "size");
+                String sizeStr = xmlQuery.GetValue("size");
                 if(sizeStr!=null&&sizeStr.length()>0)
                     uiFileDataLength = Integer.valueOf(sizeStr);
             }

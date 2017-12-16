@@ -90,7 +90,9 @@ public class LocalFileHelper implements FileHelper {
                             folder.mkdirs();
                         }
                         File pngFile = new File(folder.getPath() + File.separator + partFile.getName());
-                        save(pngFile, partFile.getBytes());
+                        if (partFile.getLength()>0){
+                            save(pngFile, partFile.getBytes());
+                        }
                     }
                 }
             }
