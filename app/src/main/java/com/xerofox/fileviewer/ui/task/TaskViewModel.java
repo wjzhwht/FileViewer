@@ -20,7 +20,8 @@ public class TaskViewModel extends ViewModel {
         tasks = repository.loadAllTasks();
     }
 
-    public LiveData<Resource<List<Task>>> getTasks() {
+    LiveData<Resource<List<Task>>> getTasks() {
         return tasks;
     }
+
 }

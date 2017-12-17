@@ -36,8 +36,11 @@
     <string name="all_no">全无</string>
     <string name="no">无</string>
     <string name="reset">重置</string>
-    <string name="download_warning">确定要下载%1$s</string>
+    <string name="download_all_warning">确定要下载全部任务吗？</string>
+    <string name="download_warning">确定要下载%1$s吗？</string>
     <string name="cancel">取消</string>
     <string name="warning">提示</string>
+    <string name="downloading">正在下载</string>
+    <string name="download_success">下载完成</string>
 
 </resources>

@@ -3,6 +3,7 @@ package com.xerofox.fileviewer.ui.index;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,7 @@ public class FunctionFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTitle(R.string.app_name);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         binding.layoutLookOver.setOnClickListener(v -> navigationController.navigateToSearch());
         binding.layoutSettings.setOnClickListener(v -> navigationController.navigateToSettings());
         binding.layoutDownload.setOnClickListener(v -> navigationController.navigateToDownlaod());

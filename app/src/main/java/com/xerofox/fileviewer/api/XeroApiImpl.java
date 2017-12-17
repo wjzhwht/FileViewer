@@ -202,22 +202,6 @@ public class XeroApiImpl implements XeroApi {
 
     @Override
     public LiveData<Resource<Boolean>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data) {
-// FIXME: 2017/12/16 no download
-        //        appExecutors.networkIO().execute(() -> {
-//            List<Task> downloadedTask = new ArrayList<>();
-//            for (int i = 0; i < data.size(); i++) {
-//                Task task = data.get(i);
-//                byte[] byteArr = downloadServerObject(task.getId(), "ManuElemTask");
-//                if (byteArr == null)
-//                    continue;
-//                ByteBufferReader br = new ByteBufferReader(byteArr);
-//                task = new Task(br);
-//                downloadedTask.add(task);
-//            }
-//            appExecutors.diskIO().execute(() -> {
-//                fileHelper.saveTasks(downloadedTask);
-//            });
-//        });
         return new LiveData<Resource<Boolean>>() {
             @Override
             protected void onActive() {
@@ -239,12 +223,6 @@ public class XeroApiImpl implements XeroApi {
                         postValue(Resource.success(true));
                     });
                 });
-            }
-
-            @Override
-            protected void onInactive() {
-                super.onInactive();
-                Logger.d("onInactive");
             }
         };
     }
@@ -371,7 +349,6 @@ public class XeroApiImpl implements XeroApi {
         }
     }
 
-
     private boolean closeFileObjectDataProvider(int sessionId, int fileObjId) {
         try {
             long startTime = System.currentTimeMillis();
@@ -475,6 +452,65 @@ public class XeroApiImpl implements XeroApi {
             //CrashHandler.saveExceptionInfo2File(e);
             //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
             return false;
+        }
+    }
+
+    public TowerPart[] queryTaskParts(int taskId, int[] partIdArr) {
+        if (partIdArr == null || partIdArr.length == 0)
+            return null;
+        GetSessionId();
+        try {
+            long startTime = System.currentTimeMillis();
+            Logger.d(String.valueOf(startTime));
+            SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
+            //设置参数
+            rpc.addProperty("sessionId", sessionId);
+            rpc.addProperty("clsName", "ManuElemTaskPart");
+            XmlUtil xmlHelper = new XmlUtil();
+            xmlHelper.AppendValue("ManuElemTaskId", taskId);
+            xmlHelper.AppendValue("IdArr", "id", partIdArr);
+            rpc.addProperty("xmlScope", xmlHelper.ToXml());
+            //设置版本
+            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
+            envelope.bodyOut = rpc;
+            envelope.dotNet = true;
+            //envelope.setOutputSoapObject(rpc);
+            //传递byte[]时需要事先注册
+            new MarshalBase64().register(envelope);
+            //建立连接
+            if (ht == null)
+                ht = new HttpTransportSE(URL, 100000);
+            //发送请求
+            ht.call(null, envelope);
+            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
+            startTime = System.currentTimeMillis();
+            //
+            Object ret = envelope.getResponse();
+            if (ret == null) {
+                //MessageBox.show(context, "没有需要下载的新任务!");
+                return null;
+            }
+            String retString = String.valueOf(ret);
+            byte[] retByteArr = Base64.decode(retString);
+            //解析byte[]
+            ArrayList<TowerPart> partList = new ArrayList<>();
+            ByteBufferReader br = new ByteBufferReader(retByteArr);
+            int taskArrLen = br.readInt();
+            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:" + String.valueOf(taskArrLen));
+            for (int i = 0; i < taskArrLen; i++) {
+                partList.add(new TowerPart(br));
+                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis() - startTime));
+                startTime = System.currentTimeMillis();
+            }
+            //Logger.d("parse Time:" + String.valueOf(System.currentTimeMillis()-startTime));
+            return (TowerPart[]) partList.toArray();
+        } catch (SocketTimeoutException timeoutException) {
+            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
+            return null;
+        } catch (Exception e) {
+            //CrashHandler.saveExceptionInfo2File(e);
+            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
+            return null;
         }
     }
 }

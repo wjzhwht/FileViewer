@@ -1,5 +1,6 @@
 package com.xerofox.fileviewer.ui.download;
 
+import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingComponent;
@@ -8,7 +9,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +20,7 @@ import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
 import com.xerofox.fileviewer.util.AutoClearedValue;
+import com.xerofox.fileviewer.util.ToastUtils;
 
 import javax.inject.Inject;
 
@@ -36,6 +37,7 @@ public class DownloadFragment extends BaseFragment {
     AutoClearedValue<DownloadListAdapter> adapter;
 
     private DownloadViewModel viewModel;
+    private ProgressDialog progressDialog;
 
     public static DownloadFragment newInstance() {
 
@@ -56,6 +58,15 @@ public class DownloadFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.download:
+                new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                        .setTitle(R.string.warning)
+                        .setMessage(R.string.download_all_warning)
+                        .setPositiveButton(R.string.ok, ((dialog, which) -> {
+                            viewModel.download(viewModel.getTasks().getValue().data);
+                        }))
+                        .setNegativeButton(R.string.cancel, null)
+                        .create()
+                        .show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -79,38 +90,53 @@ public class DownloadFragment extends BaseFragment {
         getActivity().setTitle(R.string.download_list);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(DownloadViewModel.class);
-        initRecyclerView();
-        DownloadListAdapter rvAdapter = new DownloadListAdapter(task -> {
-            viewModel.downloadTask(task);
-        });
-//        DownloadListAdapter rvAdapter = new DownloadListAdapter(task ->
-//                new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogStyle))
-//                        .setTitle(R.string.warning)
-//                        .setMessage(getString(R.string.download_warning, task.getName()))
-//                        .setPositiveButton(R.string.ok, ((dialog, which) -> {
-//                            // FIXME: 2017/12/16 start download
-//
-////                            new Thread(() -> {
-////                                XeroNetApi net = new XeroNetApi();
-////                                ArrayList<Task> taskList = net.DownloadTaskArr();
-////                                LocalFileHelper fileHelper = new LocalFileHelper();
-////                                fileHelper.saveTasks(taskList);
-////                            }).start();
-//                        }))
-//                        .setNegativeButton(R.string.cancel, null)
-//                        .create()
-//                        .show());
+        initObserve();
+        DownloadListAdapter rvAdapter = new DownloadListAdapter(task ->
+                new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                        .setTitle(R.string.warning)
+                        .setMessage(getString(R.string.download_warning, task.getName()))
+                        .setPositiveButton(R.string.ok, ((dialog, which) -> {
+                            viewModel.download(task);
+                        }))
+                        .setNegativeButton(R.string.cancel, null)
+                        .create()
+                        .show());
         binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
         setHasOptionsMenu(true);
     }
 
-    private void initRecyclerView() {
+    private void initObserve() {
+        viewModel.getDownloadState().observe(this, downloadState -> {
+            if (downloadState != null && downloadState.isDownloading()) {
+                showProgressDialog();
+            } else {
+                dismissProgressDialog();
+            }
+        });
         viewModel.getTasks().observe(this, result -> {
             binding.get().setResultCount(result == null || result.data == null ? 0 : result.data.size());
             adapter.get().replace(result == null ? null : result.data);
             binding.get().executePendingBindings();
         });
 
+    }
+
+    private void showProgressDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage(getString(R.string.downloading));
+        }
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            ToastUtils.showToast(R.string.download_success);
+            progressDialog.dismiss();
+        }
     }
 }

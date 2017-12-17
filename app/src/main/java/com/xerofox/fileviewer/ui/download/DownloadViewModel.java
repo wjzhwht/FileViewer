@@ -2,7 +2,10 @@ package com.xerofox.fileviewer.ui.download;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 
 import com.xerofox.fileviewer.repository.TaskRepository;
 import com.xerofox.fileviewer.vo.Resource;
@@ -16,72 +19,122 @@ import javax.inject.Inject;
 public class DownloadViewModel extends ViewModel {
 
     private final LiveData<Resource<List<Task>>> tasks;
-    private final MutableLiveData<Param> param = new MutableLiveData<>();
-    private final LiveData<Resource<Boolean>> downloading;
-    private TaskRepository repository;
+    private final DownloadTaskHandler downloadTaskHandler;
+
 
     @Inject
     DownloadViewModel(TaskRepository repository) {
-        this.repository = repository;
+        downloadTaskHandler = new DownloadTaskHandler(repository);
         tasks = repository.getDownloadTasks();
 
-//        downloading = Transformations.switchMap(param, data -> {
-//            if (data == null || data.tasks.isEmpty()) {
-//                return AbsentLiveData.create();
-//            } else {
-//                return repository.downloadTasks(data.tasks);
-//            }
-//        });
-        downloading = new MutableLiveData<>();
-    }
-
-    void downloadTask(Task task) {
-        List<Task> tasks = new ArrayList<>(1);
-        tasks.add(task);
-        downloadTasks(tasks);
-
-    }
-
-    void downloadTasks(List<Task> tasks) {
-//        Param param = new Param(tasks);
-//        this.param.setValue(param);
-        repository.downloadTasks(tasks);
     }
 
     LiveData<Resource<List<Task>>> getTasks() {
         return tasks;
     }
 
-    public LiveData<Resource<Boolean>> getDownloading() {
-        return downloading;
+    LiveData<DownloadState> getDownloadState() {
+        return downloadTaskHandler.getDownloadState();
     }
 
-    static class Param{
-        final List<Task> tasks;
-        final long timeStamp;
+    void download(Task task) {
+        downloadTaskHandler.download(task);
+    }
 
+    void download(List<Task> tasks) {
+        downloadTaskHandler.download(tasks);
+    }
 
-        Param(List<Task> tasks) {
-            this.tasks = tasks;
-            timeStamp = System.currentTimeMillis();
+    static class DownloadState {
+        private final boolean downloading;
+        private final String errorMessage;
+        private boolean handledError = false;
+
+        DownloadState(boolean downloading, String errorMessage) {
+            this.downloading = downloading;
+            this.errorMessage = errorMessage;
+        }
+
+        public boolean isDownloading() {
+            return downloading;
+        }
+
+        String getErrorMessage() {
+            return errorMessage;
+        }
+
+        String getErrorMessageIfNotHandled() {
+            if (handledError) {
+                return null;
+            }
+            handledError = true;
+            return errorMessage;
+        }
+    }
+
+    static class DownloadTaskHandler implements Observer<Resource<Boolean>> {
+        private final TaskRepository repository;
+        private LiveData<Resource<Boolean>> downloadLiveData;
+        private final MutableLiveData<DownloadState> downloadState = new MutableLiveData<>();
+        private List<Task> taskList;
+
+        @VisibleForTesting
+        DownloadTaskHandler(TaskRepository repository) {
+            this.repository = repository;
+            reset();
+        }
+
+        void download(Task task) {
+            if (task == null) {
+                return;
+            }
+            List<Task> tasks = new ArrayList<>(1);
+            tasks.add(task);
+            download(tasks);
+        }
+
+        void download(List<Task> tasks) {
+            if (tasks == null || tasks.isEmpty()) {
+                return;
+            }
+            unregister();
+            downloadLiveData = repository.downloadTasks(tasks);
+            downloadState.setValue(new DownloadState(true, null));
+            downloadLiveData.observeForever(this);
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Param param = (Param) o;
-
-            if (timeStamp != param.timeStamp) return false;
-            return tasks != null ? tasks.equals(param.tasks) : param.tasks == null;
+        public void onChanged(@Nullable Resource<Boolean> result) {
+            if (result == null) {
+                reset();
+            } else {
+                switch (result.status) {
+                    case SUCCESS:
+                        unregister();
+                        downloadState.setValue(new DownloadState(false, null));
+                        break;
+                    case ERROR:
+                        unregister();
+                        downloadState.setValue(new DownloadState(false, result.message));
+                        break;
+                }
+            }
         }
 
-        @Override
-        public int hashCode() {
-            int result = tasks != null ? tasks.hashCode() : 0;
-            result = 31 * result + (int) (timeStamp ^ (timeStamp >>> 32));
-            return result;
+        private void unregister() {
+            if (downloadLiveData != null) {
+                downloadLiveData.removeObserver(this);
+                downloadLiveData = null;
+            }
+        }
+
+        private void reset() {
+            unregister();
+            downloadState.setValue(new DownloadState(false, null));
+        }
+
+        public LiveData<DownloadState> getDownloadState() {
+            return downloadState;
         }
     }
 }
