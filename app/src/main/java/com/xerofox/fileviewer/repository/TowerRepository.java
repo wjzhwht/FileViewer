@@ -143,4 +143,8 @@ public class TowerRepository {
             }
         };
     }
+
+    public LiveData<Resource<List<Integer>>> checkUpdate(int id, List<TowerPart> parts) {
+        return api.checkUpdate(appExecutors,id,parts);
+    }
 }

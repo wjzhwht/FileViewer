@@ -2,6 +2,7 @@ package com.xerofox.fileviewer.ui.part;
 
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.xerofox.fileviewer.R;
@@ -11,10 +12,18 @@ import com.xerofox.fileviewer.ui.common.DataBoundListAdapter;
 import com.xerofox.fileviewer.util.Objects;
 import com.xerofox.fileviewer.vo.TowerPart;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TowerPartAdapter extends DataBoundListAdapter<TowerPart, TowerPartItemBinding> {
 
     private final OnItemClickListener<TowerPart> onItemClickListener;
     private final OnDownloadListener onDownloadListener;
+    private List<Integer> updateIds = new ArrayList<>();
+
+    public void setUpdateParts(List<Integer> integers) {
+        this.updateIds = integers;
+    }
 
     interface OnDownloadListener {
         void onclick(TowerPart part);
@@ -46,6 +55,9 @@ public class TowerPartAdapter extends DataBoundListAdapter<TowerPart, TowerPartI
 
     @Override
     protected void bind(TowerPartItemBinding binding, TowerPart part) {
+        if (updateIds != null && !updateIds.isEmpty()) {
+            binding.download.setVisibility(updateIds.contains(part.getId()) ? View.VISIBLE : View.GONE);
+        }
         binding.setPart(part);
     }
 

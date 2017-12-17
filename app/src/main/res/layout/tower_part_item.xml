@@ -28,7 +28,8 @@
                 android:id="@+id/download"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_file_download_theme_24dp" />
+                app:srcCompat="@drawable/ic_file_download_theme_24dp"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/part_no"

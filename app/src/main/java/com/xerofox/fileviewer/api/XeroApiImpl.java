@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -37,6 +36,11 @@ public class XeroApiImpl implements XeroApi {
     private static String URL = "http://" + IP + "/TMSServ/TMSService.asmx";
     private static HttpTransportSE ht = null;
     private static int sessionId = 0;
+
+    private static final String ERROR_NETWORK = "网络错误，请查看网络";
+    private static final String ERROR_NO_DATA = "无数据";
+    private static final String ERROR_NETWORK_TIMEOUT = "服务器连接超时";
+
 
     @Inject
     public XeroApiImpl() {
@@ -78,21 +82,75 @@ public class XeroApiImpl implements XeroApi {
             protected void onActive() {
                 super.onActive();
                 appExecutors.networkIO().execute(() -> {
-                    Resource<List<Task>> response = downloadSimpleTaskListFromServer(localTaskIds, false);
-                    postValue(response);
+                    List<Task> response = null;
+                    try {
+                        response = downloadSimpleTaskListFromServer(localTaskIds, false);
+                        postValue(Resource.success(response));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        postValue(Resource.error(e.getMessage(), response));
+                    }
                 });
             }
         };
     }
 
-    private Resource<List<Task>> downloadSimpleTaskListFromServer(int[] localTaskIdArr, boolean queryState) {
-        GetSessionId();
-        List<Task> taskList = new ArrayList<>();
+    @Override
+    public LiveData<Resource<Boolean>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data) {
+        return new LiveData<Resource<Boolean>>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                appExecutors.networkIO().execute(() -> {
+                    try {
+                        List<Task> downloadedTask = new ArrayList<>();
+                        for (int i = 0; i < data.size(); i++) {
+                            Task task = data.get(i);
+                            byte[] byteArr = downloadServerObject(task.getId(), "ManuElemTask");
+                            if (byteArr == null)
+                                continue;
+                            ByteBufferReader br = new ByteBufferReader(byteArr);
+                            task = new Task(br);
+                            downloadedTask.add(task);
+                        }
+                        appExecutors.diskIO().execute(() -> {
+                            fileHelper.saveTasks(downloadedTask);
+                            postValue(Resource.success(true));
+                        });
+                    } catch (Exception e) {
+                        postValue(Resource.error(e.getMessage(), false));
+                    }
+                });
+            }
+        };
+    }
+
+    @Override
+    public LiveData<Resource<List<Integer>>> checkUpdate(AppExecutors appExecutors, int id, List<TowerPart> parts) {
+        return new LiveData<Resource<List<Integer>>>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                appExecutors.networkIO().execute(() -> {
+                    List<Integer> list = new ArrayList<>();
+                    try {
+                        list = queryTaskPartsUpdateState(id, parts);
+                        postValue(Resource.success(list));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        postValue(Resource.error(e.getMessage(), list));
+                    }
+                });
+            }
+        };
+    }
+
+
+    private List<Task> downloadSimpleTaskListFromServer(int[] localTaskIdArr, boolean queryState) throws Exception {
         try {
-            long startTime = System.currentTimeMillis();
-            Logger.d(String.valueOf(startTime));
+            getSessionId();
+            List<Task> taskList = new ArrayList<>();
             SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
-            //设置参数
             rpc.addProperty("sessionId", sessionId);
             rpc.addProperty("clsName", "ManuElemTask");
             XmlUtil xmlHelper = new XmlUtil();
@@ -100,31 +158,21 @@ public class XeroApiImpl implements XeroApi {
             if (queryState)  //查询指定任务状态
                 xmlHelper.AppendValue("QueryType", 1);
             rpc.addProperty("xmlScope", xmlHelper.ToXml());
-            //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
             envelope.dotNet = true;
-            //envelope.setOutputSoapObject(rpc);
-            //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
-            //建立连接
             if (ht == null)
                 ht = new HttpTransportSE(URL, 100000);
-            //发送请求
             ht.call(null, envelope);
-            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
-            startTime = System.currentTimeMillis();
-            //
             Object ret = envelope.getResponse();
             if (ret == null) {
-                return Resource.success(taskList);
+                throw new RuntimeException(ERROR_NO_DATA);
             }
             String retString = String.valueOf(ret);
             byte[] retByteArr = Base64.decode(retString);
-            //解析byte[]
             ByteBufferReader br = new ByteBufferReader(retByteArr);
             int taskArrLen = br.readInt();
-            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:" + String.valueOf(taskArrLen));
             for (int i = 0; i < taskArrLen; i++) {
                 int id = br.readInt();
                 String name = br.readString();
@@ -136,20 +184,18 @@ public class XeroApiImpl implements XeroApi {
                     task.setState(br.readInt());
                 }
                 taskList.add(task);
-                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis() - startTime));
-                startTime = System.currentTimeMillis();
             }
-            return Resource.success(taskList);
+            return taskList;
         } catch (SocketTimeoutException timeoutException) {
             timeoutException.printStackTrace();
-            return Resource.error("服务器连接超时", taskList);
+            throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
             e.printStackTrace();
-            return Resource.error("服务器地址错误", taskList);
+            throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
-    private static int GetSessionId() {
+    private int getSessionId() throws Exception {
         if (sessionId > 0) {
             return sessionId;
         } else {
@@ -157,81 +203,38 @@ public class XeroApiImpl implements XeroApi {
         }
     }
 
-    private static int loginUser(String userName, String password) {
+    private int loginUser(String userName, String password) throws Exception {
         try {
             sessionId = 0;
-            //
-            long startTime = System.currentTimeMillis();
-            Logger.d(String.valueOf(startTime));
             SoapObject rpc = new SoapObject(NAMESPACE, "loginUser");
-            //设置参数
             rpc.addProperty("userName", userName);
             rpc.addProperty("password", password);
             rpc.addProperty("fingerprint", null);
-            //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
             envelope.dotNet = true;
-            //envelope.setOutputSoapObject(rpc);
-            //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
-            //建立连接
             if (ht == null)
                 ht = new HttpTransportSE(URL, 100000);
-            //发送请求
             ht.call(null, envelope);
-            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
-            startTime = System.currentTimeMillis();
-            //
             Object ret = envelope.getResponse();
             if (ret == null) {
-                //MessageBox.show(context, "没有需要下载的新任务!");
-                return 0;
+                throw new RuntimeException(ERROR_NO_DATA);
             }
             sessionId = Integer.valueOf(String.valueOf(ret));
             return sessionId;
         } catch (SocketTimeoutException timeoutException) {
-            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
-            return sessionId;
+            throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
-            //CrashHandler.saveExceptionInfo2File(e);
-            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
-            return sessionId;
+            throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
-    @Override
-    public LiveData<Resource<Boolean>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data) {
-        return new LiveData<Resource<Boolean>>() {
-            @Override
-            protected void onActive() {
-                super.onActive();
-                postValue(Resource.loading(true));
-                appExecutors.networkIO().execute(() -> {
-                    List<Task> downloadedTask = new ArrayList<>();
-                    for (int i = 0; i < data.size(); i++) {
-                        Task task = data.get(i);
-                        byte[] byteArr = downloadServerObject(task.getId(), "ManuElemTask");
-                        if (byteArr == null)
-                            continue;
-                        ByteBufferReader br = new ByteBufferReader(byteArr);
-                        task = new Task(br);
-                        downloadedTask.add(task);
-                    }
-                    appExecutors.diskIO().execute(() -> {
-                        fileHelper.saveTasks(downloadedTask);
-                        postValue(Resource.success(true));
-                    });
-                });
-            }
-        };
-    }
-
-    private byte[] downloadServerObject(int objId, String cls_name) {
-        int fileObjId = 0;
-        int uiFileDataLength = 0;
-        int sessionId = GetSessionId();
+    private byte[] downloadServerObject(int objId, String cls_name) throws Exception {
         try {
+            int fileObjId = 0;
+            int uiFileDataLength = 0;
+            int sessionId = getSessionId();
             String retXML = openServerObjectDataProvider(sessionId, objId, cls_name, false);
             if (retXML != null && retXML.length() > 0) {
                 XmlUtil xmlQuery = new XmlUtil(retXML);
@@ -251,7 +254,7 @@ public class XeroApiImpl implements XeroApi {
                 int uiDownloadSize = Math.min(uiLeastSize, 0x500000);
                 byte[] byteArr = downloadFileObject(sessionId, fileObjId, indexpos, uiDownloadSize, false);
                 if (byteArr == null || byteArr.length < uiDownloadSize) {
-                    break;    //下载失败
+                    throw new RuntimeException(ERROR_NO_DATA);
                 }
                 bw.write(byteArr);
                 indexpos += uiDownloadSize;
@@ -261,256 +264,172 @@ public class XeroApiImpl implements XeroApi {
             if (uiLeastSize == 0)
                 return bw.toByteArray();
             else {
-                //AfxMessageBox("数据文件下载失败!");
-                return null;
+                throw new RuntimeException("数据文件下载失败!");
             }
-        } catch (Exception ex) {
-            return null;
+        } catch (SocketTimeoutException timeoutException) {
+            throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
+        } catch (Exception e) {
+            throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
-    private byte[] downloadFileObject(int sessionId, int idFileObj, int startposition, int download_size, boolean compressed) {
+    private byte[] downloadFileObject(int sessionId, int idFileObj, int startposition, int download_size, boolean compressed) throws Exception {
         try {
             long startTime = System.currentTimeMillis();
             Logger.d(String.valueOf(startTime));
             SoapObject rpc = new SoapObject(XeroNetApi.NAMESPACE, "DownloadFileObject");
-            //设置参数
             rpc.addProperty("sessionId", sessionId);
             rpc.addProperty("idFileObj", idFileObj);
             rpc.addProperty("startposition", startposition);
             rpc.addProperty("download_size", download_size);
             rpc.addProperty("compressed", compressed);
-            //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
             envelope.dotNet = true;
-            //envelope.setOutputSoapObject(rpc);
-            //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
-            //建立连接
             if (XeroNetApi.ht == null)
                 XeroNetApi.ht = new HttpTransportSE(XeroNetApi.URL, 100000);
-            //发送请求
             XeroNetApi.ht.call(null, envelope);
-            //
             Object ret = envelope.getResponse();
             if (ret == null) {
-                //MessageBox.show(context, "没有需要下载的新任务!");
-                return null;
+                throw new RuntimeException("没有需要下载的新任务!");
             }
             return Base64.decode(String.valueOf(ret));
         } catch (SocketTimeoutException timeoutException) {
-            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
-            return null;
+            throw new RuntimeException("服务器地址:" + URL + "!" + "连接服务器超时,请重试!");
         } catch (Exception e) {
-            //CrashHandler.saveExceptionInfo2File(e);
-            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
-
-    private String openServerObjectDataProvider(int sessionId, int idObject, String cls_name, boolean compressed) {
+    private String openServerObjectDataProvider(int sessionId, int idObject, String cls_name, boolean compressed) throws Exception {
         try {
-            long startTime = System.currentTimeMillis();
-            Logger.d(String.valueOf(startTime));
             SoapObject rpc = new SoapObject(XeroNetApi.NAMESPACE, "OpenServerObjectDataProvider");
-            //设置参数
             rpc.addProperty("sessionId", sessionId);
             rpc.addProperty("idObject", idObject);
             rpc.addProperty("cls_name", cls_name);
             rpc.addProperty("compressed", compressed);
-            //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
             envelope.dotNet = true;
-            //envelope.setOutputSoapObject(rpc);
-            //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
-            //建立连接
             if (XeroNetApi.ht == null)
                 XeroNetApi.ht = new HttpTransportSE(XeroNetApi.URL, 100000);
-            //发送请求
             XeroNetApi.ht.call(null, envelope);
-            //
             Object ret = envelope.getResponse();
             if (ret == null) {
-                //MessageBox.show(context, "没有需要下载的新任务!");
-                return null;
+                throw new RuntimeException("无数据");
             }
             return String.valueOf(ret);
         } catch (SocketTimeoutException timeoutException) {
-            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
-            return null;
+            throw new RuntimeException("连接服务器超时,请重试!");
         } catch (Exception e) {
-            //CrashHandler.saveExceptionInfo2File(e);
-            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
-            return null;
+            throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
-    private boolean closeFileObjectDataProvider(int sessionId, int fileObjId) {
+    private boolean closeFileObjectDataProvider(int sessionId, int fileObjId) throws Exception {
         try {
-            long startTime = System.currentTimeMillis();
-            Logger.d(String.valueOf(startTime));
             SoapObject rpc = new SoapObject(XeroNetApi.NAMESPACE, "CloseFileObjectDataProvider");
-            //设置参数
             rpc.addProperty("sessionId", sessionId);
             rpc.addProperty("idFileObj", fileObjId);
-            //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
             envelope.dotNet = true;
-            //envelope.setOutputSoapObject(rpc);
-            //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
-            //建立连接
             if (XeroNetApi.ht == null)
                 XeroNetApi.ht = new HttpTransportSE(XeroNetApi.URL, 100000);
-            //发送请求
             XeroNetApi.ht.call(null, envelope);
-            //
             Object ret = envelope.getResponse();
             if (ret == null) {
-                //MessageBox.show(context, "没有需要下载的新任务!");
                 return false;
             }
             String retString = String.valueOf(ret);
             return Boolean.valueOf(retString);
         } catch (SocketTimeoutException timeoutException) {
-            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
-            return false;
+            throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
-            //CrashHandler.saveExceptionInfo2File(e);
-            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
-            return false;
+            throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
-    public static boolean queryTaskPartsUpdateState(int id, List<TowerPart> parts) {
-        if (parts == null || parts.isEmpty()) {
-            return false;
-        }
-        GetSessionId();
+    private List<Integer> queryTaskPartsUpdateState(int id, List<TowerPart> parts) throws Exception {
         try {
-            Hashtable<Integer, TowerPart> hashPartById = new Hashtable<>();
-            long startTime = System.currentTimeMillis();
-            Logger.d(String.valueOf(startTime));
+            List<Integer> array = new ArrayList<>();
+            if (parts == null || parts.isEmpty()) {
+                return array;
+            }
+            getSessionId();
             SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
-            //设置参数
             rpc.addProperty("sessionId", sessionId);
             rpc.addProperty("clsName", "ManuElemTaskPartId");
             XmlUtil xmlHelper = new XmlUtil();
             xmlHelper.AppendValue("ManuElemTaskId", id);
-            for (int i = 0; i < parts.size(); i++) {
-                TowerPart part = parts.get(i);
-                hashPartById.put(part.getId(), part);
-                part.setNeedUpdated(false); //初始化构件更新状态
-            }
             xmlHelper.AppendValue("PartMd5Arr", parts);
             rpc.addProperty("xmlScope", xmlHelper.ToXml());
-            //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
             envelope.dotNet = true;
-            //envelope.setOutputSoapObject(rpc);
-            //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
-            //建立连接
             if (ht == null)
                 ht = new HttpTransportSE(URL, 100000);
-            //发送请求
             ht.call(null, envelope);
-            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
-            startTime = System.currentTimeMillis();
-            //
             Object ret = envelope.getResponse();
             if (ret == null) {
-                //MessageBox.show(context, "没有需要下载的新任务!");
-                return false;
+                throw new RuntimeException(ERROR_NO_DATA);
             }
             String retString = String.valueOf(ret);
             byte[] retByteArr = Base64.decode(retString);
-            //解析byte[]
             ByteBufferReader br = new ByteBufferReader(retByteArr);
             int taskArrLen = br.readInt();
-            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:" + String.valueOf(taskArrLen));
             for (int i = 0; i < taskArrLen; i++) {
                 int partId = br.readInt();
-                TowerPart part = hashPartById.get(partId);
-                if (part != null)
-                    part.setNeedUpdated(true);
-                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis() - startTime));
-                startTime = System.currentTimeMillis();
+                array.add(partId);
             }
-            //Logger.d("parse Time:" + String.valueOf(System.currentTimeMillis()-startTime));
-            return true;
+            return array;
         } catch (SocketTimeoutException timeoutException) {
-            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
-            return false;
+            throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
-            //CrashHandler.saveExceptionInfo2File(e);
-            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
-            return false;
+            throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
-    public TowerPart[] queryTaskParts(int taskId, int[] partIdArr) {
-        if (partIdArr == null || partIdArr.length == 0)
-            return null;
-        GetSessionId();
+    public List<TowerPart> queryTaskParts(int taskId, int[] partIdArr) throws Exception {
         try {
-            long startTime = System.currentTimeMillis();
-            Logger.d(String.valueOf(startTime));
+            if (partIdArr == null || partIdArr.length == 0)
+                return null;
+            getSessionId();
             SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
-            //设置参数
             rpc.addProperty("sessionId", sessionId);
             rpc.addProperty("clsName", "ManuElemTaskPart");
             XmlUtil xmlHelper = new XmlUtil();
             xmlHelper.AppendValue("ManuElemTaskId", taskId);
             xmlHelper.AppendValue("IdArr", "id", partIdArr);
             rpc.addProperty("xmlScope", xmlHelper.ToXml());
-            //设置版本
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
             envelope.dotNet = true;
-            //envelope.setOutputSoapObject(rpc);
-            //传递byte[]时需要事先注册
             new MarshalBase64().register(envelope);
-            //建立连接
             if (ht == null)
                 ht = new HttpTransportSE(URL, 100000);
-            //发送请求
             ht.call(null, envelope);
-            Logger.d("download Time:" + String.valueOf(System.currentTimeMillis() - startTime));
-            startTime = System.currentTimeMillis();
-            //
             Object ret = envelope.getResponse();
             if (ret == null) {
-                //MessageBox.show(context, "没有需要下载的新任务!");
-                return null;
+                throw new RuntimeException(ERROR_NO_DATA);
             }
             String retString = String.valueOf(ret);
             byte[] retByteArr = Base64.decode(retString);
-            //解析byte[]
             ArrayList<TowerPart> partList = new ArrayList<>();
             ByteBufferReader br = new ByteBufferReader(retByteArr);
             int taskArrLen = br.readInt();
-            Logger.d("!!!!!!!!!!!!!!!!!!!!!!!! new task arr len:" + String.valueOf(taskArrLen));
             for (int i = 0; i < taskArrLen; i++) {
                 partList.add(new TowerPart(br));
-                Logger.d("initTask Time:" + String.valueOf(System.currentTimeMillis() - startTime));
-                startTime = System.currentTimeMillis();
             }
-            //Logger.d("parse Time:" + String.valueOf(System.currentTimeMillis()-startTime));
-            return (TowerPart[]) partList.toArray();
+            return partList;
         } catch (SocketTimeoutException timeoutException) {
-            // MessageBox.show(context, "服务器地址:"+URL+"!"+"连接服务器超时,请重试!");
-            return null;
+            throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
-            //CrashHandler.saveExceptionInfo2File(e);
-            //MessageBox.show(context, "服务器地址:"+URL+"!"+e.getMessage());
-            return null;
+            throw new RuntimeException(ERROR_NETWORK);
         }
     }
 }

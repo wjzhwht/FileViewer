@@ -2,8 +2,10 @@ package com.xerofox.fileviewer.ui.part;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.SparseArray;
 
@@ -11,6 +13,7 @@ import com.xerofox.fileviewer.repository.TowerRepository;
 import com.xerofox.fileviewer.util.AbsentLiveData;
 import com.xerofox.fileviewer.util.Objects;
 import com.xerofox.fileviewer.vo.MenuFilter;
+import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
 
@@ -26,9 +29,11 @@ public class TowerPartViewModel extends ViewModel {
     private final LiveData<ArrayList<TowerPart>> towerParts;
     private final LiveData<List<String>> filterTitles;
     private final LiveData<List<List<MenuFilter>>> filterLists;
+    private final CheckUpdateHandler checkUpdateHandler;
 
     @Inject
     public TowerPartViewModel(TowerRepository repository) {
+        checkUpdateHandler = new CheckUpdateHandler(repository);
         towerParts = Transformations.switchMap(param, input -> {
             if (input == null || input.task == null) {
                 return AbsentLiveData.create();
@@ -82,6 +87,52 @@ public class TowerPartViewModel extends ViewModel {
             return;
         }
         this.param.setValue(param);
+    }
+
+    void checkUpdate(int id, ArrayList<TowerPart> data) {
+        checkUpdateHandler.checkUpdate(id, data);
+    }
+
+    LiveData<Resource<List<Integer>>> getCheckUpdateParts() {
+        return checkUpdateHandler.getUpdateLiveData();
+    }
+
+    static class CheckUpdateHandler implements Observer<Resource<List<Integer>>> {
+        private final TowerRepository repository;
+        private LiveData<Resource<List<Integer>>> updateLiveData;
+        private final MutableLiveData<Resource<List<Integer>>> result = new MutableLiveData<>();
+
+        @VisibleForTesting
+        CheckUpdateHandler(TowerRepository repository) {
+            this.repository = repository;
+            unregister();
+        }
+
+        void checkUpdate(int id, List<TowerPart> tasks) {
+            if (tasks == null || tasks.isEmpty()) {
+                return;
+            }
+            unregister();
+            updateLiveData = repository.checkUpdate(id, tasks);
+            updateLiveData.observeForever(this);
+        }
+
+        @Override
+        public void onChanged(@Nullable Resource<List<Integer>> result) {
+            unregister();
+            this.result.setValue(result);
+        }
+
+        private void unregister() {
+            if (updateLiveData != null) {
+                updateLiveData.removeObserver(this);
+                updateLiveData = null;
+            }
+        }
+
+        LiveData<Resource<List<Integer>>> getUpdateLiveData() {
+            return result;
+        }
     }
 
     static class Param {

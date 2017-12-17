@@ -5,6 +5,7 @@ import android.arch.lifecycle.LiveData;
 import com.xerofox.fileviewer.AppExecutors;
 import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.Task;
+import com.xerofox.fileviewer.vo.TowerPart;
 
 import java.util.List;
 
@@ -14,5 +15,7 @@ public interface XeroApi {
 
     LiveData<Resource<List<Task>>> getServerTasks(AppExecutors appExecutors, int[] localTaskIds);
 
-    LiveData<Resource<Boolean>> downloadTasks(AppExecutors appExecutors,FileHelper fileHelper, List<Task> data);
+    LiveData<Resource<Boolean>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data);
+
+    LiveData<Resource<List<Integer>>> checkUpdate(AppExecutors appExecutors, int id, List<TowerPart> parts);
 }

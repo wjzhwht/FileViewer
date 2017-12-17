@@ -11,18 +11,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.xerofox.fileviewer.R;
-import com.xerofox.fileviewer.api.XeroApiImpl;
 import com.xerofox.fileviewer.api.XeroNetApi;
 import com.xerofox.fileviewer.databinding.TowerPartActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
 import com.xerofox.fileviewer.ui.viewer.ViewerActivity;
+import com.xerofox.fileviewer.util.ToastUtils;
 import com.xerofox.fileviewer.vo.MenuFilter;
+import com.xerofox.fileviewer.vo.Status;
 import com.xerofox.fileviewer.vo.Task;
 import com.xerofox.fileviewer.vo.TowerPart;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -41,7 +41,7 @@ public class TowerPartActivity extends BaseActivity {
     TowerPartAdapter adapter;
     private PartMenuAdapter partMenuAdapter;
 
-    private List<TowerPart> allParts;
+    private boolean checkUpdate;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -82,7 +82,6 @@ public class TowerPartActivity extends BaseActivity {
                 fragment.show(getSupportFragmentManager(), "filter");
                 return true;
             case R.id.download:
-                new Thread(() -> XeroApiImpl.queryTaskPartsUpdateState(getTask().getId(), allParts)).start();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -139,13 +138,29 @@ public class TowerPartActivity extends BaseActivity {
     private void initPartList() {
         viewModel.getTowerParts().observe(this, data -> {
             if (data != null && !data.isEmpty()) {
-                if (allParts == null) {
-                    allParts = data;
-                }
+                checkUpdate(data);
                 adapter.replace(data);
             } else {
                 adapter.replace(Collections.emptyList());
             }
         });
+
+        viewModel.getCheckUpdateParts().observe(this, resource -> {
+            if (resource.status == Status.SUCCESS) {
+                if (resource.data != null && !resource.data.isEmpty()) {
+                    adapter.setUpdateParts(resource.data);
+                    adapter.notifyDataSetChanged();
+                }
+            } else if (resource.status == Status.ERROR) {
+                ToastUtils.showToast(resource.message);
+            }
+        });
+    }
+
+    private void checkUpdate(ArrayList<TowerPart> data) {
+        if (!checkUpdate) {
+            checkUpdate = true;
+            viewModel.checkUpdate(getTask().getId(), data);
+        }
     }
 }
