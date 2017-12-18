@@ -57,7 +57,7 @@ public class DropDownMenu extends RelativeLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        setContentView(findViewById(R.id.layout_title));
+        setContentView(findViewById(R.id.list));
     }
 
     public void setContentView(View contentView) {

@@ -28,15 +28,15 @@
                 android:id="@+id/download"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_file_download_theme_24dp"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_file_download_theme_24dp" />
 
             <TextView
                 android:id="@+id/part_no"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="@{@string/place_holder_string_string(part.towerTypeName,part.partNo)}"
+                android:text="@{@string/place_holder_string_string(part.towerTypeCode , part.partNo)}"
                 android:textSize="16sp" />
         </LinearLayout>
 

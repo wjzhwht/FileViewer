@@ -22,58 +22,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
-                android:id="@+id/layout_title"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:background="?selectableItemBackground"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/seg_str"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/shape_rectangle"
-                        android:gravity="center"
-                        android:text="@string/tower_type_part_no"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/specification"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/shape_rectangle"
-                        android:gravity="center"
-                        android:text="@string/specification"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/manu"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/shape_rectangle"
-                        android:gravity="center"
-                        android:text="@string/manu"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:overScrollMode="never"
-                    android:scrollbars="none"
-                    app:layoutManager="@string/linear_layout_manager" />
-            </LinearLayout>
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                app:layoutManager="@string/linear_layout_manager" />
         </com.xero.dropdownmenu.DropDownMenu>
     </LinearLayout>
 </layout>
