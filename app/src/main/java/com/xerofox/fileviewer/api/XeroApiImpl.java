@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.os.Environment;
 
 import com.xerofox.fileviewer.AppExecutors;
+import com.xerofox.fileviewer.helper.SettingHelper;
 import com.xerofox.fileviewer.util.ByteBufferReader;
 import com.xerofox.fileviewer.util.ByteBufferWriter;
 import com.xerofox.fileviewer.util.FileUtil;
@@ -31,7 +32,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class XeroApiImpl implements XeroApi {
-    private static String IP = "192.168.2.6";
+    private static String IP = SettingHelper.getServerPort();
     private static final String NAMESPACE = "http://xerofox.com/TMSService/";
     private static String URL = "http://" + IP + "/TMSServ/TMSService.asmx";
     private static HttpTransportSE ht = null;
@@ -220,7 +221,7 @@ public class XeroApiImpl implements XeroApi {
         if (sessionId > 0) {
             return sessionId;
         } else {
-            return loginUser("wjh", "");
+            return loginUser(SettingHelper.getUserName(), SettingHelper.getPassword());
         }
     }
 

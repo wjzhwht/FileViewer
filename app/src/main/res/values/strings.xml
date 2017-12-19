@@ -43,6 +43,9 @@
     <string name="downloading">正在下载</string>
     <string name="download_success">下载完成</string>
     <string name="operation">操作</string>
+    <string name="input_name">请输入用户名</string>
+    <string name="input_password">请输入密码</string>
+    <string name="save">保存</string>
 
     <array name="task_option">
         <item>激活</item>

@@ -5,11 +5,66 @@
 
     <data>
 
+        <variable
+            name="ip"
+            type="String" />
+
+        <variable
+            name="name"
+            type="String" />
+
+        <variable
+            name="password"
+            type="String" />
+
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/ip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/input_ip"
+                android:imeOptions="actionDone"
+                android:inputType="textNoSuggestions"
+                android:text="@{ip}"
+                android:textColor="@color/colorPrimary"
+                android:textColorHint="@color/colorPrimary"
+                tools:text="google" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/input_name"
+                android:imeOptions="actionDone"
+                android:inputType="textNoSuggestions"
+                android:text="@{name}"
+                android:textColor="@color/colorPrimary"
+                android:textColorHint="@color/colorPrimary"
+                tools:text="google" />
+        </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/textInputLayout3"
@@ -21,16 +76,31 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <EditText
-                android:id="@+id/input"
+                android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/input_ip"
-                android:imeOptions="actionSearch"
-                android:inputType="textNoSuggestions"
+                android:hint="@string/input_password"
+                android:imeOptions="actionDone"
+                android:inputType="textVisiblePassword"
+                android:text="@{password}"
                 android:textColor="@color/colorPrimary"
                 android:textColorHint="@color/colorPrimary"
                 tools:text="google" />
         </android.support.design.widget.TextInputLayout>
 
-    </android.support.constraint.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="@string/save" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 </layout>

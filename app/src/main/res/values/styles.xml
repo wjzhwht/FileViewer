@@ -9,6 +9,7 @@
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
         <item name="android:textColorHint">@color/textColorDisable</item>
         <item name="android:alertDialogStyle">@style/AlertDialogStyle</item>
+        <item name="android:editTextStyle">@style/AppEditTextStyle</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -26,6 +27,10 @@
         <item name="android:textColorPrimary">@color/white</item>
         <!-- Used for the background -->
         <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppEditTextStyle" parent="@android:style/Widget.EditText">
+        <item name="android:textColor">@color/black</item>
     </style>
 
 </resources>
