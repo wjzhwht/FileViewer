@@ -16,6 +16,15 @@ public class FileUtil {
 
     private static final String LINE_SEP = File.separator;
 
+    public static boolean rename(final File file, final String newName) {
+        if (file == null) return false;
+        if (!file.exists()) return false;
+        if (isSpace(newName)) return false;
+        if (newName.equals(file.getName())) return true;
+        File newFile = new File(file.getParent() + File.separator + newName);
+        return !newFile.exists() && file.renameTo(newFile);
+    }
+
     public static File getFileByPath(final String filePath) {
         return isSpace(filePath) ? null : new File(filePath);
     }

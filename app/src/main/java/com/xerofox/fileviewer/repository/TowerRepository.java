@@ -37,33 +37,6 @@ public class TowerRepository {
         this.api = api;
     }
 
-    public LiveData<Resource<List<Task>>> loadAllTasks() {
-        return new NetworkBoundResource<List<Task>, List<Task>>(appExecutors) {
-
-            @Override
-            protected void saveCallResult(@NonNull List<Task> item) {
-                fileHelper.saveTasks(item);
-            }
-
-            @Override
-            protected boolean shouldFetch(@Nullable List<Task> data) {
-                return data == null || data.isEmpty();
-            }
-
-            @NonNull
-            @Override
-            protected LiveData<List<Task>> loadFromDb() {
-                return fileHelper.loadAllTasks();
-            }
-
-            @NonNull
-            @Override
-            protected LiveData<ApiResponse<List<Task>>> createCall() {
-                return api.loadAllTasks();
-            }
-        }.asLiveData();
-    }
-
     public LiveData<ArrayList<TowerPart>> getTowerParts(Task task, SparseArray<MenuFilter> filters) {
         return fileHelper.loadTowerParts(task, filters);
     }

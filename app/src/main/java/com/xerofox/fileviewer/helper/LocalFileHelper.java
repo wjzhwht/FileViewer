@@ -20,7 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -57,6 +56,39 @@ public class LocalFileHelper implements FileHelper {
                     for (File file : taskFiles) {
                         Task task = new Task(file.getName());
                         tasks.add(task);
+                    }
+                    postValue(tasks);
+                }
+            }
+        };
+    }
+
+    @Override
+    @NonNull
+    public LiveData<List<Task>> loadActiveTasks() {
+        return new LiveData<List<Task>>() {
+            AtomicBoolean started = new AtomicBoolean(false);
+
+            @Override
+            protected void onActive() {
+                super.onActive();
+                if (started.compareAndSet(false, true)) {
+                    List<Task> tasks = new ArrayList<>();
+                    String rootPath = directory.getPath() + File.separator + PATH_ROOT;
+                    if (!FileUtil.isFileExists(rootPath)) {
+                        postValue(tasks);
+                        return;
+                    }
+                    List<File> taskFiles = FileUtil.listFilesInDir(rootPath);
+                    if (taskFiles == null || taskFiles.isEmpty()) {
+                        postValue(tasks);
+                        return;
+                    }
+                    for (File file : taskFiles) {
+                        Task task = new Task(file.getName());
+                        if (task.getState() == Task.STATE_INT_ACTIVE) {
+                            tasks.add(task);
+                        }
                     }
                     postValue(tasks);
                 }
@@ -242,5 +274,24 @@ public class LocalFileHelper implements FileHelper {
         loadTask.getPartList().addAll(0, towerParts);
         File tppFile = new File(taskFile, task.getTaskFileName());
         saveTask(task, tppFile);
+    }
+
+    @Override
+    public void updateTask(Task source) {
+        String rootPath = directory.getPath() + File.separator + PATH_ROOT;
+        if (!FileUtil.isFileExists(rootPath)) {
+            return;
+        }
+        List<File> taskFiles = FileUtil.listFilesInDir(rootPath);
+        if (taskFiles == null || taskFiles.isEmpty()) {
+            return;
+        }
+        for (File file : taskFiles) {
+            Task task = new Task(file.getName());
+            if (task.getId() == source.getId()) {
+                FileUtil.rename(file, source.getTaskDirectoryName());
+                return;
+            }
+        }
     }
 }

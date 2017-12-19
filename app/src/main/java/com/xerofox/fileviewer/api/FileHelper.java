@@ -28,4 +28,8 @@ public interface FileHelper {
     Task loadTask(Task task);
 
     void saveUpdateParts(Task task, List<TowerPart> towerParts);
+
+    void updateTask(Task task);
+
+    LiveData<List<Task>> loadActiveTasks();
 }

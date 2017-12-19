@@ -4,6 +4,7 @@ import com.xerofox.fileviewer.di.FragmentScoped;
 import com.xerofox.fileviewer.ui.download.DownloadFragment;
 import com.xerofox.fileviewer.ui.settings.SettingsFragment;
 import com.xerofox.fileviewer.ui.task.TaskFragment;
+import com.xerofox.fileviewer.ui.task.TaskManagerFragment;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -13,7 +14,7 @@ abstract public class MainModule {
 
     @FragmentScoped
     @ContributesAndroidInjector
-    abstract TaskFragment searchFragment();
+    abstract TaskFragment taskFragment();
 
     @FragmentScoped
     @ContributesAndroidInjector
@@ -26,4 +27,8 @@ abstract public class MainModule {
     @FragmentScoped
     @ContributesAndroidInjector
     abstract SettingsFragment settingsFragment();
+
+    @FragmentScoped
+    @ContributesAndroidInjector
+    abstract TaskManagerFragment taskManagerFragment();
 }

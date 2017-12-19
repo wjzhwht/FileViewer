@@ -2,11 +2,11 @@ package com.xerofox.fileviewer.ui.task;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
 import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,13 +15,12 @@ import android.view.ViewGroup;
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
-import com.xerofox.fileviewer.ui.part.TowerPartActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 import com.xerofox.fileviewer.vo.Task;
 
 import javax.inject.Inject;
 
-public class TaskFragment extends BaseFragment {
+public class TaskManagerFragment extends BaseFragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -33,7 +32,16 @@ public class TaskFragment extends BaseFragment {
 
     AutoClearedValue<TaskListAdapter> adapter;
 
-    private TaskViewModel taskViewModel;
+    private TaskViewModel viewModel;
+
+    public static TaskManagerFragment newInstance() {
+
+        Bundle args = new Bundle();
+
+        TaskManagerFragment fragment = new TaskManagerFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Nullable
     @Override
@@ -49,24 +57,39 @@ public class TaskFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getActivity().setTitle(R.string.task_list);
+        getActivity().setTitle(R.string.task_manage);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        taskViewModel = ViewModelProviders.of(this, viewModelFactory).get(TaskViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TaskViewModel.class);
         initRecyclerView();
-        TaskListAdapter rvAdapter = new TaskListAdapter(this::onItemClick);
+        TaskListAdapter rvAdapter = new TaskListAdapter(this::onTaskClick);
         binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
-        taskViewModel.setIsActive(true);
+        viewModel.setIsActive(false);
     }
 
-    private void onItemClick(Task task) {
-        Intent intent = new Intent(getActivity(), TowerPartActivity.class);
-        intent.putExtra(TowerPartActivity.ARG_TASK, task);
-        startActivity(intent);
+    private void onTaskClick(Task task) {
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                .setTitle(R.string.operation)
+                .setItems(R.array.task_option, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            task.setState(Task.STATE_INT_ACTIVE);
+                            break;
+                        case 1:
+                            task.setState(Task.STATE_INT_FINISH);
+                            break;
+                        case 2:
+                            task.setState(Task.STATE_INT_HIDE);
+                            break;
+                    }
+                    viewModel.updateTaskState(task);
+                })
+                .create().show();
+
     }
 
     private void initRecyclerView() {
-        taskViewModel.getTasks().observe(this, result -> {
+        viewModel.getTasks().observe(this, result -> {
             binding.get().setResultCount(result == null || result.data == null ? 0 : result.data.size());
             adapter.get().replace(result == null ? null : result.data);
             binding.get().executePendingBindings();

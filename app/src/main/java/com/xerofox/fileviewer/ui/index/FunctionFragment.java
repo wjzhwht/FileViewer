@@ -46,5 +46,6 @@ public class FunctionFragment extends BaseFragment {
         binding.layoutLookOver.setOnClickListener(v -> navigationController.navigateToSearch());
         binding.layoutSettings.setOnClickListener(v -> navigationController.navigateToSettings());
         binding.layoutDownload.setOnClickListener(v -> navigationController.navigateToDownlaod());
+        binding.layoutTaskManage.setOnClickListener(v -> navigationController.navigateToTaskManager());
     }
 }

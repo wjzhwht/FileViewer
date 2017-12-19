@@ -7,6 +7,7 @@ import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.ui.download.DownloadFragment;
 import com.xerofox.fileviewer.ui.settings.SettingsFragment;
 import com.xerofox.fileviewer.ui.task.TaskFragment;
+import com.xerofox.fileviewer.ui.task.TaskManagerFragment;
 
 import javax.inject.Inject;
 
@@ -46,8 +47,16 @@ public class NavigationController {
                 .commitAllowingStateLoss();
     }
 
-    void navigateToDownlaod(){
+    void navigateToDownlaod() {
         DownloadFragment fragment = DownloadFragment.newInstance();
+        fragmentManager.beginTransaction()
+                .replace(containerId, fragment)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
+    void navigateToTaskManager() {
+        TaskManagerFragment fragment = TaskManagerFragment.newInstance();
         fragmentManager.beginTransaction()
                 .replace(containerId, fragment)
                 .addToBackStack(null)

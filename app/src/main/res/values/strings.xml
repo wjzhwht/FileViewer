@@ -42,5 +42,12 @@
     <string name="warning">提示</string>
     <string name="downloading">正在下载</string>
     <string name="download_success">下载完成</string>
+    <string name="operation">操作</string>
+
+    <array name="task_option">
+        <item>激活</item>
+        <item>完成</item>
+        <item>隐藏</item>
+    </array>
 
 </resources>

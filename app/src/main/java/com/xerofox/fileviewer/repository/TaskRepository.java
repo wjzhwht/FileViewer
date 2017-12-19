@@ -1,8 +1,11 @@
 package com.xerofox.fileviewer.repository;
 
 import android.arch.lifecycle.LiveData;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.xerofox.fileviewer.AppExecutors;
+import com.xerofox.fileviewer.api.ApiResponse;
 import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.api.XeroApi;
 import com.xerofox.fileviewer.vo.Resource;
@@ -31,6 +34,60 @@ public class TaskRepository {
         return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
     }
 
+    public LiveData<Resource<List<Task>>> loadAllTasks() {
+        return new NetworkBoundResource<List<Task>, List<Task>>(appExecutors) {
+
+            @Override
+            protected void saveCallResult(@NonNull List<Task> item) {
+                fileHelper.saveTasks(item);
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Task> data) {
+                return data == null || data.isEmpty();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<Task>> loadFromDb() {
+                return fileHelper.loadAllTasks();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<Task>>> createCall() {
+                return api.loadAllTasks();
+            }
+        }.asLiveData();
+    }
+
+    public LiveData<Resource<List<Task>>> loadActiveTasks() {
+        return new NetworkBoundResource<List<Task>, List<Task>>(appExecutors) {
+
+            @Override
+            protected void saveCallResult(@NonNull List<Task> item) {
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Task> data) {
+                return false;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<Task>> loadFromDb() {
+                return fileHelper.loadActiveTasks();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<Task>>> createCall() {
+                return null;
+            }
+        }.asLiveData();
+    }
+
+
     public LiveData<Resource<Boolean>> downloadTasks(List<Task> data) {
 //        return new NetworkBoundResource<Boolean,Boolean>(appExecutors){
 //
@@ -57,5 +114,9 @@ public class TaskRepository {
 //            }
 //        }.asLiveData();
         return api.downloadTasks(appExecutors, fileHelper, data);
+    }
+
+    public void updateTask(Task task) {
+        fileHelper.updateTask(task);
     }
 }
