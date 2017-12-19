@@ -10,6 +10,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.SparseArray;
 
 import com.xerofox.fileviewer.repository.TowerRepository;
+import com.xerofox.fileviewer.ui.common.DownloadState;
 import com.xerofox.fileviewer.util.AbsentLiveData;
 import com.xerofox.fileviewer.util.Objects;
 import com.xerofox.fileviewer.vo.MenuFilter;
@@ -30,10 +31,12 @@ public class TowerPartViewModel extends ViewModel {
     private final LiveData<List<String>> filterTitles;
     private final LiveData<List<List<MenuFilter>>> filterLists;
     private final CheckUpdateHandler checkUpdateHandler;
+    private final DownloadHandler downloadHandler;
 
     @Inject
     public TowerPartViewModel(TowerRepository repository) {
         checkUpdateHandler = new CheckUpdateHandler(repository);
+        downloadHandler = new DownloadHandler(repository);
         towerParts = Transformations.switchMap(param, input -> {
             if (input == null || input.task == null) {
                 return AbsentLiveData.create();
@@ -73,9 +76,6 @@ public class TowerPartViewModel extends ViewModel {
     }
 
     void setTask(Task task) {
-        if (Objects.equals(this.task.getValue(), task)) {
-            return;
-        }
         this.task.setValue(task);
         Param param = new Param(task);
         this.param.setValue(param);
@@ -89,12 +89,74 @@ public class TowerPartViewModel extends ViewModel {
         this.param.setValue(param);
     }
 
-    void checkUpdate(int id, ArrayList<TowerPart> data) {
+    void checkUpdate(int id, List<TowerPart> data) {
         checkUpdateHandler.checkUpdate(id, data);
     }
 
     LiveData<Resource<List<Integer>>> getCheckUpdateParts() {
         return checkUpdateHandler.getUpdateLiveData();
+    }
+
+    void download(Task task, int id) {
+        List<Integer> list = new ArrayList<>();
+        list.add(id);
+        downloadHandler.download(task, list);
+    }
+
+    void download(Task task, List<Integer> idArray) {
+        downloadHandler.download(task, idArray);
+    }
+
+    LiveData<DownloadState> getDownloadState() {
+        return downloadHandler.getDownloadState();
+    }
+
+    static class DownloadHandler implements Observer<Resource<Boolean>> {
+        private final TowerRepository repository;
+        private final MutableLiveData<DownloadState> downloadState = new MutableLiveData<>();
+        private LiveData<Resource<Boolean>> towerParts;
+
+        public DownloadHandler(TowerRepository repository) {
+            this.repository = repository;
+            reset();
+        }
+
+        void download(Task task, List<Integer> idArray) {
+            unregister();
+            towerParts = repository.downloadTowerPart(task, idArray);
+            downloadState.setValue(new DownloadState(true, null));
+            towerParts.observeForever(this);
+        }
+
+        @Override
+        public void onChanged(@Nullable Resource<Boolean> resource) {
+            if (resource == null) {
+                return;
+            }
+            switch (resource.status) {
+                case ERROR:
+                    downloadState.setValue(new DownloadState(false, ""));
+                    break;
+                case SUCCESS:
+                    downloadState.setValue(new DownloadState(false, ""));
+            }
+        }
+
+        private void unregister() {
+            if (towerParts != null) {
+                towerParts.removeObserver(this);
+                towerParts = null;
+            }
+        }
+
+        private void reset() {
+            unregister();
+            downloadState.setValue(new DownloadState(false, null));
+        }
+
+        public LiveData<DownloadState> getDownloadState() {
+            return downloadState;
+        }
     }
 
     static class CheckUpdateHandler implements Observer<Resource<List<Integer>>> {
@@ -119,6 +181,9 @@ public class TowerPartViewModel extends ViewModel {
 
         @Override
         public void onChanged(@Nullable Resource<List<Integer>> result) {
+            if (result == null) {
+                return;
+            }
             unregister();
             this.result.setValue(result);
         }

@@ -17,6 +17,7 @@
 
     <item
         android:id="@+id/download"
+        android:visible="false"
         android:icon="@drawable/ic_file_download_white_24dp"
         android:title="@string/download"
         app:showAsAction="ifRoom"/>

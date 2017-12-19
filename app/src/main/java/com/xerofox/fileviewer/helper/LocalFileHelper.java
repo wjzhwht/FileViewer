@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -83,20 +84,24 @@ public class LocalFileHelper implements FileHelper {
             saveTask(task, tppFile);
             if (task.getPartList() != null && !task.getPartList().isEmpty()) {
                 for (TowerPart part : task.getPartList()) {
-                    PartFile partFile = part.getPartFile();
-                    if (partFile != null) {
-                        File folder = new File(taskFile, partFile.getFileType() + PART_FOLDER_SUFFIX);
-                        if (!folder.exists()) {
-                            folder.mkdirs();
-                        }
-                        File pngFile = new File(folder.getPath() + File.separator + partFile.getName());
-                        if (partFile.getLength()>0){
-                            save(pngFile, partFile.getBytes());
-                        }
-                    }
+                    savePartFile(taskFile, part);
                 }
             }
 
+        }
+    }
+
+    private void savePartFile(File taskFile, TowerPart part) {
+        PartFile partFile = part.getPartFile();
+        if (partFile != null) {
+            File folder = new File(taskFile, partFile.getFileType() + PART_FOLDER_SUFFIX);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            File pngFile = new File(folder.getPath() + File.separator + partFile.getName());
+            if (partFile.getLength() > 0) {
+                save(pngFile, partFile.getBytes());
+            }
         }
     }
 
@@ -223,6 +228,19 @@ public class LocalFileHelper implements FileHelper {
             array[i] = task.getId();
         }
         return array;
+    }
 
+    @Override
+    public void saveUpdateParts(Task task, List<TowerPart> towerParts) {
+        File rootFile = new File(directory, PATH_ROOT);
+        File taskFile = new File(rootFile, task.getTaskDirectoryName());
+        Task loadTask = loadTask(task);
+        for (TowerPart part : towerParts) {
+            savePartFile(taskFile, part);
+        }
+        loadTask.getPartList().removeAll(towerParts);
+        loadTask.getPartList().addAll(0, towerParts);
+        File tppFile = new File(taskFile, task.getTaskFileName());
+        saveTask(task, tppFile);
     }
 }

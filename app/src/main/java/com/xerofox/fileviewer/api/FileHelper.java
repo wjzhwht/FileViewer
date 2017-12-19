@@ -27,4 +27,5 @@ public interface FileHelper {
 
     Task loadTask(Task task);
 
+    void saveUpdateParts(Task task, List<TowerPart> towerParts);
 }

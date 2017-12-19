@@ -1,5 +1,6 @@
 package com.xerofox.fileviewer.ui.part;
 
+import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingComponent;
@@ -11,8 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.xerofox.fileviewer.R;
-import com.xerofox.fileviewer.api.XeroApiImpl;
-import com.xerofox.fileviewer.api.XeroNetApi;
 import com.xerofox.fileviewer.databinding.TowerPartActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
 import com.xerofox.fileviewer.ui.viewer.ViewerActivity;
@@ -24,6 +23,7 @@ import com.xerofox.fileviewer.vo.TowerPart;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -43,6 +43,7 @@ public class TowerPartActivity extends BaseActivity {
     private PartMenuAdapter partMenuAdapter;
 
     private boolean checkUpdate;
+    private ProgressDialog progressDialog;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -71,6 +72,13 @@ public class TowerPartActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_tower_part_activity, menu);
+        if (viewModel.getCheckUpdateParts().getValue() != null
+                && viewModel.getCheckUpdateParts().getValue().data != null
+                && !viewModel.getCheckUpdateParts().getValue().data.isEmpty()) {
+            menu.findItem(R.id.download).setVisible(true);
+        } else {
+            menu.findItem(R.id.download).setVisible(false);
+        }
         return true;
     }
 
@@ -83,6 +91,7 @@ public class TowerPartActivity extends BaseActivity {
                 fragment.show(getSupportFragmentManager(), "filter");
                 return true;
             case R.id.download:
+                viewModel.download(getTask(), viewModel.getCheckUpdateParts().getValue().data);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -105,13 +114,7 @@ public class TowerPartActivity extends BaseActivity {
     }
 
     private void onItemDownload(TowerPart part) {
-        new Thread(() -> {
-            try {
-                new XeroApiImpl().queryTaskParts(getTask().getId(), new int[]{part.getId()});
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+        viewModel.download(getTask(), part.getId());
     }
 
     private void initFilter() {
@@ -153,18 +156,51 @@ public class TowerPartActivity extends BaseActivity {
         });
 
         viewModel.getCheckUpdateParts().observe(this, resource -> {
-            if (resource.status == Status.SUCCESS) {
-                if (resource.data != null && !resource.data.isEmpty()) {
-                    adapter.setUpdateParts(resource.data);
-                    adapter.notifyDataSetChanged();
+            if (resource != null) {
+                if (resource.status == Status.SUCCESS) {
+                    if (resource.data != null && !resource.data.isEmpty()) {
+                        invalidateOptionsMenu();
+                        adapter.setUpdateParts(resource.data);
+                        adapter.notifyDataSetChanged();
+                    }
+                } else if (resource.status == Status.ERROR) {
+                    invalidateOptionsMenu();
+                    ToastUtils.showToast(resource.message);
                 }
-            } else if (resource.status == Status.ERROR) {
-                ToastUtils.showToast(resource.message);
+            }
+        });
+
+        viewModel.getDownloadState().observe(this, downloadState -> {
+            if (downloadState != null) {
+                if (downloadState.isDownloading()) {
+                    showProgressDialog();
+                } else {
+                    dismissProgressDialog();
+                    viewModel.setTask(getTask());
+                }
             }
         });
     }
 
-    private void checkUpdate(ArrayList<TowerPart> data) {
+    private void showProgressDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage(getString(R.string.downloading));
+        }
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            ToastUtils.showToast(R.string.download_success);
+            progressDialog.dismiss();
+        }
+    }
+
+    private void checkUpdate(List<TowerPart> data) {
         if (!checkUpdate) {
             checkUpdate = true;
             viewModel.checkUpdate(getTask().getId(), data);

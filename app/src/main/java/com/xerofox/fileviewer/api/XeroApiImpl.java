@@ -145,6 +145,27 @@ public class XeroApiImpl implements XeroApi {
         };
     }
 
+    @Override
+    public LiveData<Resource<Boolean>> downloadTowerParts(AppExecutors appExecutors, FileHelper fileHelper, Task task, List<Integer> idArray) {
+        return new LiveData<Resource<Boolean>>() {
+            @Override
+            protected void onActive() {
+                super.onActive();
+                appExecutors.networkIO().execute(() -> {
+                    try {
+                        List<TowerPart> towerParts = queryTaskParts(task.getId(), idArray);
+                        appExecutors.diskIO().execute(() -> {
+                            fileHelper.saveUpdateParts(task, towerParts);
+                            postValue(Resource.success(true));
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        postValue(Resource.error(e.getMessage(), false));
+                    }
+                });
+            }
+        };
+    }
 
     private List<Task> downloadSimpleTaskListFromServer(int[] localTaskIdArr, boolean queryState) throws Exception {
         try {
@@ -394,17 +415,23 @@ public class XeroApiImpl implements XeroApi {
         }
     }
 
-    public List<TowerPart> queryTaskParts(int taskId, int[] partIdArr) throws Exception {
+    public List<TowerPart> queryTaskParts(int taskId, List<Integer> idList) throws Exception {
         try {
-            if (partIdArr == null || partIdArr.length == 0)
-                return null;
+            List<TowerPart> partList = new ArrayList<>();
+            if (idList == null || idList.isEmpty()) {
+                return partList;
+            }
+            int[] idArray = new int[idList.size()];
+            for (int i = 0; i < idList.size(); i++) {
+                idArray[i] = idList.get(i);
+            }
             getSessionId();
             SoapObject rpc = new SoapObject(NAMESPACE, "QueryObjects");
             rpc.addProperty("sessionId", sessionId);
             rpc.addProperty("clsName", "ManuElemTaskPart");
             XmlUtil xmlHelper = new XmlUtil();
             xmlHelper.AppendValue("ManuElemTaskId", taskId);
-            xmlHelper.AppendValue("IdArr", "id", partIdArr);
+            xmlHelper.AppendValue("IdArr", "id", idArray);
             rpc.addProperty("xmlScope", xmlHelper.ToXml());
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER10);
             envelope.bodyOut = rpc;
@@ -419,7 +446,6 @@ public class XeroApiImpl implements XeroApi {
             }
             String retString = String.valueOf(ret);
             byte[] retByteArr = Base64.decode(retString);
-            ArrayList<TowerPart> partList = new ArrayList<>();
             ByteBufferReader br = new ByteBufferReader(retByteArr);
             int taskArrLen = br.readInt();
             for (int i = 0; i < taskArrLen; i++) {

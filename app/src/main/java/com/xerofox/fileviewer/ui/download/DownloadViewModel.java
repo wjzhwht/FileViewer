@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import com.xerofox.fileviewer.repository.TaskRepository;
+import com.xerofox.fileviewer.ui.common.DownloadState;
 import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.Task;
 
@@ -45,38 +46,10 @@ public class DownloadViewModel extends ViewModel {
         downloadTaskHandler.download(tasks);
     }
 
-    static class DownloadState {
-        private final boolean downloading;
-        private final String errorMessage;
-        private boolean handledError = false;
-
-        DownloadState(boolean downloading, String errorMessage) {
-            this.downloading = downloading;
-            this.errorMessage = errorMessage;
-        }
-
-        public boolean isDownloading() {
-            return downloading;
-        }
-
-        String getErrorMessage() {
-            return errorMessage;
-        }
-
-        String getErrorMessageIfNotHandled() {
-            if (handledError) {
-                return null;
-            }
-            handledError = true;
-            return errorMessage;
-        }
-    }
-
     static class DownloadTaskHandler implements Observer<Resource<Boolean>> {
         private final TaskRepository repository;
         private LiveData<Resource<Boolean>> downloadLiveData;
         private final MutableLiveData<DownloadState> downloadState = new MutableLiveData<>();
-        private List<Task> taskList;
 
         @VisibleForTesting
         DownloadTaskHandler(TaskRepository repository) {
