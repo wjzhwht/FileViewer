@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.xerofox.fileviewer.R;
+import com.xerofox.fileviewer.api.XeroApiImpl;
 import com.xerofox.fileviewer.api.XeroNetApi;
 import com.xerofox.fileviewer.databinding.TowerPartActivityBinding;
 import com.xerofox.fileviewer.ui.common.BaseActivity;
@@ -104,7 +105,13 @@ public class TowerPartActivity extends BaseActivity {
     }
 
     private void onItemDownload(TowerPart part) {
-        new Thread(() -> XeroNetApi.QueryTaskParts(getTask().getId(), new int[]{part.getId()})).start();
+        new Thread(() -> {
+            try {
+                new XeroApiImpl().queryTaskParts(getTask().getId(), new int[]{part.getId()});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void initFilter() {
