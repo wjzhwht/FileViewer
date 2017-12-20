@@ -34,7 +34,7 @@ import javax.inject.Inject;
 public class XeroApiImpl implements XeroApi {
     private static String IP = SettingHelper.getServerPort();
     private static final String NAMESPACE = "http://xerofox.com/TMSService/";
-    private static String URL = "http://" + IP + "/TMSServ/TMSService.asmx";
+    private static String URL = "http://" + SettingHelper.getServerPort() + "/TMSServ/TMSService.asmx";
     private static HttpTransportSE ht = null;
     private static int sessionId = 0;
 
@@ -458,5 +458,11 @@ public class XeroApiImpl implements XeroApi {
         } catch (Exception e) {
             throw new RuntimeException(ERROR_NETWORK);
         }
+    }
+    public static void resetNetConnect() {
+        IP = SettingHelper.getServerPort();
+        URL = "http://" + SettingHelper.getServerPort() + "/TMSServ/TMSService.asmx";
+        sessionId = 0;
+        ht = null;
     }
 }

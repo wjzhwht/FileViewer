@@ -12,6 +12,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
 import com.xerofox.fileviewer.R;
+import com.xerofox.fileviewer.api.XeroApiImpl;
 import com.xerofox.fileviewer.databinding.SettingsFragmentBinding;
 import com.xerofox.fileviewer.helper.SettingHelper;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
@@ -108,6 +109,7 @@ public class SettingsFragment extends BaseFragment {
             SettingHelper.setServerPort(binding.ip.getText().toString().trim());
             SettingHelper.setUserName(binding.name.getText().toString().trim());
             SettingHelper.setPassword(binding.password.getText().toString().trim());
+            XeroApiImpl.resetNetConnect();
         });
     }
 }
