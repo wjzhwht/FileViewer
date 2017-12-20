@@ -35,6 +35,7 @@ public class Task implements Parcelable {
     private Date date;
     private int state;
     private boolean needUpdate;
+    private String md5;
     private ArrayList<TowerPart> partList;
     private int count;
 
@@ -49,6 +50,7 @@ public class Task implements Parcelable {
         this.name = br.readString();
         this.date = br.readDate();
         this.state = br.readInt();
+        this.md5 = br.readString();
         this.count = br.readInt();
         partList = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -62,6 +64,7 @@ public class Task implements Parcelable {
         this.name = br.readString();
         this.date = br.readDate();
         this.state = br.readInt();
+        this.md5 = br.readString();
         this.count = br.readInt();
         partList = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -111,6 +114,7 @@ public class Task implements Parcelable {
         br.write(this.name);
         br.write(this.date);
         br.write(this.state);
+        br.write(this.md5);
         br.write(this.count);
         if (partList != null && !partList.isEmpty()) {
             for (TowerPart part : partList) {
@@ -211,6 +215,14 @@ public class Task implements Parcelable {
 
     public boolean isNeedUpdate() { return needUpdate;}
 
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
     public void setNeedUpdate(boolean needUpdate) {this.needUpdate = needUpdate;}
 
     @Override
@@ -225,6 +237,8 @@ public class Task implements Parcelable {
         dest.writeString(this.name);
         dest.writeLong(this.date != null ? this.date.getTime() : -1);
         dest.writeInt(this.state);
+        dest.writeByte(this.needUpdate ? (byte) 1 : (byte) 0);
+        dest.writeString(this.md5);
         dest.writeTypedList(this.partList);
         dest.writeInt(this.count);
     }
@@ -236,11 +250,13 @@ public class Task implements Parcelable {
         long tmpDate = in.readLong();
         this.date = tmpDate == -1 ? null : new Date(tmpDate);
         this.state = in.readInt();
+        this.needUpdate = in.readByte() != 0;
+        this.md5 = in.readString();
         this.partList = in.createTypedArrayList(TowerPart.CREATOR);
         this.count = in.readInt();
     }
 
-    public static final Parcelable.Creator<Task> CREATOR = new Parcelable.Creator<Task>() {
+    public static final Creator<Task> CREATOR = new Creator<Task>() {
         @Override
         public Task createFromParcel(Parcel source) {
             return new Task(source);
