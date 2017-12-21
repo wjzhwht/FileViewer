@@ -3,6 +3,7 @@ package com.xerofox.fileviewer.api;
 import android.arch.lifecycle.LiveData;
 import android.os.Environment;
 
+import com.elvishew.xlog.XLog;
 import com.xerofox.fileviewer.AppExecutors;
 import com.xerofox.fileviewer.helper.SettingHelper;
 import com.xerofox.fileviewer.util.ByteBufferReader;
@@ -82,6 +83,7 @@ public class XeroApiImpl implements XeroApi {
             @Override
             protected void onActive() {
                 super.onActive();
+                XLog.i("XeroApiImpl getServerTasks onActive");
                 appExecutors.networkIO().execute(() -> {
                     List<Task> response = null;
                     try {
@@ -97,11 +99,12 @@ public class XeroApiImpl implements XeroApi {
     }
 
     @Override
-    public LiveData<Resource<Boolean>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data) {
-        return new LiveData<Resource<Boolean>>() {
+    public LiveData<Resource<List<Task>>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data) {
+        return new LiveData<Resource<List<Task>>>() {
             @Override
             protected void onActive() {
                 super.onActive();
+                XLog.i("XeroApiImpl downloadTasks");
                 appExecutors.networkIO().execute(() -> {
                     try {
                         List<Task> downloadedTask = new ArrayList<>();
@@ -116,10 +119,10 @@ public class XeroApiImpl implements XeroApi {
                         }
                         appExecutors.diskIO().execute(() -> {
                             fileHelper.saveTasks(downloadedTask);
-                            postValue(Resource.success(true));
+                            postValue(Resource.success(downloadedTask));
                         });
                     } catch (Exception e) {
-                        postValue(Resource.error(e.getMessage(), false));
+                        postValue(Resource.error(e.getMessage(), null));
                     }
                 });
             }
@@ -209,24 +212,28 @@ public class XeroApiImpl implements XeroApi {
             }
             return taskList;
         } catch (SocketTimeoutException timeoutException) {
-            timeoutException.printStackTrace();
+            XLog.i("XeroApiImpl downloadSimpleTaskListFromServer SocketTimeoutException" + timeoutException.getMessage());
             throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
-            e.printStackTrace();
+            XLog.i("XeroApiImpl downloadSimpleTaskListFromServer Exception" + e.getMessage());
             throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
     private int getSessionId() throws Exception {
         if (sessionId > 0) {
+            XLog.i("XeroApiImpl getSessionId" + sessionId);
             return sessionId;
         } else {
-            return loginUser(SettingHelper.getUserName(), SettingHelper.getPassword());
+            int id = loginUser(SettingHelper.getUserName(), SettingHelper.getPassword());
+            XLog.i("XeroApiImpl getSessionId" + id);
+            return id;
         }
     }
 
     private int loginUser(String userName, String password) throws Exception {
         try {
+            XLog.i("XeroApiImpl downloadServerObject loginUser" + userName + password);
             sessionId = 0;
             SoapObject rpc = new SoapObject(NAMESPACE, "loginUser");
             rpc.addProperty("userName", userName);
@@ -246,14 +253,17 @@ public class XeroApiImpl implements XeroApi {
             sessionId = Integer.valueOf(String.valueOf(ret));
             return sessionId;
         } catch (SocketTimeoutException timeoutException) {
+            XLog.i("XeroApiImpl loginUser SocketTimeoutException" + timeoutException.getMessage());
             throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
+            XLog.i("XeroApiImpl loginUser Exception" + e.getMessage());
             throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
     private byte[] downloadServerObject(int objId, String cls_name) throws Exception {
         try {
+            XLog.i("XeroApiImpl downloadServerObject");
             int fileObjId = 0;
             int uiFileDataLength = 0;
             int sessionId = getSessionId();
@@ -289,8 +299,10 @@ public class XeroApiImpl implements XeroApi {
                 throw new RuntimeException("数据文件下载失败!");
             }
         } catch (SocketTimeoutException timeoutException) {
+            XLog.i("XeroApiImpl downloadServerObject SocketTimeoutException" + timeoutException.getMessage());
             throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
+            XLog.i("XeroApiImpl downloadServerObject Exception" + e.getMessage());
             throw new RuntimeException(ERROR_NETWORK);
         }
     }
@@ -318,9 +330,11 @@ public class XeroApiImpl implements XeroApi {
             }
             return Base64.decode(String.valueOf(ret));
         } catch (SocketTimeoutException timeoutException) {
-            throw new RuntimeException("服务器地址:" + URL + "!" + "连接服务器超时,请重试!");
+            XLog.i("XeroApiImpl downloadFileObject SocketTimeoutException" + timeoutException.getMessage());
+            throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            XLog.i("XeroApiImpl downloadFileObject Exception" + e.getMessage());
+            throw new RuntimeException(ERROR_NETWORK);
         }
     }
 
@@ -344,8 +358,10 @@ public class XeroApiImpl implements XeroApi {
             }
             return String.valueOf(ret);
         } catch (SocketTimeoutException timeoutException) {
-            throw new RuntimeException("连接服务器超时,请重试!");
+            XLog.i("XeroApiImpl openServerObjectDataProvider SocketTimeoutException" + timeoutException.getMessage());
+            throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
+            XLog.i("XeroApiImpl openServerObjectDataProvider Exception" + e.getMessage());
             throw new RuntimeException(ERROR_NETWORK);
         }
     }
@@ -369,8 +385,10 @@ public class XeroApiImpl implements XeroApi {
             String retString = String.valueOf(ret);
             return Boolean.valueOf(retString);
         } catch (SocketTimeoutException timeoutException) {
+            XLog.i("XeroApiImpl closeFileObjectDataProvider SocketTimeoutException" + timeoutException.getMessage());
             throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
+            XLog.i("XeroApiImpl closeFileObjectDataProvider Exception" + e.getMessage());
             throw new RuntimeException(ERROR_NETWORK);
         }
     }
@@ -410,8 +428,10 @@ public class XeroApiImpl implements XeroApi {
             }
             return array;
         } catch (SocketTimeoutException timeoutException) {
+            XLog.i("XeroApiImpl queryTaskPartsUpdateState SocketTimeoutException" + timeoutException.getMessage());
             throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
+            XLog.i("XeroApiImpl queryTaskPartsUpdateState Exception" + e.getMessage());
             throw new RuntimeException(ERROR_NETWORK);
         }
     }
@@ -454,11 +474,14 @@ public class XeroApiImpl implements XeroApi {
             }
             return partList;
         } catch (SocketTimeoutException timeoutException) {
+            XLog.i("XeroApiImpl queryTaskParts SocketTimeoutException" + timeoutException.getMessage());
             throw new RuntimeException(ERROR_NETWORK_TIMEOUT);
         } catch (Exception e) {
+            XLog.i("XeroApiImpl queryTaskParts Exception" + e.getMessage());
             throw new RuntimeException(ERROR_NETWORK);
         }
     }
+
     public static void resetNetConnect() {
         IP = SettingHelper.getServerPort();
         URL = "http://" + SettingHelper.getServerPort() + "/TMSServ/TMSService.asmx";

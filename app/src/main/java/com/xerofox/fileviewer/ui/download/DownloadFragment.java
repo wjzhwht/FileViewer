@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,11 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.elvishew.xlog.XLog;
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 import com.xerofox.fileviewer.util.ToastUtils;
+import com.xerofox.fileviewer.vo.Status;
 
 import javax.inject.Inject;
 
@@ -62,6 +65,7 @@ public class DownloadFragment extends BaseFragment {
                         .setTitle(R.string.warning)
                         .setMessage(R.string.download_all_warning)
                         .setPositiveButton(R.string.ok, ((dialog, which) -> {
+                            XLog.i("下载全部任务");
                             viewModel.download(viewModel.getTasks().getValue().data);
                         }))
                         .setNegativeButton(R.string.cancel, null)
@@ -108,16 +112,29 @@ public class DownloadFragment extends BaseFragment {
 
     private void initObserve() {
         viewModel.getDownloadState().observe(this, downloadState -> {
-            if (downloadState != null && downloadState.isDownloading()) {
-                showProgressDialog();
-            } else {
-                dismissProgressDialog();
+            if (downloadState != null) {
+                if (downloadState.isDownloading()) {
+                    showProgressDialog();
+                } else {
+                    dismissProgressDialog();
+                    if (downloadState.getData() != null && !downloadState.getData().isEmpty()) {
+                        ToastUtils.showToast(R.string.download_success);
+                    } else {
+                        ToastUtils.showToast(downloadState.getErrorMessage());
+                    }
+                }
             }
         });
         viewModel.getTasks().observe(this, result -> {
-            binding.get().setResultCount(result == null || result.data == null ? 0 : result.data.size());
-            adapter.get().replace(result == null ? null : result.data);
-            binding.get().executePendingBindings();
+            if (result != null) {
+                if (result.status == Status.SUCCESS) {
+                    binding.get().setResultCount(result.data == null ? 0 : result.data.size());
+                    adapter.get().replace(result.data);
+                    binding.get().executePendingBindings();
+                } else {
+                    ToastUtils.showToast(result.message);
+                }
+            }
         });
 
     }
@@ -135,7 +152,6 @@ public class DownloadFragment extends BaseFragment {
 
     private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
-            ToastUtils.showToast(R.string.download_success);
             progressDialog.dismiss();
         }
     }

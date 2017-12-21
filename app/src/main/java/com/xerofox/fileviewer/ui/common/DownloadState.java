@@ -1,9 +1,12 @@
 package com.xerofox.fileviewer.ui.common;
 
-public class DownloadState {
+import java.util.List;
+
+public class DownloadState<T> {
     private final boolean downloading;
     private final String errorMessage;
     private boolean handledError = false;
+    private List<T> data;
 
     public DownloadState(boolean downloading, String errorMessage) {
         this.downloading = downloading;
@@ -14,15 +17,23 @@ public class DownloadState {
         return downloading;
     }
 
-    String getErrorMessage() {
+    public String getErrorMessage() {
         return errorMessage;
     }
 
-    String getErrorMessageIfNotHandled() {
+    public String getErrorMessageIfNotHandled() {
         if (handledError) {
             return null;
         }
         handledError = true;
         return errorMessage;
+    }
+
+    public List<T> getData() {
+        return data;
+    }
+
+    public void setData(List<T> data) {
+        this.data = data;
     }
 }

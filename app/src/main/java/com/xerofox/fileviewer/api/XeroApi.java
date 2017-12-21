@@ -15,7 +15,7 @@ public interface XeroApi {
 
     LiveData<Resource<List<Task>>> getServerTasks(AppExecutors appExecutors, int[] localTaskIds);
 
-    LiveData<Resource<Boolean>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data);
+    LiveData<Resource<List<Task>>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data);
 
     LiveData<Resource<List<Integer>>> checkUpdate(AppExecutors appExecutors, int id, List<TowerPart> parts);
 

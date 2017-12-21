@@ -7,6 +7,7 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
+import com.elvishew.xlog.XLog;
 import com.xerofox.fileviewer.repository.TaskRepository;
 import com.xerofox.fileviewer.ui.common.DownloadState;
 import com.xerofox.fileviewer.vo.Resource;
@@ -34,7 +35,7 @@ public class DownloadViewModel extends ViewModel {
         return tasks;
     }
 
-    LiveData<DownloadState> getDownloadState() {
+    LiveData<DownloadState<Task>> getDownloadState() {
         return downloadTaskHandler.getDownloadState();
     }
 
@@ -43,13 +44,14 @@ public class DownloadViewModel extends ViewModel {
     }
 
     void download(List<Task> tasks) {
+        XLog.i("DownloadViewModel download");
         downloadTaskHandler.download(tasks);
     }
 
-    static class DownloadTaskHandler implements Observer<Resource<Boolean>> {
+    static class DownloadTaskHandler implements Observer<Resource<List<Task>>> {
         private final TaskRepository repository;
-        private LiveData<Resource<Boolean>> downloadLiveData;
-        private final MutableLiveData<DownloadState> downloadState = new MutableLiveData<>();
+        private LiveData<Resource<List<Task>>> downloadLiveData;
+        private final MutableLiveData<DownloadState<Task>> downloadState = new MutableLiveData<>();
 
         @VisibleForTesting
         DownloadTaskHandler(TaskRepository repository) {
@@ -71,24 +73,28 @@ public class DownloadViewModel extends ViewModel {
                 return;
             }
             unregister();
+            XLog.i("DownloadHandler download");
             downloadLiveData = repository.downloadTasks(tasks);
             downloadState.setValue(new DownloadState(true, null));
             downloadLiveData.observeForever(this);
         }
 
         @Override
-        public void onChanged(@Nullable Resource<Boolean> result) {
+        public void onChanged(@Nullable Resource<List<Task>> result) {
             if (result == null) {
                 reset();
             } else {
                 switch (result.status) {
                     case SUCCESS:
                         unregister();
-                        downloadState.setValue(new DownloadState(false, null));
+                        DownloadState<Task> value = new DownloadState<>(false, null);
+                        value.setData(result.data);
+                        downloadState.setValue(value);
                         break;
                     case ERROR:
                         unregister();
-                        downloadState.setValue(new DownloadState(false, result.message));
+                        DownloadState<Task> error = new DownloadState<>(false, result.message);
+                        downloadState.setValue(error);
                         break;
                 }
             }
@@ -103,10 +109,11 @@ public class DownloadViewModel extends ViewModel {
 
         private void reset() {
             unregister();
-            downloadState.setValue(new DownloadState(false, null));
+            DownloadState<Task> value = new DownloadState<>(false, null);
+            downloadState.setValue(value);
         }
 
-        public LiveData<DownloadState> getDownloadState() {
+        public LiveData<DownloadState<Task>> getDownloadState() {
             return downloadState;
         }
     }

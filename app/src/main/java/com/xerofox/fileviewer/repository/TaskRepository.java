@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.elvishew.xlog.XLog;
 import com.xerofox.fileviewer.AppExecutors;
 import com.xerofox.fileviewer.api.ApiResponse;
 import com.xerofox.fileviewer.api.FileHelper;
@@ -88,7 +89,7 @@ public class TaskRepository {
     }
 
 
-    public LiveData<Resource<Boolean>> downloadTasks(List<Task> data) {
+    public LiveData<Resource<List<Task>>> downloadTasks(List<Task> data) {
 //        return new NetworkBoundResource<Boolean,Boolean>(appExecutors){
 //
 //            @Override
@@ -113,6 +114,7 @@ public class TaskRepository {
 //                return null;
 //            }
 //        }.asLiveData();
+        XLog.i("TaskRepository downloadTasks");
         return api.downloadTasks(appExecutors, fileHelper, data);
     }
 
