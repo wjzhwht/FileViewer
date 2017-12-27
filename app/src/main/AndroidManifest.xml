@@ -38,7 +38,8 @@
         <activity
             android:name=".ui.part.TowerPartActivity"
             android:label="@string/title_tower_part_activity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

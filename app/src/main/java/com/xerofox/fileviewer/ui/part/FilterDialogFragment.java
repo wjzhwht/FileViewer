@@ -112,15 +112,20 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
 
         binding.manuAllYes.setOnClickListener(v -> updateManu(true));
         binding.manuAllNo.setOnClickListener(v -> updateManu(false));
+        binding.manuAllUnlimited.setOnClickListener(v -> updateManu());
 
         binding.manuCutAngelYes.setOnClickListener(v -> updateManuAll());
         binding.manuCutAngelNo.setOnClickListener(v -> updateManuAll());
+        binding.manuCutAngelUnlimited.setOnClickListener(v -> updateManuAll());
         binding.manuZhiwanYes.setOnClickListener(v -> updateManuAll());
         binding.manuZhiwanNo.setOnClickListener(v -> updateManuAll());
+        binding.manuZhiwanUnlimited.setOnClickListener(v -> updateManuAll());
         binding.manuWeldYes.setOnClickListener(v -> updateManuAll());
         binding.manuWeldNo.setOnClickListener(v -> updateManuAll());
+        binding.manuWeldUnlimited.setOnClickListener(v -> updateManuAll());
         binding.manuKaiheYes.setOnClickListener(v -> updateManuAll());
         binding.manuKaiheNo.setOnClickListener(v -> updateManuAll());
+        binding.manuKaiheUnlimited.setOnClickListener(v -> updateManuAll());
 
         binding.done.setOnClickListener(v -> done());
         binding.clear.setOnClickListener(v -> clear());
@@ -241,7 +246,7 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
         } else if (!b && !b1 && !b2 && !b3) {
             binding.groupManuAll.check(R.id.manu_all_no);
         } else {
-            binding.groupManuAll.clearCheck();
+            binding.groupManuAll.check(R.id.manu_all_unlimited);
         }
     }
 
@@ -250,6 +255,13 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
         binding.groupZhiwan.check(check ? R.id.manu_zhiwan_yes : R.id.manu_zhiwan_no);
         binding.groupWeld.check(check ? R.id.manu_weld_yes : R.id.manu_weld_no);
         binding.groupKaihe.check(check ? R.id.manu_kaihe_yes : R.id.manu_kaihe_no);
+    }
+
+    private void updateManu() {
+        binding.groupCutAngel.check(R.id.manu_cut_angel_unlimited);
+        binding.groupZhiwan.check(R.id.manu_zhiwan_unlimited);
+        binding.groupWeld.check(R.id.manu_weld_unlimited);
+        binding.groupKaihe.check(R.id.manu_kaihe_unlimited);
     }
 
     private void updateMaterialAll() {

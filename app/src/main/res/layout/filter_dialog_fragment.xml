@@ -248,6 +248,18 @@
                 android:text="@string/all_no"
                 android:textColor="@color/black"
                 android:textSize="@dimen/normal_text_size" />
+
+            <RadioButton
+                android:id="@+id/manu_all_unlimited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:text="@string/unlimited"
+                android:textColor="@color/black"
+                android:textSize="@dimen/normal_text_size" />
+
+
         </RadioGroup>
 
         <RadioGroup
@@ -273,6 +285,16 @@
                 android:layout_marginLeft="32dp"
                 android:layout_marginStart="32dp"
                 android:text="@string/no"
+                android:textColor="@color/black"
+                android:textSize="@dimen/normal_text_size" />
+
+            <RadioButton
+                android:id="@+id/manu_cut_angel_unlimited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginStart="32dp"
+                android:text="@string/unlimited"
                 android:textColor="@color/black"
                 android:textSize="@dimen/normal_text_size" />
         </RadioGroup>
@@ -302,6 +324,16 @@
                 android:text="@string/no"
                 android:textColor="@color/black"
                 android:textSize="@dimen/normal_text_size" />
+
+            <RadioButton
+                android:id="@+id/manu_zhiwan_unlimited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginStart="32dp"
+                android:text="@string/unlimited"
+                android:textColor="@color/black"
+                android:textSize="@dimen/normal_text_size" />
         </RadioGroup>
 
         <RadioGroup
@@ -329,6 +361,16 @@
                 android:text="@string/no"
                 android:textColor="@color/black"
                 android:textSize="@dimen/normal_text_size" />
+
+            <RadioButton
+                android:id="@+id/manu_weld_unlimited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginStart="32dp"
+                android:text="@string/unlimited"
+                android:textColor="@color/black"
+                android:textSize="@dimen/normal_text_size" />
         </RadioGroup>
 
         <RadioGroup
@@ -354,6 +396,16 @@
                 android:layout_marginLeft="32dp"
                 android:layout_marginStart="32dp"
                 android:text="@string/no"
+                android:textColor="@color/black"
+                android:textSize="@dimen/normal_text_size" />
+
+            <RadioButton
+                android:id="@+id/manu_kaihe_unlimited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginStart="32dp"
+                android:text="@string/unlimited"
                 android:textColor="@color/black"
                 android:textSize="@dimen/normal_text_size" />
         </RadioGroup>
