@@ -83,7 +83,8 @@ public class TaskRepository {
             @NonNull
             @Override
             protected LiveData<ApiResponse<List<Task>>> createCall() {
-                return null;
+                // FIXME: 2017/12/27 release remove
+                return api.loadAllTasks();
             }
         }.asLiveData();
     }

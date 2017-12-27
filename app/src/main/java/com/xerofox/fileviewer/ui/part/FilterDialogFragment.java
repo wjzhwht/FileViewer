@@ -8,7 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -28,7 +30,7 @@ import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.HasSupportFragmentInjector;
 
-public class FilterDialogFragment extends BottomSheetDialogFragment implements HasSupportFragmentInjector {
+public class FilterDialogFragment extends DialogFragment implements HasSupportFragmentInjector {
 
     @Inject
     DispatchingAndroidInjector<Fragment> childFragmentInjector;
@@ -63,35 +65,15 @@ public class FilterDialogFragment extends BottomSheetDialogFragment implements H
         return childFragmentInjector;
     }
 
-    protected final BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
-
-        @Override
-        public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                dismiss();
-            }
-        }
-
-        @Override
-        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-        }
-    };
-
+    @NonNull
     @Override
-    public void setupDialog(Dialog dialog, int style) {
-        super.setupDialog(dialog, style);
-
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        super.onCreateDialog(savedInstanceState);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.filter_dialog_fragment, null, false);
         initView(binding);
-        dialog.setContentView(binding.getRoot());
-
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) binding.getRoot().getParent())
-                .getLayoutParams();
-        CoordinatorLayout.Behavior behavior = params.getBehavior();
-
-        if (behavior != null && behavior instanceof BottomSheetBehavior) {
-            ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
-        }
+        builder.setView(binding.getRoot());
+        return builder.create();
     }
 
     protected void initView(FilterDialogFragmentBinding binding) {
