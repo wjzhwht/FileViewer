@@ -40,7 +40,7 @@ public class MainActivity extends BaseActivity {
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}
                     , 100);
         } else {
-            navigationController.navigateToFunction();
+            navigationController.navigateToSearch();
         }
     }
 
@@ -48,7 +48,7 @@ public class MainActivity extends BaseActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            navigationController.navigateToFunction();
+            navigationController.navigateToSearch();
         }
     }
 }

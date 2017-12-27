@@ -31,7 +31,7 @@ public class NavigationController {
                 .commitAllowingStateLoss();
     }
 
-    void navigateToSearch() {
+    public void navigateToSearch() {
         TaskFragment searchFragment = new TaskFragment();
         fragmentManager.beginTransaction()
                 .replace(containerId, searchFragment)
