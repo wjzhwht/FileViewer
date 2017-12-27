@@ -20,7 +20,7 @@
 
         <activity
             android:name=".ui.SplashActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="landscape">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,14 +31,14 @@
 
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="landscape" />
         <activity
             android:name=".ui.viewer.ViewerActivity"
             android:screenOrientation="landscape" />
         <activity
             android:name=".ui.part.TowerPartActivity"
             android:label="@string/title_tower_part_activity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>
