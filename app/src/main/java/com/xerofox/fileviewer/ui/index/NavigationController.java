@@ -39,7 +39,7 @@ public class NavigationController {
                 .commitAllowingStateLoss();
     }
 
-    void navigateToSettings() {
+    public void navigateToSettings() {
         SettingsFragment fragment = SettingsFragment.newInstance();
         fragmentManager.beginTransaction()
                 .replace(containerId, fragment)

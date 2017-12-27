@@ -9,12 +9,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
+import com.xerofox.fileviewer.ui.index.NavigationController;
 import com.xerofox.fileviewer.ui.part.TowerPartActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
 import com.xerofox.fileviewer.vo.Task;
@@ -29,11 +33,31 @@ public class TaskFragment extends BaseFragment {
     @Inject
     DataBindingComponent dataBindingComponent;
 
+    @Inject
+    NavigationController navigationController;
+
     AutoClearedValue<SearchFragmentBinding> binding;
 
     AutoClearedValue<TaskListAdapter> adapter;
 
     private TaskViewModel taskViewModel;
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_download, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settings:
+                navigationController.navigateToSettings();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Nullable
     @Override
@@ -57,6 +81,7 @@ public class TaskFragment extends BaseFragment {
         binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
         taskViewModel.setIsActive(true);
+        setHasOptionsMenu(true);
     }
 
     private void onItemClick(Task task) {
