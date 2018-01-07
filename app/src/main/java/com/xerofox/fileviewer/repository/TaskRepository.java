@@ -32,7 +32,35 @@ public class TaskRepository {
 
 
     public LiveData<Resource<List<Task>>> getDownloadTasks() {
-        return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
+        return new NetworkBoundResource<List<Task>, List<Task>>(appExecutors) {
+
+            @Override
+            protected void saveCallResult(@NonNull List<Task> item) {
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Task> data) {
+                return true;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<Task>> loadFromDb() {
+                return new LiveData<List<Task>>() {
+                    @Override
+                    protected void onActive() {
+                        super.onActive();
+                    }
+                };
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<Task>>> createCall() {
+                return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
+            }
+        }.asLiveData();
+//        return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
     }
 
     public LiveData<Resource<List<Task>>> loadAllTasks() {
@@ -57,7 +85,7 @@ public class TaskRepository {
             @NonNull
             @Override
             protected LiveData<ApiResponse<List<Task>>> createCall() {
-                return api.loadAllTasks();
+                return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
             }
         }.asLiveData();
     }
@@ -71,7 +99,7 @@ public class TaskRepository {
 
             @Override
             protected boolean shouldFetch(@Nullable List<Task> data) {
-                return false;
+                return true;
             }
 
             @NonNull
@@ -83,8 +111,7 @@ public class TaskRepository {
             @NonNull
             @Override
             protected LiveData<ApiResponse<List<Task>>> createCall() {
-                // FIXME: 2017/12/27 release remove
-                return api.loadAllTasks();
+                return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
             }
         }.asLiveData();
     }
@@ -121,5 +148,15 @@ public class TaskRepository {
 
     public void updateTask(Task task) {
         fileHelper.updateTask(task);
+    }
+
+    public boolean isTaskDownload(Task task) {
+        int[] ids = fileHelper.getLocalTaskIds();
+        for (int id : ids) {
+            if (id == task.getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

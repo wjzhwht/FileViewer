@@ -50,7 +50,7 @@ public class XeroApiImpl implements XeroApi {
 
     @Override
     public LiveData<ApiResponse<List<Task>>> loadAllTasks() {
-        // FIXME: 2017/11/3  mock server api
+        //  mock server api
         return new LiveData<ApiResponse<List<Task>>>() {
             @Override
             protected void onActive() {
@@ -78,8 +78,8 @@ public class XeroApiImpl implements XeroApi {
     }
 
     @Override
-    public LiveData<Resource<List<Task>>> getServerTasks(AppExecutors appExecutors, int[] localTaskIds) {
-        return new LiveData<Resource<List<Task>>>() {
+    public LiveData<ApiResponse<List<Task>>> getServerTasks(AppExecutors appExecutors, int[] localTaskIds) {
+        return new LiveData<ApiResponse<List<Task>>>() {
             @Override
             protected void onActive() {
                 super.onActive();
@@ -88,10 +88,11 @@ public class XeroApiImpl implements XeroApi {
                     List<Task> response = null;
                     try {
                         response = downloadSimpleTaskListFromServer(localTaskIds, false);
-                        postValue(Resource.success(response));
+                        postValue(new ApiResponse<>(response));
                     } catch (Exception e) {
                         e.printStackTrace();
-                        postValue(Resource.error(e.getMessage(), response));
+                        postValue(new ApiResponse<>(500, response, e.getMessage()));
+//                        postValue(Resource.error(e.getMessage(), response));
                     }
                 });
             }

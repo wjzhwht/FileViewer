@@ -21,6 +21,7 @@ import com.xerofox.fileviewer.ui.common.BaseFragment;
 import com.xerofox.fileviewer.ui.index.NavigationController;
 import com.xerofox.fileviewer.ui.part.TowerPartActivity;
 import com.xerofox.fileviewer.util.AutoClearedValue;
+import com.xerofox.fileviewer.util.ToastUtils;
 import com.xerofox.fileviewer.vo.Task;
 
 import javax.inject.Inject;
@@ -85,9 +86,13 @@ public class TaskFragment extends BaseFragment {
     }
 
     private void onItemClick(Task task) {
-        Intent intent = new Intent(getActivity(), TowerPartActivity.class);
-        intent.putExtra(TowerPartActivity.ARG_TASK, task);
-        startActivity(intent);
+        if (taskViewModel.isTaskDownload(task)) {
+            Intent intent = new Intent(getActivity(), TowerPartActivity.class);
+            intent.putExtra(TowerPartActivity.ARG_TASK, task);
+            startActivity(intent);
+        } else {
+            taskViewModel.download(task);
+        }
     }
 
     private void initRecyclerView() {
@@ -95,6 +100,21 @@ public class TaskFragment extends BaseFragment {
             binding.get().setResultCount(result == null || result.data == null ? 0 : result.data.size());
             adapter.get().replace(result == null ? null : result.data);
             binding.get().executePendingBindings();
+        });
+
+        taskViewModel.getDownloadState().observe(this, downloadState -> {
+            if (downloadState != null) {
+                if (downloadState.isDownloading()) {
+                    showProgressDialog();
+                } else {
+                    dismissProgressDialog();
+                    if (downloadState.getData() != null && !downloadState.getData().isEmpty()) {
+                        ToastUtils.showToast(R.string.download_success);
+                    } else {
+                        ToastUtils.showToast(downloadState.getErrorMessage());
+                    }
+                }
+            }
         });
 
     }

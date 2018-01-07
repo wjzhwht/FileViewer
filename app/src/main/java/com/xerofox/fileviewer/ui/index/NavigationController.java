@@ -35,7 +35,6 @@ public class NavigationController {
         TaskFragment searchFragment = new TaskFragment();
         fragmentManager.beginTransaction()
                 .replace(containerId, searchFragment)
-                .addToBackStack(null)
                 .commitAllowingStateLoss();
     }
 
