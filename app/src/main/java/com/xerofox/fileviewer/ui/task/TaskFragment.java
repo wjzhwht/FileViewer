@@ -46,7 +46,7 @@ public class TaskFragment extends BaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_download, menu);
+        inflater.inflate(R.menu.menu_task, menu);
     }
 
     @Override
