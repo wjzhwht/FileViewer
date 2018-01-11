@@ -10,6 +10,7 @@ import com.xerofox.fileviewer.api.ApiResponse;
 import com.xerofox.fileviewer.api.FileHelper;
 import com.xerofox.fileviewer.api.XeroApi;
 import com.xerofox.fileviewer.vo.ManuMenuFilter;
+import com.xerofox.fileviewer.vo.MaterialMenuFilter;
 import com.xerofox.fileviewer.vo.MenuFilter;
 import com.xerofox.fileviewer.vo.Resource;
 import com.xerofox.fileviewer.vo.SpecificationMenuFilter;
@@ -47,9 +48,14 @@ public class TowerRepository {
             protected void onActive() {
                 super.onActive();
                 List<String> list = new ArrayList<>();
-                list.add("塔型");
+                list.add("件号");
                 list.add("规格");
                 list.add("工艺");
+                list.add("材质");
+                list.add("数量");
+                list.add("塔型");
+                list.add("备注");
+
                 setValue(list);
             }
         };
@@ -62,18 +68,8 @@ public class TowerRepository {
                 super.onActive();
                 List<List<MenuFilter>> lists = new ArrayList<>();
 
-                //塔型filter
-                Task t = fileHelper.loadTask(task);
-                if (t != null && t.getPartList() != null && !t.getPartList().isEmpty()) {
-                    List<MenuFilter> menuFilters = new ArrayList<>();
-                    for (TowerPart part : t.getPartList()) {
-                        TowerTypeFilter filter = new TowerTypeFilter(part.getTowerTypeName());
-                        if (!menuFilters.contains(filter)) {
-                            menuFilters.add(filter);
-                        }
-                    }
-                    lists.add(menuFilters);
-                }
+                //件号
+                lists.add(new ArrayList<>());
 
                 //规格filter
                 List<MenuFilter> menuFilters1 = new ArrayList<>();
@@ -111,6 +107,41 @@ public class TowerRepository {
                     }
                 });
                 lists.add(menuFilters2);
+
+                //材质
+                List<MenuFilter> menuFilters3 = new ArrayList<>();
+                menuFilters2.add(new MaterialMenuFilter("Q235"));
+                menuFilters2.add(new MaterialMenuFilter("Q345"));
+                menuFilters2.add(new MaterialMenuFilter("Q390"));
+                menuFilters2.add(new MaterialMenuFilter("Q420"));
+                menuFilters2.add(new MaterialMenuFilter("Q490"));
+                menuFilters2.add(new ManuMenuFilter(MenuFilter.CLEAR) {
+
+                    @Override
+                    public boolean match(TowerPart part) {
+                        return true;
+                    }
+                });
+                lists.add(menuFilters3);
+
+                //数量
+                lists.add(new ArrayList<>());
+
+                //塔型filter
+                Task t = fileHelper.loadTask(task);
+                if (t != null && t.getPartList() != null && !t.getPartList().isEmpty()) {
+                    List<MenuFilter> menuFilters = new ArrayList<>();
+                    for (TowerPart part : t.getPartList()) {
+                        TowerTypeFilter filter = new TowerTypeFilter(part.getTowerTypeName());
+                        if (!menuFilters.contains(filter)) {
+                            menuFilters.add(filter);
+                        }
+                    }
+                    lists.add(menuFilters);
+                }
+
+                //备注
+                lists.add(new ArrayList<>());
 
                 setValue(lists);
             }
