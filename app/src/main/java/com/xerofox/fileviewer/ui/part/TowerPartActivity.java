@@ -148,62 +148,62 @@ public class TowerPartActivity extends BaseActivity {
     private void initPartList() {
         viewModel.getTowerParts().observe(this, data -> {
             if (data != null && !data.isEmpty()) {
-                checkUpdate(data);
+//                checkUpdate(data);
                 adapter.replace(data);
             } else {
                 adapter.replace(Collections.emptyList());
             }
         });
 
-        viewModel.getCheckUpdateParts().observe(this, resource -> {
-            if (resource != null) {
-                if (resource.status == Status.SUCCESS) {
-                    if (resource.data != null && !resource.data.isEmpty()) {
-                        invalidateOptionsMenu();
-                        adapter.setUpdateParts(resource.data);
-                        adapter.notifyDataSetChanged();
-                    }
-                } else if (resource.status == Status.ERROR) {
-                    invalidateOptionsMenu();
-                    ToastUtils.showToast(resource.message);
-                }
-            }
-        });
+//        viewModel.getCheckUpdateParts().observe(this, resource -> {
+//            if (resource != null) {
+//                if (resource.status == Status.SUCCESS) {
+//                    if (resource.data != null && !resource.data.isEmpty()) {
+//                        invalidateOptionsMenu();
+//                        adapter.setUpdateParts(resource.data);
+//                        adapter.notifyDataSetChanged();
+//                    }
+//                } else if (resource.status == Status.ERROR) {
+//                    invalidateOptionsMenu();
+//                    ToastUtils.showToast(resource.message);
+//                }
+//            }
+//        });
 
-        viewModel.getDownloadState().observe(this, downloadState -> {
-            if (downloadState != null) {
-                if (downloadState.isDownloading()) {
-                    showProgressDialog();
-                } else {
-                    dismissProgressDialog();
-                    viewModel.setTask(getTask());
-                }
-            }
-        });
+//        viewModel.getDownloadState().observe(this, downloadState -> {
+//            if (downloadState != null) {
+//                if (downloadState.isDownloading()) {
+//                    showProgressDialog();
+//                } else {
+//                    dismissProgressDialog();
+//                    viewModel.setTask(getTask());
+//                }
+//            }
+//        });
     }
 
-    private void showProgressDialog() {
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setCancelable(false);
-            progressDialog.setMessage(getString(R.string.downloading));
-        }
-        if (!progressDialog.isShowing()) {
-            progressDialog.show();
-        }
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            ToastUtils.showToast(R.string.download_success);
-            progressDialog.dismiss();
-        }
-    }
-
-    private void checkUpdate(List<TowerPart> data) {
-        if (!checkUpdate) {
-            checkUpdate = true;
-            viewModel.checkUpdate(getTask().getId(), data);
-        }
-    }
+//    private void showProgressDialog() {
+//        if (progressDialog == null) {
+//            progressDialog = new ProgressDialog(this);
+//            progressDialog.setCancelable(false);
+//            progressDialog.setMessage(getString(R.string.downloading));
+//        }
+//        if (!progressDialog.isShowing()) {
+//            progressDialog.show();
+//        }
+//    }
+//
+//    private void dismissProgressDialog() {
+//        if (progressDialog != null && progressDialog.isShowing()) {
+//            ToastUtils.showToast(R.string.download_success);
+//            progressDialog.dismiss();
+//        }
+//    }
+//
+//    private void checkUpdate(List<TowerPart> data) {
+//        if (!checkUpdate) {
+//            checkUpdate = true;
+//            viewModel.checkUpdate(getTask().getId(), data);
+//        }
+//    }
 }

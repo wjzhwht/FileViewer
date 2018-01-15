@@ -22,7 +22,7 @@ import javax.inject.Inject;
 public class TaskViewModel extends ViewModel {
 
     private final LiveData<Resource<List<Task>>> tasks;
-    private final MutableLiveData<Boolean> isActive = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLocal = new MutableLiveData<>();
     private final UpdateTaskHandler updateTaskHandler;
     private final DownloadTaskHandler downloadTaskHandler;
     private final CheckDownloadHandler checkDownloadHandler;
@@ -32,20 +32,20 @@ public class TaskViewModel extends ViewModel {
         updateTaskHandler = new UpdateTaskHandler(repository);
         downloadTaskHandler = new DownloadTaskHandler(repository);
         checkDownloadHandler = new CheckDownloadHandler(repository);
-        tasks = Transformations.switchMap(isActive, data -> {
+        tasks = Transformations.switchMap(isLocal, data -> {
             if (data == null || !data) {
-                return repository.loadAllTasks();
+                return repository.loadServerTasks();
             } else {
-                return repository.loadActiveTasks();
+                return repository.loadLocalTasks();
             }
         });
     }
 
-    void setIsActive(boolean isActive) {
-        if (this.isActive.getValue() != null && this.isActive.getValue() == isActive) {
+    void setIsLocal(boolean isLocal) {
+        if (this.isLocal.getValue() != null && this.isLocal.getValue() == isLocal) {
             return;
         }
-        this.isActive.setValue(isActive);
+        this.isLocal.setValue(isLocal);
     }
 
     LiveData<Resource<List<Task>>> getTasks() {

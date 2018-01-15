@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 
 import com.xerofox.fileviewer.R;
 import com.xerofox.fileviewer.databinding.SearchFragmentBinding;
-import com.xerofox.fileviewer.helper.SettingHelper;
 import com.xerofox.fileviewer.ui.common.BaseFragment;
 import com.xerofox.fileviewer.ui.index.NavigationController;
 import com.xerofox.fileviewer.ui.part.TowerPartActivity;
@@ -29,7 +28,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class TaskFragment extends BaseFragment {
+public class AutoQueryTaskFragment extends BaseFragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -78,24 +77,18 @@ public class TaskFragment extends BaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTitle(R.string.task_list);
-//        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         taskViewModel = ViewModelProviders.of(this, viewModelFactory).get(TaskViewModel.class);
         initRecyclerView();
         TaskListAdapter rvAdapter = new TaskListAdapter(this::onItemClick);
         binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
-        taskViewModel.setIsLocal(!SettingHelper.isAutoQuery());
+        taskViewModel.setIsLocal(true);
         setHasOptionsMenu(true);
     }
 
     private void onItemClick(Task task) {
-        if (!SettingHelper.isAutoQuery()) {
-            Intent intent = new Intent(getActivity(), TowerPartActivity.class);
-            intent.putExtra(TowerPartActivity.ARG_TASK, task);
-            startActivity(intent);
-        } else {
-            taskViewModel.download(task);
-        }
+        taskViewModel.download(task);
     }
 
     private void initRecyclerView() {

@@ -45,7 +45,7 @@ public class FunctionFragment extends BaseFragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         binding.layoutLookOver.setOnClickListener(v -> navigationController.navigateToSearch());
         binding.layoutSettings.setOnClickListener(v -> navigationController.navigateToSettings());
-        binding.layoutDownload.setOnClickListener(v -> navigationController.navigateToDownlaod());
+        binding.layoutDownload.setOnClickListener(v -> navigationController.navigateToDownload());
         binding.layoutTaskManage.setOnClickListener(v -> navigationController.navigateToTaskManager());
     }
 }

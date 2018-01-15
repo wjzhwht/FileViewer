@@ -64,7 +64,7 @@ public class TaskManagerFragment extends BaseFragment {
         TaskListAdapter rvAdapter = new TaskListAdapter(this::onTaskClick);
         binding.get().list.setAdapter(rvAdapter);
         adapter = new AutoClearedValue<>(this, rvAdapter);
-        viewModel.setIsActive(false);
+        viewModel.setIsLocal(false);
     }
 
     private void onTaskClick(Task task) {

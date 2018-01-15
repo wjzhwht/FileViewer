@@ -116,6 +116,65 @@ public class TaskRepository {
         }.asLiveData();
     }
 
+    public LiveData<Resource<List<Task>>> loadLocalTasks() {
+        return new NetworkBoundResource<List<Task>, List<Task>>(appExecutors) {
+
+            @Override
+            protected void saveCallResult(@NonNull List<Task> item) {
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Task> data) {
+                return false;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<Task>> loadFromDb() {
+                return fileHelper.loadActiveTasks();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<Task>>> createCall() {
+                return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
+            }
+        }.asLiveData();
+    }
+
+    public LiveData<Resource<List<Task>>> loadServerTasks() {
+        return new NetworkBoundResource<List<Task>, List<Task>>(appExecutors) {
+
+            @Override
+            protected void saveCallResult(@NonNull List<Task> item) {
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Task> data) {
+                return true;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<Task>> loadFromDb() {
+                return new LiveData<List<Task>>() {
+                    @Override
+                    protected void onActive() {
+                        super.onActive();
+                    }
+                };
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<Task>>> createCall() {
+                return api.getServerTasks(appExecutors, fileHelper.getLocalTaskIds());
+            }
+        }.asLiveData();
+    }
+
+
+
 
     public LiveData<Resource<List<Task>>> downloadTasks(List<Task> data) {
 //        return new NetworkBoundResource<Boolean,Boolean>(appExecutors){

@@ -78,6 +78,11 @@ public class XeroApiImpl implements XeroApi {
     }
 
     @Override
+    public LiveData<ApiResponse<List<Task>>> getServerTasks(AppExecutors appExecutors) {
+        return getServerTasks(appExecutors, new int[0]);
+    }
+
+    @Override
     public LiveData<ApiResponse<List<Task>>> getServerTasks(AppExecutors appExecutors, int[] localTaskIds) {
         return new LiveData<ApiResponse<List<Task>>>() {
             @Override

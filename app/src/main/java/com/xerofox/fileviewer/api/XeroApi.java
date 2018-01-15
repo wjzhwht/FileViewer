@@ -13,6 +13,8 @@ public interface XeroApi {
 
     LiveData<ApiResponse<List<Task>>> loadAllTasks();
 
+    LiveData<ApiResponse<List<Task>>> getServerTasks(AppExecutors appExecutors);
+
     LiveData<ApiResponse<List<Task>>> getServerTasks(AppExecutors appExecutors, int[] localTaskIds);
 
     LiveData<Resource<List<Task>>> downloadTasks(AppExecutors appExecutors, FileHelper fileHelper, List<Task> data);
