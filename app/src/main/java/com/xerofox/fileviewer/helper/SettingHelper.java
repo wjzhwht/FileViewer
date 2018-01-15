@@ -6,6 +6,7 @@ public class SettingHelper {
     private static final String SP_SERVER_PORT = "server port";
     private static final String SP_USER_NAME = "user name";
     private static final String SP_PASSWORD = "password";
+    private static final String SP_AUTO_QUERY = "auto query";
 
 
     public static Boolean isServerPortSetted() {
@@ -34,6 +35,14 @@ public class SettingHelper {
 
     public static void setPassword(String password) {
         SPUtils.getInstance().put(SP_PASSWORD, password);
+    }
+
+    public static boolean isAutoQuery() {
+        return SPUtils.getInstance().getBoolean(SP_AUTO_QUERY, true);
+    }
+
+    public static void setAutoQuery(boolean autoQuery) {
+        SPUtils.getInstance().put(SP_AUTO_QUERY, autoQuery);
     }
 
 

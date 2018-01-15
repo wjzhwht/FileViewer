@@ -47,6 +47,7 @@
     <string name="input_password">请输入密码</string>
     <string name="save">保存</string>
     <string name="unlimited">不限</string>
+    <string name="is_auto_query">是否开启在线实时查询</string>
 
     <array name="task_option">
         <item>激活</item>

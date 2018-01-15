@@ -39,6 +39,7 @@ public class SettingsFragment extends BaseFragment {
     }
 
     private void initInputListener() {
+        binding.playSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> SettingHelper.setAutoQuery(isChecked));
         binding.ip.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 String text = v.getText().toString().trim();
@@ -104,6 +105,7 @@ public class SettingsFragment extends BaseFragment {
         binding.setIp(SettingHelper.getServerPort());
         binding.setName(SettingHelper.getUserName());
         binding.setPassword(SettingHelper.getPassword());
+        binding.setAutoQuery(SettingHelper.isAutoQuery());
         binding.executePendingBindings();
         binding.ok.setOnClickListener(v -> {
             SettingHelper.setServerPort(binding.ip.getText().toString().trim());
